@@ -44,6 +44,13 @@ android {
     }
 }
 
+// Android Studio sync can create *RuntimeClasspathCopy configurations for model resolution.
+// Ensure they are resolution-only to avoid "resolution root and variant simultaneously" errors.
+configurations.matching { it.name.endsWith("RuntimeClasspathCopy") }.configureEach {
+    isCanBeConsumed = false
+}
+
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
