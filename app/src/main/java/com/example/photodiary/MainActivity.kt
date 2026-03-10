@@ -8,6 +8,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,10 +46,12 @@ import androidx.compose.ui.unit.dp
 
 private enum class AppScreen {
     Main,
-    Write
+    Write,
+    Detail
 }
 
 data class DiaryEntry(
+    val id: Long,
     val diaryDate: String,
     val title: String,
     val content: String,
@@ -72,12 +75,17 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var currentScreen by remember { mutableStateOf(AppScreen.Main) }
+                    var selectedEntryId by remember { mutableStateOf<Long?>(null) }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
 
                     when (currentScreen) {
                         AppScreen.Main -> MainScreen(
                             entries = diaryEntries.toList(),
-                            onWriteClick = { currentScreen = AppScreen.Write }
+                            onWriteClick = { currentScreen = AppScreen.Write },
+                            onEntryClick = { entryId ->
+                                selectedEntryId = entryId
+                                currentScreen = AppScreen.Detail
+                            }
                         )
 
                         AppScreen.Write -> WriteScreen(
@@ -86,6 +94,7 @@ class MainActivity : ComponentActivity() {
                                 val now = System.currentTimeMillis()
                                 diaryEntries.add(
                                     DiaryEntry(
+                                        id = now,
                                         diaryDate = diaryDate,
                                         title = title,
                                         content = content,
@@ -96,6 +105,18 @@ class MainActivity : ComponentActivity() {
                                 currentScreen = AppScreen.Main
                             }
                         )
+
+                        AppScreen.Detail -> {
+                            val selectedEntry = diaryEntries.firstOrNull { it.id == selectedEntryId }
+                            if (selectedEntry == null) {
+                                currentScreen = AppScreen.Main
+                            } else {
+                                DetailScreen(
+                                    entry = selectedEntry,
+                                    onBackClick = { currentScreen = AppScreen.Main }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -107,7 +128,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     entries: List<DiaryEntry>,
-    onWriteClick: () -> Unit
+    onWriteClick: () -> Unit,
+    onEntryClick: (Long) -> Unit
 ) {
     val context = LocalContext.current
     var lastBackPressedAt by remember { mutableLongStateOf(0L) }
@@ -151,6 +173,7 @@ fun MainScreen(
     ) { innerPadding ->
         DiaryListSection(
             entries = sortedEntries,
+            onEntryClick = onEntryClick,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -162,6 +185,7 @@ fun MainScreen(
 @Composable
 private fun DiaryListSection(
     entries: List<DiaryEntry>,
+    onEntryClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -179,9 +203,11 @@ private fun DiaryListSection(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                items(entries) { entry ->
+                items(entries, key = { it.id }) { entry ->
                     OutlinedCard(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onEntryClick(entry.id) }
                     ) {
                         Text(
                             text = entry.diaryDate,
