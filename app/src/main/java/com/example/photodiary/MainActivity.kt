@@ -47,7 +47,8 @@ import androidx.compose.ui.unit.dp
 private enum class AppScreen {
     Main,
     Write,
-    Detail
+    Detail,
+    Calendar
 }
 
 data class DiaryEntry(
@@ -76,17 +77,30 @@ class MainActivity : ComponentActivity() {
                 ) {
                     var currentScreen by remember { mutableStateOf(AppScreen.Main) }
                     var selectedEntryId by remember { mutableStateOf<Long?>(null) }
+                    var detailBackScreen by remember { mutableStateOf(AppScreen.Main) }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
 
                     when (currentScreen) {
                         AppScreen.Main -> MainScreen(
                             entries = diaryEntries.toList(),
+                            onCalendarClick = { currentScreen = AppScreen.Calendar },
                             onWriteClick = {
                                 selectedEntryId = null
                                 currentScreen = AppScreen.Write
                             },
                             onEntryClick = { entryId ->
                                 selectedEntryId = entryId
+                                detailBackScreen = AppScreen.Main
+                                currentScreen = AppScreen.Detail
+                            }
+                        )
+
+                        AppScreen.Calendar -> CalendarScreen(
+                            entries = diaryEntries.toList(),
+                            onBackClick = { currentScreen = AppScreen.Main },
+                            onEntryClick = { entryId ->
+                                selectedEntryId = entryId
+                                detailBackScreen = AppScreen.Calendar
                                 currentScreen = AppScreen.Detail
                             }
                         )
@@ -137,7 +151,7 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 DetailScreen(
                                     entry = selectedEntry,
-                                    onBackClick = { currentScreen = AppScreen.Main },
+                                    onBackClick = { currentScreen = detailBackScreen },
                                     onEditClick = { currentScreen = AppScreen.Write },
                                     onDeleteClick = {
                                         diaryEntries.removeAll { it.id == selectedEntry.id }
@@ -158,6 +172,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     entries: List<DiaryEntry>,
+    onCalendarClick: () -> Unit,
     onWriteClick: () -> Unit,
     onEntryClick: (Long) -> Unit
 ) {
@@ -195,7 +210,7 @@ fun MainScreen(
         },
         bottomBar = {
             BottomButtonBar(
-                onCalendarClick = { /* TODO */ },
+                onCalendarClick = onCalendarClick,
                 onWriteClick = onWriteClick,
                 onMyPageClick = { /* TODO */ }
             )
