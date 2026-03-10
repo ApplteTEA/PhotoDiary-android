@@ -31,7 +31,8 @@ import androidx.compose.ui.unit.dp
 fun DetailScreen(
     entry: DiaryEntry,
     onBackClick: () -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     BackHandler(onBack = onBackClick)
 
@@ -48,6 +49,9 @@ fun DetailScreen(
                 actions = {
                     TextButton(onClick = onEditClick) {
                         Text(text = "수정")
+                    }
+                    TextButton(onClick = onDeleteClick) {
+                        Text(text = "삭제")
                     }
                 },
                 windowInsets = WindowInsets.statusBars

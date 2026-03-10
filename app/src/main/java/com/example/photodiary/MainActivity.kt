@@ -138,7 +138,12 @@ class MainActivity : ComponentActivity() {
                                 DetailScreen(
                                     entry = selectedEntry,
                                     onBackClick = { currentScreen = AppScreen.Main },
-                                    onEditClick = { currentScreen = AppScreen.Write }
+                                    onEditClick = { currentScreen = AppScreen.Write },
+                                    onDeleteClick = {
+                                        diaryEntries.removeAll { it.id == selectedEntry.id }
+                                        selectedEntryId = null
+                                        currentScreen = AppScreen.Main
+                                    }
                                 )
                             }
                         }
