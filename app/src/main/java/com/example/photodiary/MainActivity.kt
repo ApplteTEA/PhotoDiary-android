@@ -24,7 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,6 +33,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +47,14 @@ private enum class AppScreen {
     Main,
     Write
 }
+
+data class DiaryEntry(
+    val diaryDate: String,
+    val title: String,
+    val content: String,
+    val createdAt: Long,
+    val updatedAt: Long
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,15 +72,29 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var currentScreen by remember { mutableStateOf(AppScreen.Main) }
+                    val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
 
                     when (currentScreen) {
                         AppScreen.Main -> MainScreen(
+                            entries = diaryEntries.toList(),
                             onWriteClick = { currentScreen = AppScreen.Write }
                         )
 
                         AppScreen.Write -> WriteScreen(
                             onBackClick = { currentScreen = AppScreen.Main },
-                            onSaveClick = { /* TODO */ }
+                            onSaveClick = { diaryDate, title, content ->
+                                val now = System.currentTimeMillis()
+                                diaryEntries.add(
+                                    DiaryEntry(
+                                        diaryDate = diaryDate,
+                                        title = title,
+                                        content = content,
+                                        createdAt = now,
+                                        updatedAt = now
+                                    )
+                                )
+                                currentScreen = AppScreen.Main
+                            }
                         )
                     }
                 }
@@ -83,6 +106,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+    entries: List<DiaryEntry>,
     onWriteClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -102,11 +126,12 @@ fun MainScreen(
         }
     }
 
-    val dummyEntries = listOf(
-        "2026-03-10 · 산책 사진",
-        "2026-03-09 · 카페 기록",
-        "2026-03-08 · 저녁 일기"
-    )
+    val sortedEntries = remember(entries) {
+        entries.sortedWith(
+            compareByDescending<DiaryEntry> { it.diaryDate }
+                .thenByDescending { it.createdAt }
+        )
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -125,7 +150,7 @@ fun MainScreen(
         }
     ) { innerPadding ->
         DiaryListSection(
-            entries = dummyEntries,
+            entries = sortedEntries,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -136,7 +161,7 @@ fun MainScreen(
 
 @Composable
 private fun DiaryListSection(
-    entries: List<String>,
+    entries: List<DiaryEntry>,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -155,15 +180,26 @@ private fun DiaryListSection(
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 items(entries) { entry ->
-                    OutlinedButton(
-                        onClick = { /* TODO */ },
+                    OutlinedCard(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = entry,
+                            text = entry.diaryDate,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
+                                .padding(start = 12.dp, top = 12.dp, end = 12.dp),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Text(
+                            text = entry.title,
+                            modifier = Modifier
+                                .padding(start = 12.dp, top = 6.dp, end = 12.dp),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = entry.content,
+                            modifier = Modifier
+                                .padding(start = 12.dp, top = 4.dp, end = 12.dp, bottom = 12.dp),
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
