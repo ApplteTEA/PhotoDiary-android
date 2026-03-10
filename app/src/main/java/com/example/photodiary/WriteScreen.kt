@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.rememberScrollState
+https://github.com/ApplteTEA/PhotoDiary-android/pull/11/conflict?name=app%252Fsrc%252Fmain%252Fjava%252Fcom%252Fexample%252Fphotodiary%252FWriteScreen.kt&base_oid=e944da21804e4bdc0afd54cc804522957b00cf65&head_oid=f8c8b1ce32f44d4acb6f594b9051aa9d808323f5import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
