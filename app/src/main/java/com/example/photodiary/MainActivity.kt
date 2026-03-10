@@ -33,6 +33,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +41,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
+private enum class AppScreen {
+    Main,
+    Write
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +62,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    var currentScreen by remember { mutableStateOf(AppScreen.Main) }
+
+                    when (currentScreen) {
+                        AppScreen.Main -> MainScreen(
+                            onWriteClick = { currentScreen = AppScreen.Write }
+                        )
+
+                        AppScreen.Write -> WriteScreen(
+                            onBackClick = { currentScreen = AppScreen.Main },
+                            onSaveClick = { /* TODO */ }
+                        )
+                    }
                 }
             }
         }
@@ -65,7 +82,9 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onWriteClick: () -> Unit
+) {
     val context = LocalContext.current
     var lastBackPressedAt by remember { mutableLongStateOf(0L) }
 
@@ -100,7 +119,7 @@ fun MainScreen() {
         bottomBar = {
             BottomButtonBar(
                 onCalendarClick = { /* TODO */ },
-                onWriteClick = { /* TODO */ },
+                onWriteClick = onWriteClick,
                 onMyPageClick = { /* TODO */ }
             )
         }
