@@ -81,30 +81,54 @@ class MainActivity : ComponentActivity() {
                     when (currentScreen) {
                         AppScreen.Main -> MainScreen(
                             entries = diaryEntries.toList(),
-                            onWriteClick = { currentScreen = AppScreen.Write },
+                            onWriteClick = {
+                                selectedEntryId = null
+                                currentScreen = AppScreen.Write
+                            },
                             onEntryClick = { entryId ->
                                 selectedEntryId = entryId
                                 currentScreen = AppScreen.Detail
                             }
                         )
 
-                        AppScreen.Write -> WriteScreen(
-                            onBackClick = { currentScreen = AppScreen.Main },
-                            onSaveClick = { diaryDate, title, content ->
-                                val now = System.currentTimeMillis()
-                                diaryEntries.add(
-                                    DiaryEntry(
-                                        id = now,
-                                        diaryDate = diaryDate,
-                                        title = title,
-                                        content = content,
-                                        createdAt = now,
-                                        updatedAt = now
-                                    )
-                                )
-                                currentScreen = AppScreen.Main
-                            }
-                        )
+                        AppScreen.Write -> {
+                            val editingEntry = diaryEntries.firstOrNull { it.id == selectedEntryId }
+                            WriteScreen(
+                                onBackClick = {
+                                    currentScreen = if (editingEntry == null) AppScreen.Main else AppScreen.Detail
+                                },
+                                initialDiaryDate = editingEntry?.diaryDate,
+                                initialTitle = editingEntry?.title.orEmpty(),
+                                initialContent = editingEntry?.content.orEmpty(),
+                                onSaveClick = { diaryDate, title, content ->
+                                    val now = System.currentTimeMillis()
+                                    if (editingEntry == null) {
+                                        diaryEntries.add(
+                                            DiaryEntry(
+                                                id = now,
+                                                diaryDate = diaryDate,
+                                                title = title,
+                                                content = content,
+                                                createdAt = now,
+                                                updatedAt = now
+                                            )
+                                        )
+                                        currentScreen = AppScreen.Main
+                                    } else {
+                                        val index = diaryEntries.indexOfFirst { it.id == editingEntry.id }
+                                        if (index >= 0) {
+                                            diaryEntries[index] = diaryEntries[index].copy(
+                                                diaryDate = diaryDate,
+                                                title = title,
+                                                content = content,
+                                                updatedAt = now
+                                            )
+                                        }
+                                        currentScreen = AppScreen.Detail
+                                    }
+                                }
+                            )
+                        }
 
                         AppScreen.Detail -> {
                             val selectedEntry = diaryEntries.firstOrNull { it.id == selectedEntryId }
@@ -113,7 +137,8 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 DetailScreen(
                                     entry = selectedEntry,
-                                    onBackClick = { currentScreen = AppScreen.Main }
+                                    onBackClick = { currentScreen = AppScreen.Main },
+                                    onEditClick = { currentScreen = AppScreen.Write }
                                 )
                             }
                         }

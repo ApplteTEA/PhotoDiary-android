@@ -30,7 +30,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DetailScreen(
     entry: DiaryEntry,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     BackHandler(onBack = onBackClick)
 
@@ -42,6 +43,11 @@ fun DetailScreen(
                 navigationIcon = {
                     TextButton(onClick = onBackClick) {
                         Text(text = "뒤로")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = onEditClick) {
+                        Text(text = "수정")
                     }
                 },
                 windowInsets = WindowInsets.statusBars

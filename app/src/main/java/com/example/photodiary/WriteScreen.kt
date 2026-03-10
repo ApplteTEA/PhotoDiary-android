@@ -43,6 +43,9 @@ import java.util.Locale
 @Composable
 fun WriteScreen(
     onBackClick: () -> Unit,
+    initialDiaryDate: String? = null,
+    initialTitle: String = "",
+    initialContent: String = "",
     onSaveClick: (diaryDate: String, title: String, content: String) -> Unit
 ) {
     BackHandler(onBack = onBackClick)
@@ -50,9 +53,18 @@ fun WriteScreen(
     val context = LocalContext.current
     val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
-    var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    var title by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
+    val initialDateMillis = remember(initialDiaryDate) {
+        if (initialDiaryDate.isNullOrBlank()) {
+            System.currentTimeMillis()
+        } else {
+            runCatching { dateFormatter.parse(initialDiaryDate)?.time ?: System.currentTimeMillis() }
+                .getOrElse { System.currentTimeMillis() }
+        }
+    }
+
+    var selectedDateMillis by remember(initialDateMillis) { mutableLongStateOf(initialDateMillis) }
+    var title by remember(initialTitle) { mutableStateOf(initialTitle) }
+    var content by remember(initialContent) { mutableStateOf(initialContent) }
 
     val selectedDateText = remember(selectedDateMillis) {
         dateFormatter.format(selectedDateMillis)
