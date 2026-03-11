@@ -213,7 +213,7 @@ fun CalendarScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp),
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(filteredEntries, key = { it.id }) { entry ->
@@ -222,23 +222,23 @@ fun CalendarScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onEntryClick(entry.id) },
-                                shape = RoundedCornerShape(18.dp),
+                                shape = RoundedCornerShape(16.dp),
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
                                 ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                             ) {
                                 Text(
                                     text = entry.diaryDate.toDisplayDate(),
                                     modifier = Modifier
-                                        .padding(start = 14.dp, top = 14.dp, end = 14.dp),
-                                    style = MaterialTheme.typography.labelMedium
+                                        .padding(start = 12.dp, top = 12.dp, end = 12.dp),
+                                    style = MaterialTheme.typography.labelSmall
                                         .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 )
                                 Text(
                                     text = entry.title,
                                     modifier = Modifier
-                                        .padding(start = 14.dp, top = 4.dp, end = 14.dp),
+                                        .padding(start = 12.dp, top = 2.dp, end = 12.dp),
                                     style = MaterialTheme.typography.titleMedium,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -246,41 +246,34 @@ fun CalendarScreen(
                                 Text(
                                     text = entry.content,
                                     modifier = Modifier
-                                        .padding(start = 14.dp, top = 6.dp, end = 14.dp),
+                                        .padding(start = 12.dp, top = 4.dp, end = 12.dp),
                                     style = MaterialTheme.typography.bodyMedium,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
                                 )
 
                                 if (imagePaths.isNotEmpty()) {
-                                    Column(
+                                    Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(start = 14.dp, top = 10.dp, end = 14.dp, bottom = 14.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        imagePaths.chunked(3).forEach { rowImages ->
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                            ) {
-                                                rowImages.forEach { imagePath ->
-                                                    AsyncImage(
-                                                        model = imagePath,
-                                                        contentDescription = "첨부 이미지",
-                                                        modifier = Modifier
-                                                            .weight(1f)
-                                                            .aspectRatio(1f)
-                                                    )
-                                                }
-                                                repeat(3 - rowImages.size) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .weight(1f)
-                                                            .aspectRatio(1f)
-                                                    )
-                                                }
-                                            }
+                                        imagePaths.forEach { imagePath ->
+                                            AsyncImage(
+                                                model = imagePath,
+                                                contentDescription = "첨부 이미지",
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .aspectRatio(1f)
+                                            )
+                                        }
+                                        repeat(5 - imagePaths.size) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .aspectRatio(1f)
+                                            )
                                         }
                                     }
                                 }
@@ -304,7 +297,7 @@ private fun WeekHeader() {
                     .weight(1f)
                     .padding(vertical = 8.dp),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelSmall
             )
         }
     }
