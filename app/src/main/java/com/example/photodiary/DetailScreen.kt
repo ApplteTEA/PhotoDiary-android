@@ -127,17 +127,11 @@ fun DetailScreen(
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            Text(
-                text = "사진",
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            if (imagePaths.isEmpty()) {
+            if (imagePaths.isNotEmpty()) {
                 Text(
-                    text = "사진이 없습니다.",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "사진",
+                    style = MaterialTheme.typography.titleSmall
                 )
-            } else {
                 imagePaths.forEachIndexed { index, _ ->
                     if (index % 2 == 0) {
                         val leftImage = imagePaths.getOrNull(index)
