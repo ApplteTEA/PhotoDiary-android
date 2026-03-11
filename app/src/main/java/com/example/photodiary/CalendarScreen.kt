@@ -49,6 +49,8 @@ import java.util.Locale
 @Composable
 fun CalendarScreen(
     entries: List<DiaryEntry>,
+    initialSelectedDateMillis: Long,
+    onSelectedDateChange: (Long) -> Unit,
     onBackClick: () -> Unit,
     onEntryClick: (Long) -> Unit
 ) {
@@ -57,7 +59,9 @@ fun CalendarScreen(
     val context = LocalContext.current
     val monthFormatter = remember { SimpleDateFormat("yyyy년 M월", Locale.getDefault()) }
 
-    var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis().toDayStartMillis()) }
+    var selectedDateMillis by remember(initialSelectedDateMillis) {
+        mutableLongStateOf(initialSelectedDateMillis.toDayStartMillis())
+    }
 
     val selectedCalendar = remember(selectedDateMillis) {
         Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
@@ -126,7 +130,7 @@ fun CalendarScreen(
                             set(Calendar.YEAR, currentYear)
                             set(Calendar.MONTH, currentMonth)
                             set(Calendar.DAY_OF_MONTH, 1)
-                        }.timeInMillis.toDayStartMillis()
+                        }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
                     }
                 ) { Text(text = "◀") }
 
@@ -141,7 +145,7 @@ fun CalendarScreen(
                                     set(Calendar.YEAR, year)
                                     set(Calendar.MONTH, month)
                                     set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                }.timeInMillis.toDayStartMillis()
+                                }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
                             },
                             currentYear,
                             currentMonth,
@@ -164,7 +168,7 @@ fun CalendarScreen(
                             set(Calendar.YEAR, currentYear)
                             set(Calendar.MONTH, currentMonth)
                             set(Calendar.DAY_OF_MONTH, 1)
-                        }.timeInMillis.toDayStartMillis()
+                        }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
                     }
                 ) { Text(text = "▶") }
             }
@@ -177,7 +181,7 @@ fun CalendarScreen(
                 selectedDateMillis = selectedDay,
                 diaryDateSet = diaryDateSet,
                 onDateClick = { clicked ->
-                    selectedDateMillis = clicked.toDayStartMillis()
+                    selectedDateMillis = clicked.toDayStartMillis().also(onSelectedDateChange)
                     val cal = Calendar.getInstance().apply { timeInMillis = clicked }
                     currentYear = cal.get(Calendar.YEAR)
                     currentMonth = cal.get(Calendar.MONTH)
