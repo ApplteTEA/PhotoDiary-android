@@ -24,9 +24,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -212,28 +213,32 @@ fun CalendarScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(filteredEntries, key = { it.id }) { entry ->
                             val imagePaths = entry.imagePath.toImagePathList().take(5)
-                            OutlinedCard(
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onEntryClick(entry.id) },
-                                shape = RoundedCornerShape(16.dp)
+                                shape = RoundedCornerShape(18.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
                                 Text(
                                     text = entry.diaryDate.toDisplayDate(),
                                     modifier = Modifier
-                                        .padding(start = 12.dp, top = 10.dp, end = 12.dp),
-                                    style = MaterialTheme.typography.labelLarge
-                                        .copy(color = MaterialTheme.colorScheme.primary)
+                                        .padding(start = 14.dp, top = 14.dp, end = 14.dp),
+                                    style = MaterialTheme.typography.labelMedium
+                                        .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 )
                                 Text(
                                     text = entry.title,
                                     modifier = Modifier
-                                        .padding(start = 12.dp, top = 4.dp, end = 12.dp),
+                                        .padding(start = 14.dp, top = 4.dp, end = 14.dp),
                                     style = MaterialTheme.typography.titleMedium,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -241,7 +246,7 @@ fun CalendarScreen(
                                 Text(
                                     text = entry.content,
                                     modifier = Modifier
-                                        .padding(start = 12.dp, top = 2.dp, end = 12.dp),
+                                        .padding(start = 14.dp, top = 6.dp, end = 14.dp),
                                     style = MaterialTheme.typography.bodyMedium,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
@@ -251,7 +256,7 @@ fun CalendarScreen(
                                     Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(start = 12.dp, top = 6.dp, end = 12.dp, bottom = 10.dp),
+                                            .padding(start = 14.dp, top = 10.dp, end = 14.dp, bottom = 14.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         imagePaths.chunked(3).forEach { rowImages ->
