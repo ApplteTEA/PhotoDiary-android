@@ -68,7 +68,7 @@ fun DetailScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = entry.diaryDate,
+                text = entry.diaryDate.toDisplayDate(),
                 style = MaterialTheme.typography.labelLarge
             )
 

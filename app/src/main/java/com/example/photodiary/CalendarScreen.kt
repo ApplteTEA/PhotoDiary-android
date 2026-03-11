@@ -56,9 +56,8 @@ fun CalendarScreen(
 
     val context = LocalContext.current
     val monthFormatter = remember { SimpleDateFormat("yyyy년 M월", Locale.getDefault()) }
-    val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
-    var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis().toDayStartMillis()) }
 
     val selectedCalendar = remember(selectedDateMillis) {
         Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
@@ -74,12 +73,12 @@ fun CalendarScreen(
         }.time.let(monthFormatter::format)
     }
 
-    val selectedDateText = remember(selectedDateMillis) { dateFormatter.format(selectedDateMillis) }
-    val diaryDateSet = remember(entries) { entries.map { it.diaryDate }.toSet() }
+    val selectedDay = remember(selectedDateMillis) { selectedDateMillis.toDayStartMillis() }
+    val diaryDateSet = remember(entries) { entries.map { it.diaryDate.toDayStartMillis() }.toSet() }
 
-    val filteredEntries = remember(entries, selectedDateText) {
+    val filteredEntries = remember(entries, selectedDay) {
         entries
-            .filter { it.diaryDate == selectedDateText }
+            .filter { it.diaryDate.toDayStartMillis() == selectedDay }
             .sortedWith(
                 compareByDescending<DiaryEntry> { it.diaryDate }
                     .thenByDescending { it.createdAt }
@@ -127,11 +126,9 @@ fun CalendarScreen(
                             set(Calendar.YEAR, currentYear)
                             set(Calendar.MONTH, currentMonth)
                             set(Calendar.DAY_OF_MONTH, 1)
-                        }.timeInMillis
+                        }.timeInMillis.toDayStartMillis()
                     }
-                ) {
-                    Text(text = "◀")
-                }
+                ) { Text(text = "◀") }
 
                 TextButton(
                     onClick = {
@@ -144,16 +141,14 @@ fun CalendarScreen(
                                     set(Calendar.YEAR, year)
                                     set(Calendar.MONTH, month)
                                     set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                }.timeInMillis
+                                }.timeInMillis.toDayStartMillis()
                             },
                             currentYear,
                             currentMonth,
                             selectedCalendar.get(Calendar.DAY_OF_MONTH)
                         ).show()
                     }
-                ) {
-                    Text(text = monthTitle)
-                }
+                ) { Text(text = monthTitle) }
 
                 TextButton(
                     onClick = {
@@ -169,11 +164,9 @@ fun CalendarScreen(
                             set(Calendar.YEAR, currentYear)
                             set(Calendar.MONTH, currentMonth)
                             set(Calendar.DAY_OF_MONTH, 1)
-                        }.timeInMillis
+                        }.timeInMillis.toDayStartMillis()
                     }
-                ) {
-                    Text(text = "▶")
-                }
+                ) { Text(text = "▶") }
             }
 
             WeekHeader()
@@ -181,10 +174,10 @@ fun CalendarScreen(
             MonthGrid(
                 year = currentYear,
                 month = currentMonth,
-                selectedDateText = selectedDateText,
+                selectedDateMillis = selectedDay,
                 diaryDateSet = diaryDateSet,
                 onDateClick = { clicked ->
-                    selectedDateMillis = clicked
+                    selectedDateMillis = clicked.toDayStartMillis()
                     val cal = Calendar.getInstance().apply { timeInMillis = clicked }
                     currentYear = cal.get(Calendar.YEAR)
                     currentMonth = cal.get(Calendar.MONTH)
@@ -217,7 +210,7 @@ fun CalendarScreen(
                                     .clickable { onEntryClick(entry.id) }
                             ) {
                                 Text(
-                                    text = entry.diaryDate,
+                                    text = entry.diaryDate.toDisplayDate(),
                                     modifier = Modifier
                                         .padding(start = 12.dp, top = 12.dp, end = 12.dp),
                                     style = MaterialTheme.typography.labelLarge
@@ -264,11 +257,10 @@ private fun WeekHeader() {
 private fun MonthGrid(
     year: Int,
     month: Int,
-    selectedDateText: String,
-    diaryDateSet: Set<String>,
+    selectedDateMillis: Long,
+    diaryDateSet: Set<Long>,
     onDateClick: (Long) -> Unit
 ) {
-    val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
     val firstDay = Calendar.getInstance().apply {
         set(Calendar.YEAR, year)
         set(Calendar.MONTH, month)
@@ -292,10 +284,9 @@ private fun MonthGrid(
                             set(Calendar.MONTH, month)
                             set(Calendar.DAY_OF_MONTH, dayNumber)
                         }
-                        val dateMillis = dateCalendar.timeInMillis
-                        val dateText = dateFormatter.format(dateMillis)
-                        val isSelected = dateText == selectedDateText
-                        val hasDiary = diaryDateSet.contains(dateText)
+                        val dateMillis = dateCalendar.timeInMillis.toDayStartMillis()
+                        val isSelected = dateMillis == selectedDateMillis.toDayStartMillis()
+                        val hasDiary = diaryDateSet.contains(dateMillis)
 
                         Box(
                             modifier = Modifier

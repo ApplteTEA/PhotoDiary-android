@@ -35,40 +35,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WriteScreen(
     onBackClick: () -> Unit,
-    initialDiaryDate: String? = null,
+    initialDiaryDate: Long? = null,
     initialTitle: String = "",
     initialContent: String = "",
-    onSaveClick: (diaryDate: String, title: String, content: String) -> Unit
+    onSaveClick: (diaryDate: Long, title: String, content: String) -> Unit
 ) {
     BackHandler(onBack = onBackClick)
 
     val context = LocalContext.current
-    val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
     val initialDateMillis = remember(initialDiaryDate) {
-        if (initialDiaryDate.isNullOrBlank()) {
-            System.currentTimeMillis()
-        } else {
-            runCatching { dateFormatter.parse(initialDiaryDate)?.time ?: System.currentTimeMillis() }
-                .getOrElse { System.currentTimeMillis() }
-        }
+        (initialDiaryDate ?: System.currentTimeMillis()).toDayStartMillis()
     }
 
     var selectedDateMillis by remember(initialDateMillis) { mutableLongStateOf(initialDateMillis) }
     var title by remember(initialTitle) { mutableStateOf(initialTitle) }
     var content by remember(initialContent) { mutableStateOf(initialContent) }
-
-    val selectedDateText = remember(selectedDateMillis) {
-        dateFormatter.format(selectedDateMillis)
-    }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -91,7 +79,7 @@ fun WriteScreen(
                                 ).show()
                             } else {
                                 onSaveClick(
-                                    selectedDateText,
+                                    selectedDateMillis.toDayStartMillis(),
                                     title.trim(),
                                     content.trim()
                                 )
@@ -122,12 +110,11 @@ fun WriteScreen(
                     DatePickerDialog(
                         context,
                         { _, year, month, dayOfMonth ->
-                            val picked = Calendar.getInstance().apply {
+                            selectedDateMillis = Calendar.getInstance().apply {
                                 set(Calendar.YEAR, year)
                                 set(Calendar.MONTH, month)
                                 set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                            }
-                            selectedDateMillis = picked.timeInMillis
+                            }.timeInMillis.toDayStartMillis()
                         },
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
@@ -136,7 +123,7 @@ fun WriteScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "날짜: $selectedDateText")
+                Text(text = "날짜: ${selectedDateMillis.toDisplayDate()}")
             }
 
             OutlinedTextField(

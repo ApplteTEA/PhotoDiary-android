@@ -32,17 +32,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private enum class AppScreen {
     Main,
@@ -53,9 +58,10 @@ private enum class AppScreen {
 
 data class DiaryEntry(
     val id: Long,
-    val diaryDate: String,
+    val diaryDate: Long,
     val title: String,
     val content: String,
+    val imagePath: String?,
     val createdAt: Long,
     val updatedAt: Long
 )
@@ -79,6 +85,12 @@ class MainActivity : ComponentActivity() {
                     var selectedEntryId by remember { mutableStateOf<Long?>(null) }
                     var detailBackScreen by remember { mutableStateOf(AppScreen.Main) }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
+                    val scope = rememberCoroutineScope()
+                    val dao = remember { DiaryDatabase.getInstance(applicationContext).diaryDao() }
+
+                    LaunchedEffect(Unit) {
+                        diaryEntries.replaceFromDatabase(dao)
+                    }
 
                     when (currentScreen) {
                         AppScreen.Main -> MainScreen(
@@ -116,29 +128,32 @@ class MainActivity : ComponentActivity() {
                                 initialContent = editingEntry?.content.orEmpty(),
                                 onSaveClick = { diaryDate, title, content ->
                                     val now = System.currentTimeMillis()
-                                    if (editingEntry == null) {
-                                        diaryEntries.add(
-                                            DiaryEntry(
-                                                id = now,
-                                                diaryDate = diaryDate,
-                                                title = title,
-                                                content = content,
-                                                createdAt = now,
-                                                updatedAt = now
-                                            )
-                                        )
-                                        currentScreen = AppScreen.Main
-                                    } else {
-                                        val index = diaryEntries.indexOfFirst { it.id == editingEntry.id }
-                                        if (index >= 0) {
-                                            diaryEntries[index] = diaryEntries[index].copy(
-                                                diaryDate = diaryDate,
-                                                title = title,
-                                                content = content,
-                                                updatedAt = now
-                                            )
+                                    scope.launch {
+                                        withContext(Dispatchers.IO) {
+                                            if (editingEntry == null) {
+                                                dao.insert(
+                                                    DiaryEntity(
+                                                        diaryDate = diaryDate.toDayStartMillis(),
+                                                        title = title,
+                                                        content = content,
+                                                        imagePath = null,
+                                                        createdAt = now,
+                                                        updatedAt = now
+                                                    )
+                                                )
+                                            } else {
+                                                dao.update(
+                                                    editingEntry.copy(
+                                                        diaryDate = diaryDate.toDayStartMillis(),
+                                                        title = title,
+                                                        content = content,
+                                                        updatedAt = now
+                                                    ).toEntity()
+                                                )
+                                            }
                                         }
-                                        currentScreen = AppScreen.Detail
+                                        diaryEntries.replaceFromDatabase(dao)
+                                        currentScreen = if (editingEntry == null) AppScreen.Main else AppScreen.Detail
                                     }
                                 }
                             )
@@ -154,9 +169,14 @@ class MainActivity : ComponentActivity() {
                                     onBackClick = { currentScreen = detailBackScreen },
                                     onEditClick = { currentScreen = AppScreen.Write },
                                     onDeleteClick = {
-                                        diaryEntries.removeAll { it.id == selectedEntry.id }
-                                        selectedEntryId = null
-                                        currentScreen = AppScreen.Main
+                                        scope.launch {
+                                            withContext(Dispatchers.IO) {
+                                                dao.delete(selectedEntry.toEntity())
+                                            }
+                                            diaryEntries.replaceFromDatabase(dao)
+                                            selectedEntryId = null
+                                            currentScreen = AppScreen.Main
+                                        }
                                     }
                                 )
                             }
@@ -255,7 +275,7 @@ private fun DiaryListSection(
                             .clickable { onEntryClick(entry.id) }
                     ) {
                         Text(
-                            text = entry.diaryDate,
+                            text = entry.diaryDate.toDisplayDate(),
                             modifier = Modifier
                                 .padding(start = 12.dp, top = 12.dp, end = 12.dp),
                             style = MaterialTheme.typography.labelLarge
@@ -316,4 +336,12 @@ private fun BottomButtonBar(
             Text(text = "MyPage")
         }
     }
+}
+
+private suspend fun MutableList<DiaryEntry>.replaceFromDatabase(dao: DiaryDao) {
+    val loaded = withContext(Dispatchers.IO) {
+        dao.getAllOrdered().map { it.toUiModel() }
+    }
+    clear()
+    addAll(loaded)
 }
