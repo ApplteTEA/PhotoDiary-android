@@ -70,6 +70,8 @@ fun DetailScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            val imagePaths = entry.imagePath.toImagePathList()
+
             Text(
                 text = entry.diaryDate.toDisplayDate(),
                 style = MaterialTheme.typography.labelLarge
@@ -99,20 +101,24 @@ fun DetailScreen(
                     )
                     .padding(12.dp)
             ) {
-                if (entry.imagePath.isNullOrBlank()) {
+                if (imagePaths.isEmpty()) {
                     Text(
                         text = "사진이 없습니다.",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 } else {
-                    AsyncImage(
-                        model = Uri.parse(entry.imagePath),
-                        contentDescription = "저장된 사진",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 420.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        imagePaths.forEachIndexed { index, imagePath ->
+                            AsyncImage(
+                                model = Uri.parse(imagePath),
+                                contentDescription = "저장된 사진 ${index + 1}",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 420.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
                 }
             }
         }

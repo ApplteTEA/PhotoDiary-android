@@ -131,8 +131,8 @@ class MainActivity : ComponentActivity() {
                                 initialDiaryDate = editingEntry?.diaryDate,
                                 initialTitle = editingEntry?.title.orEmpty(),
                                 initialContent = editingEntry?.content.orEmpty(),
-                                initialImagePath = editingEntry?.imagePath,
-                                onSaveClick = { diaryDate, title, content, imagePath ->
+                                initialImagePaths = editingEntry?.imagePath.toImagePathList(),
+                                onSaveClick = { diaryDate, title, content, imagePaths ->
                                     val now = System.currentTimeMillis()
                                     scope.launch {
                                         withContext(Dispatchers.IO) {
@@ -142,7 +142,7 @@ class MainActivity : ComponentActivity() {
                                                         diaryDate = diaryDate.toDayStartMillis(),
                                                         title = title,
                                                         content = content,
-                                                        imagePath = imagePath,
+                                                        imagePath = imagePaths.toImagePathPayload(),
                                                         createdAt = now,
                                                         updatedAt = now
                                                     )
@@ -153,7 +153,7 @@ class MainActivity : ComponentActivity() {
                                                         diaryDate = diaryDate.toDayStartMillis(),
                                                         title = title,
                                                         content = content,
-                                                        imagePath = imagePath,
+                                                        imagePath = imagePaths.toImagePathPayload(),
                                                         updatedAt = now
                                                     ).toEntity()
                                                 )

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import org.json.JSONArray
 
 private val displayDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -18,3 +19,26 @@ fun Long.toDayStartMillis(): Long {
 }
 
 fun Long.toDisplayDate(): String = displayDateFormatter.format(Date(this))
+
+fun String?.toImagePathList(): List<String> {
+    if (this.isNullOrBlank()) return emptyList()
+
+    return runCatching {
+        val json = JSONArray(this)
+        List(json.length()) { index -> json.optString(index) }
+            .filter { it.isNotBlank() }
+    }.getOrElse {
+        listOf(this)
+    }
+}
+
+fun List<String>.toImagePathPayload(): String? {
+    if (isEmpty()) return null
+    val json = JSONArray()
+    forEach { path ->
+        if (path.isNotBlank()) {
+            json.put(path)
+        }
+    }
+    return if (json.length() == 0) null else json.toString()
+}

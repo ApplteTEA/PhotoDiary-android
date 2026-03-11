@@ -20,12 +20,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -36,7 +32,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -50,6 +46,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+private const val MAX_IMAGE_COUNT = 5
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WriteScreen(
@@ -57,8 +55,8 @@ fun WriteScreen(
     initialDiaryDate: Long? = null,
     initialTitle: String = "",
     initialContent: String = "",
-    initialImagePath: String? = null,
-    onSaveClick: (diaryDate: Long, title: String, content: String, imagePath: String?) -> Unit
+    initialImagePaths: List<String> = emptyList(),
+    onSaveClick: (diaryDate: Long, title: String, content: String, imagePaths: List<String>) -> Unit
 ) {
     BackHandler(onBack = onBackClick)
 
@@ -69,25 +67,43 @@ fun WriteScreen(
     }
 
     var selectedDateMillis by remember(initialDateMillis) { mutableLongStateOf(initialDateMillis) }
-    var title by remember(initialTitle) { mutableStateOf(initialTitle) }
-    var content by remember(initialContent) { mutableStateOf(initialContent) }
-    var imagePath by remember(initialImagePath) { mutableStateOf(initialImagePath) }
-    var showAttachPicker by remember { mutableStateOf(false) }
-    var pendingCameraImageUri by remember { mutableStateOf<Uri?>(null) }
+    var title by remember(initialTitle) { androidx.compose.runtime.mutableStateOf(initialTitle) }
+    var content by remember(initialContent) { androidx.compose.runtime.mutableStateOf(initialContent) }
+    var showAttachPicker by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var pendingCameraImageUri by remember { androidx.compose.runtime.mutableStateOf<Uri?>(null) }
+    val imagePaths = remember(initialImagePaths) {
+        mutableStateListOf<String>().apply {
+            addAll(initialImagePaths.take(MAX_IMAGE_COUNT))
+        }
+    }
+
+    val appendImages: (List<String>) -> Unit = { newPaths ->
+        val remaining = MAX_IMAGE_COUNT - imagePaths.size
+        if (remaining <= 0) {
+            Toast.makeText(context, "사진은 최대 5장까지 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show()
+        } else {
+            imagePaths.addAll(newPaths.take(remaining))
+            if (newPaths.size > remaining) {
+                Toast.makeText(context, "사진은 최대 5장까지 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-        onResult = { uri ->
-            if (uri != null) {
-                try {
-                    context.contentResolver.takePersistableUriPermission(
-                        uri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    )
-                } catch (_: SecurityException) {
-                    // no-op
+        contract = ActivityResultContracts.OpenMultipleDocuments(),
+        onResult = { uris ->
+            if (uris.isNotEmpty()) {
+                uris.forEach { uri ->
+                    try {
+                        context.contentResolver.takePersistableUriPermission(
+                            uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                    } catch (_: SecurityException) {
+                        // no-op
+                    }
                 }
-                imagePath = uri.toString()
+                appendImages(uris.map { it.toString() })
             }
         }
     )
@@ -96,7 +112,9 @@ fun WriteScreen(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
             if (success) {
-                imagePath = pendingCameraImageUri?.toString()
+                pendingCameraImageUri?.toString()?.let { captured ->
+                    appendImages(listOf(captured))
+                }
             }
         }
     )
@@ -120,9 +138,13 @@ fun WriteScreen(
                 TextButton(
                     onClick = {
                         showAttachPicker = false
-                        val cameraUri = createCameraImageUri(context)
-                        pendingCameraImageUri = cameraUri
-                        cameraLauncher.launch(cameraUri)
+                        if (imagePaths.size >= MAX_IMAGE_COUNT) {
+                            Toast.makeText(context, "사진은 최대 5장까지 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            val cameraUri = createCameraImageUri(context)
+                            pendingCameraImageUri = cameraUri
+                            cameraLauncher.launch(cameraUri)
+                        }
                     }
                 ) {
                     Text("카메라로 촬영")
@@ -155,7 +177,7 @@ fun WriteScreen(
                                     selectedDateMillis.toDayStartMillis(),
                                     title.trim(),
                                     content.trim(),
-                                    imagePath
+                                    imagePaths.toList()
                                 )
                             }
                         }
@@ -165,28 +187,13 @@ fun WriteScreen(
                 },
                 windowInsets = WindowInsets.statusBars
             )
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                IconButton(onClick = { showAttachPicker = true }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Image,
-                        contentDescription = "이미지 첨부"
-                    )
-                }
-            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .navigationBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -231,19 +238,35 @@ fun WriteScreen(
                 label = { Text("내용") }
             )
 
-            if (!imagePath.isNullOrBlank()) {
-                Text(
-                    text = "첨부 이미지",
-                    style = MaterialTheme.typography.titleSmall
-                )
+            Text(
+                text = "첨부 사진 (${imagePaths.size}/$MAX_IMAGE_COUNT)",
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            OutlinedButton(
+                onClick = { showAttachPicker = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "사진 추가")
+            }
+
+            imagePaths.forEachIndexed { index, image ->
                 AsyncImage(
-                    model = Uri.parse(imagePath),
-                    contentDescription = "선택한 사진",
+                    model = Uri.parse(image),
+                    contentDescription = "첨부 이미지 ${index + 1}",
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 360.dp),
                     contentScale = ContentScale.Fit
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { imagePaths.remove(image) }) {
+                        Text("삭제")
+                    }
+                }
             }
         }
     }
