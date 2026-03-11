@@ -123,6 +123,11 @@ fun CalendarScreen(
                         }
                         currentYear = cal.get(Calendar.YEAR)
                         currentMonth = cal.get(Calendar.MONTH)
+                        selectedDateMillis = Calendar.getInstance().apply {
+                            set(Calendar.YEAR, currentYear)
+                            set(Calendar.MONTH, currentMonth)
+                            set(Calendar.DAY_OF_MONTH, 1)
+                        }.timeInMillis
                     }
                 ) {
                     Text(text = "◀")
@@ -160,6 +165,11 @@ fun CalendarScreen(
                         }
                         currentYear = cal.get(Calendar.YEAR)
                         currentMonth = cal.get(Calendar.MONTH)
+                        selectedDateMillis = Calendar.getInstance().apply {
+                            set(Calendar.YEAR, currentYear)
+                            set(Calendar.MONTH, currentMonth)
+                            set(Calendar.DAY_OF_MONTH, 1)
+                        }.timeInMillis
                     }
                 ) {
                     Text(text = "▶")
