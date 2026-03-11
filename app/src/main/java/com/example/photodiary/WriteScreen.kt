@@ -7,11 +7,9 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,10 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -164,13 +165,28 @@ fun WriteScreen(
                 },
                 windowInsets = WindowInsets.statusBars
             )
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                IconButton(onClick = { showAttachPicker = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Image,
+                        contentDescription = "이미지 첨부"
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .navigationBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -215,42 +231,19 @@ fun WriteScreen(
                 label = { Text("내용") }
             )
 
-            Text(
-                text = "사진 첨부",
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .clickable { showAttachPicker = true }
-                    .padding(12.dp)
-            ) {
-                if (imagePath.isNullOrBlank()) {
-                    Text(
-                        text = "탭해서 사진 첨부 (갤러리 / 카메라)",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = "탭해서 사진 변경 (갤러리 / 카메라)",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        AsyncImage(
-                            model = Uri.parse(imagePath),
-                            contentDescription = "선택한 사진",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 360.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                }
+            if (!imagePath.isNullOrBlank()) {
+                Text(
+                    text = "첨부 이미지",
+                    style = MaterialTheme.typography.titleSmall
+                )
+                AsyncImage(
+                    model = Uri.parse(imagePath),
+                    contentDescription = "선택한 사진",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 360.dp),
+                    contentScale = ContentScale.Fit
+                )
             }
         }
     }
