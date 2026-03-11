@@ -8,9 +8,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -18,14 +20,24 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.Dialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -35,6 +47,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -71,6 +84,7 @@ fun WriteScreen(
     var content by remember(initialContent) { androidx.compose.runtime.mutableStateOf(initialContent) }
     var showAttachPicker by remember { androidx.compose.runtime.mutableStateOf(false) }
     var pendingCameraImageUri by remember { androidx.compose.runtime.mutableStateOf<Uri?>(null) }
+    var previewImagePath by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
     val imagePaths = remember(initialImagePaths) {
         mutableStateListOf<String>().apply {
             addAll(initialImagePaths.take(MAX_IMAGE_COUNT))
@@ -151,6 +165,31 @@ fun WriteScreen(
                 }
             }
         )
+    }
+
+    if (!previewImagePath.isNullOrBlank()) {
+        Dialog(onDismissRequest = { previewImagePath = null }) {
+            Surface(shape = RoundedCornerShape(12.dp)) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    AsyncImage(
+                        model = Uri.parse(previewImagePath),
+                        contentDescription = "이미지 크게 보기",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 520.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { previewImagePath = null }) {
+                            Text("닫기")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -251,21 +290,85 @@ fun WriteScreen(
             }
 
             imagePaths.forEachIndexed { index, image ->
-                AsyncImage(
-                    model = Uri.parse(image),
-                    contentDescription = "첨부 이미지 ${index + 1}",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 360.dp),
-                    contentScale = ContentScale.Fit
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = { imagePaths.remove(image) }) {
-                        Text("삭제")
+                if (index % 2 == 0) {
+                    val leftImage = imagePaths.getOrNull(index)
+                    val rightImage = imagePaths.getOrNull(index + 1)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (leftImage != null) {
+                            ThumbnailCard(
+                                imagePath = leftImage,
+                                onDeleteClick = { imagePaths.remove(leftImage) },
+                                onPreviewClick = { previewImagePath = leftImage },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        if (rightImage != null) {
+                            ThumbnailCard(
+                                imagePath = rightImage,
+                                onDeleteClick = { imagePaths.remove(rightImage) },
+                                onPreviewClick = { previewImagePath = rightImage },
+                                modifier = Modifier.weight(1f)
+                            )
+                        } else {
+                            Box(modifier = Modifier.weight(1f))
+                        }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThumbnailCard(
+    imagePath: String,
+    onDeleteClick: () -> Unit,
+    onPreviewClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .aspectRatio(4f / 5f)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = Uri.parse(imagePath),
+                contentDescription = "첨부 이미지",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+            ) {
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        imageVector = Icons.Outlined.Close,
+                        contentDescription = "이미지 삭제"
+                    )
+                }
+            }
+
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(8.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+            ) {
+                IconButton(onClick = onPreviewClick) {
+                    Icon(
+                        imageVector = Icons.Outlined.ZoomIn,
+                        contentDescription = "이미지 확대"
+                    )
                 }
             }
         }
