@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -211,7 +212,7 @@ fun CalendarScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(filteredEntries, key = { it.id }) { entry ->
@@ -225,34 +226,38 @@ fun CalendarScreen(
                                 Text(
                                     text = entry.diaryDate.toDisplayDate(),
                                     modifier = Modifier
-                                        .padding(start = 12.dp, top = 12.dp, end = 12.dp),
+                                        .padding(start = 12.dp, top = 10.dp, end = 12.dp),
                                     style = MaterialTheme.typography.labelLarge
                                         .copy(color = MaterialTheme.colorScheme.primary)
                                 )
                                 Text(
                                     text = entry.title,
                                     modifier = Modifier
-                                        .padding(start = 12.dp, top = 6.dp, end = 12.dp),
-                                    style = MaterialTheme.typography.titleMedium
+                                        .padding(start = 12.dp, top = 4.dp, end = 12.dp),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
                                     text = entry.content,
                                     modifier = Modifier
-                                        .padding(start = 12.dp, top = 4.dp, end = 12.dp),
-                                    style = MaterialTheme.typography.bodyMedium
+                                        .padding(start = 12.dp, top = 2.dp, end = 12.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
                                 )
 
                                 if (imagePaths.isNotEmpty()) {
                                     Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp),
-                                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                                            .padding(start = 12.dp, top = 6.dp, end = 12.dp, bottom = 10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         imagePaths.chunked(3).forEach { rowImages ->
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
                                             ) {
                                                 rowImages.forEach { imagePath ->
                                                     AsyncImage(
