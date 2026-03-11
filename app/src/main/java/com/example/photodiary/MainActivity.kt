@@ -53,7 +53,8 @@ private enum class AppScreen {
     Main,
     Write,
     Detail,
-    Calendar
+    Calendar,
+    MyPage
 }
 
 data class DiaryEntry(
@@ -99,6 +100,7 @@ class MainActivity : ComponentActivity() {
                         AppScreen.Main -> MainScreen(
                             entries = diaryEntries.toList(),
                             onCalendarClick = { currentScreen = AppScreen.Calendar },
+                            onMyPageClick = { currentScreen = AppScreen.MyPage },
                             onWriteClick = {
                                 selectedEntryId = null
                                 currentScreen = AppScreen.Write
@@ -188,6 +190,11 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+
+                        AppScreen.MyPage -> MyPageScreen(
+                            diaryCount = diaryEntries.size,
+                            onBackClick = { currentScreen = AppScreen.Main }
+                        )
                     }
                 }
             }
@@ -200,6 +207,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     entries: List<DiaryEntry>,
     onCalendarClick: () -> Unit,
+    onMyPageClick: () -> Unit,
     onWriteClick: () -> Unit,
     onEntryClick: (Long) -> Unit
 ) {
@@ -239,7 +247,7 @@ fun MainScreen(
             BottomButtonBar(
                 onCalendarClick = onCalendarClick,
                 onWriteClick = onWriteClick,
-                onMyPageClick = { /* TODO */ }
+                onMyPageClick = onMyPageClick
             )
         }
     ) { innerPadding ->
