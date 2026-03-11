@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -93,7 +93,6 @@ fun DetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
@@ -109,8 +108,10 @@ fun DetailScreen(
                     AsyncImage(
                         model = Uri.parse(entry.imagePath),
                         contentDescription = "저장된 사진",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 420.dp),
+                        contentScale = ContentScale.Fit
                     )
                 }
             }

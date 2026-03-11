@@ -8,13 +8,14 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -40,8 +42,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
+import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +71,8 @@ fun WriteScreen(
     var title by remember(initialTitle) { mutableStateOf(initialTitle) }
     var content by remember(initialContent) { mutableStateOf(initialContent) }
     var imagePath by remember(initialImagePath) { mutableStateOf(initialImagePath) }
+    var showAttachPicker by remember { mutableStateOf(false) }
+    var pendingCameraImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -82,6 +90,45 @@ fun WriteScreen(
             }
         }
     )
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                imagePath = pendingCameraImageUri?.toString()
+            }
+        }
+    )
+
+    if (showAttachPicker) {
+        AlertDialog(
+            onDismissRequest = { showAttachPicker = false },
+            title = { Text("사진 첨부") },
+            text = { Text("첨부 방법을 선택해주세요.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showAttachPicker = false
+                        imagePickerLauncher.launch(arrayOf("image/*"))
+                    }
+                ) {
+                    Text("갤러리에서 선택")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showAttachPicker = false
+                        val cameraUri = createCameraImageUri(context)
+                        pendingCameraImageUri = cameraUri
+                        cameraLauncher.launch(cameraUri)
+                    }
+                ) {
+                    Text("카메라로 촬영")
+                }
+            }
+        )
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -163,9 +210,8 @@ fun WriteScreen(
             OutlinedTextField(
                 value = content,
                 onValueChange = { content = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 8,
                 label = { Text("내용") }
             )
 
@@ -174,37 +220,51 @@ fun WriteScreen(
                 style = MaterialTheme.typography.titleSmall
             )
 
-            OutlinedButton(
-                onClick = { imagePickerLauncher.launch(arrayOf("image/*")) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "갤러리에서 사진 선택")
-            }
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
                     )
+                    .clickable { showAttachPicker = true }
                     .padding(12.dp)
             ) {
                 if (imagePath.isNullOrBlank()) {
                     Text(
-                        text = "사진이 선택되지 않았습니다.",
+                        text = "탭해서 사진 첨부 (갤러리 / 카메라)",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 } else {
-                    AsyncImage(
-                        model = Uri.parse(imagePath),
-                        contentDescription = "선택한 사진",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "탭해서 사진 변경 (갤러리 / 카메라)",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        AsyncImage(
+                            model = Uri.parse(imagePath),
+                            contentDescription = "선택한 사진",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 360.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+private fun createCameraImageUri(context: android.content.Context): Uri {
+    val imageDirectory = File(context.filesDir, "images").apply {
+        if (!exists()) mkdirs()
+    }
+    val fileName = "camera_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis())}.jpg"
+    val imageFile = File(imageDirectory, fileName)
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        imageFile
+    )
 }
