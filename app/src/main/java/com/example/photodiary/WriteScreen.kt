@@ -40,6 +40,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -197,6 +198,9 @@ fun WriteScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = "일기 작성") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 navigationIcon = {
                     TextButton(onClick = onBackClick) {
                         Text(text = "뒤로")
@@ -332,7 +336,8 @@ private fun ThumbnailCard(
 ) {
     Card(
         modifier = modifier
-            .aspectRatio(4f / 5f)
+            .aspectRatio(4f / 5f),
+        shape = RoundedCornerShape(14.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(

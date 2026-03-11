@@ -18,14 +18,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -33,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,6 +50,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.compose.foundation.shape.RoundedCornerShape
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -243,6 +246,9 @@ fun MainScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Photo Diary") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 windowInsets = WindowInsets.statusBars
             )
         },
@@ -291,13 +297,15 @@ private fun DiaryListSection(
                     OutlinedCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onEntryClick(entry.id) }
+                            .clickable { onEntryClick(entry.id) },
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         Text(
                             text = entry.diaryDate.toDisplayDate(),
                             modifier = Modifier
                                 .padding(start = 12.dp, top = 12.dp, end = 12.dp),
                             style = MaterialTheme.typography.labelLarge
+                                .copy(color = MaterialTheme.colorScheme.primary)
                         )
                         Text(
                             text = entry.title,
@@ -366,14 +374,18 @@ private fun BottomButtonBar(
     ) {
         TextButton(
             onClick = onCalendarClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
         ) {
             Text(text = "Calendar")
         }
 
-        Button(
+        FilledTonalButton(
             onClick = onWriteClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
         ) {
             Text(
                 text = "Write",
@@ -383,7 +395,9 @@ private fun BottomButtonBar(
 
         TextButton(
             onClick = onMyPageClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
         ) {
             Text(text = "MyPage")
         }

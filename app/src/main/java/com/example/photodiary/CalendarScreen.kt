@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -30,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -96,6 +98,9 @@ fun CalendarScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Calendar") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 navigationIcon = {
                     TextButton(onClick = onBackClick) {
                         Text(text = "뒤로")
@@ -214,13 +219,15 @@ fun CalendarScreen(
                             OutlinedCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { onEntryClick(entry.id) }
+                                    .clickable { onEntryClick(entry.id) },
+                                shape = RoundedCornerShape(16.dp)
                             ) {
                                 Text(
                                     text = entry.diaryDate.toDisplayDate(),
                                     modifier = Modifier
                                         .padding(start = 12.dp, top = 12.dp, end = 12.dp),
                                     style = MaterialTheme.typography.labelLarge
+                                        .copy(color = MaterialTheme.colorScheme.primary)
                                 )
                                 Text(
                                     text = entry.title,
