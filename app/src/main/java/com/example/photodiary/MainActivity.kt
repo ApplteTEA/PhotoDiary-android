@@ -131,7 +131,8 @@ class MainActivity : ComponentActivity() {
                                 initialDiaryDate = editingEntry?.diaryDate,
                                 initialTitle = editingEntry?.title.orEmpty(),
                                 initialContent = editingEntry?.content.orEmpty(),
-                                onSaveClick = { diaryDate, title, content ->
+                                initialImagePath = editingEntry?.imagePath,
+                                onSaveClick = { diaryDate, title, content, imagePath ->
                                     val now = System.currentTimeMillis()
                                     scope.launch {
                                         withContext(Dispatchers.IO) {
@@ -141,7 +142,7 @@ class MainActivity : ComponentActivity() {
                                                         diaryDate = diaryDate.toDayStartMillis(),
                                                         title = title,
                                                         content = content,
-                                                        imagePath = null,
+                                                        imagePath = imagePath,
                                                         createdAt = now,
                                                         updatedAt = now
                                                     )
@@ -152,6 +153,7 @@ class MainActivity : ComponentActivity() {
                                                         diaryDate = diaryDate.toDayStartMillis(),
                                                         title = title,
                                                         content = content,
+                                                        imagePath = imagePath,
                                                         updatedAt = now
                                                     ).toEntity()
                                                 )

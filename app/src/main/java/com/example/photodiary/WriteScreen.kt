@@ -1,8 +1,12 @@
 package com.example.photodiary
 
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,8 +37,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +50,8 @@ fun WriteScreen(
     initialDiaryDate: Long? = null,
     initialTitle: String = "",
     initialContent: String = "",
-    onSaveClick: (diaryDate: Long, title: String, content: String) -> Unit
+    initialImagePath: String? = null,
+    onSaveClick: (diaryDate: Long, title: String, content: String, imagePath: String?) -> Unit
 ) {
     BackHandler(onBack = onBackClick)
 
@@ -57,6 +64,24 @@ fun WriteScreen(
     var selectedDateMillis by remember(initialDateMillis) { mutableLongStateOf(initialDateMillis) }
     var title by remember(initialTitle) { mutableStateOf(initialTitle) }
     var content by remember(initialContent) { mutableStateOf(initialContent) }
+    var imagePath by remember(initialImagePath) { mutableStateOf(initialImagePath) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            if (uri != null) {
+                try {
+                    context.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (_: SecurityException) {
+                    // no-op
+                }
+                imagePath = uri.toString()
+            }
+        }
+    )
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -81,7 +106,8 @@ fun WriteScreen(
                                 onSaveClick(
                                     selectedDateMillis.toDayStartMillis(),
                                     title.trim(),
-                                    content.trim()
+                                    content.trim(),
+                                    imagePath
                                 )
                             }
                         }
@@ -148,20 +174,36 @@ fun WriteScreen(
                 style = MaterialTheme.typography.titleSmall
             )
 
+            OutlinedButton(
+                onClick = { imagePickerLauncher.launch(arrayOf("image/*")) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "갤러리에서 사진 선택")
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp)
+                    .height(180.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(12.dp)
             ) {
-                Text(
-                    text = "사진 첨부 영역 (추후 구현)",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                if (imagePath.isNullOrBlank()) {
+                    Text(
+                        text = "사진이 선택되지 않았습니다.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    AsyncImage(
+                        model = Uri.parse(imagePath),
+                        contentDescription = "선택한 사진",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
     }

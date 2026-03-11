@@ -1,5 +1,6 @@
 package com.example.photodiary
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +25,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,17 +93,26 @@ fun DetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(180.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(12.dp)
             ) {
-                Text(
-                    text = "사진 영역 (추후 구현)",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                if (entry.imagePath.isNullOrBlank()) {
+                    Text(
+                        text = "사진이 없습니다.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    AsyncImage(
+                        model = Uri.parse(entry.imagePath),
+                        contentDescription = "저장된 사진",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
     }
