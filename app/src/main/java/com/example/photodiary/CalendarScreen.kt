@@ -1,21 +1,27 @@
 package com.example.photodiary
 
-import android.widget.CalendarView
+import android.app.DatePickerDialog
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -25,12 +31,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -45,16 +54,32 @@ fun CalendarScreen(
 ) {
     BackHandler(onBack = onBackClick)
 
-    val formatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    val context = LocalContext.current
+    val monthFormatter = remember { SimpleDateFormat("yyyy년 M월", Locale.getDefault()) }
+    val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+
     var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-    val selectedDate = remember(selectedDateMillis) {
-        formatter.format(selectedDateMillis)
+    val selectedCalendar = remember(selectedDateMillis) {
+        Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
+    }
+    var currentYear by remember(selectedDateMillis) { mutableIntStateOf(selectedCalendar.get(Calendar.YEAR)) }
+    var currentMonth by remember(selectedDateMillis) { mutableIntStateOf(selectedCalendar.get(Calendar.MONTH)) }
+
+    val monthTitle = remember(currentYear, currentMonth) {
+        Calendar.getInstance().apply {
+            set(Calendar.YEAR, currentYear)
+            set(Calendar.MONTH, currentMonth)
+            set(Calendar.DAY_OF_MONTH, 1)
+        }.time.let(monthFormatter::format)
     }
 
-    val filteredEntries = remember(entries, selectedDate) {
+    val selectedDateText = remember(selectedDateMillis) { dateFormatter.format(selectedDateMillis) }
+    val diaryDateSet = remember(entries) { entries.map { it.diaryDate }.toSet() }
+
+    val filteredEntries = remember(entries, selectedDateText) {
         entries
-            .filter { it.diaryDate == selectedDate }
+            .filter { it.diaryDate == selectedDateText }
             .sortedWith(
                 compareByDescending<DiaryEntry> { it.diaryDate }
                     .thenByDescending { it.createdAt }
@@ -80,38 +105,53 @@ fun CalendarScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            AndroidView(
-                modifier = Modifier.fillMaxWidth(),
-                factory = { context ->
-                    CalendarView(context).apply {
-                        date = selectedDateMillis
-                        setOnDateChangeListener { _, year, month, dayOfMonth ->
-                            val picked = Calendar.getInstance().apply {
+            TextButton(
+                onClick = {
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+                            currentYear = year
+                            currentMonth = month
+                            selectedDateMillis = Calendar.getInstance().apply {
                                 set(Calendar.YEAR, year)
                                 set(Calendar.MONTH, month)
                                 set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                            }
-                            selectedDateMillis = picked.timeInMillis
-                        }
-                    }
+                            }.timeInMillis
+                        },
+                        currentYear,
+                        currentMonth,
+                        selectedCalendar.get(Calendar.DAY_OF_MONTH)
+                    ).show()
                 },
-                update = { view ->
-                    if (view.date != selectedDateMillis) {
-                        view.date = selectedDateMillis
-                    }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+            ) {
+                Text(text = monthTitle)
+            }
+
+            WeekHeader()
+
+            MonthGrid(
+                year = currentYear,
+                month = currentMonth,
+                selectedDateText = selectedDateText,
+                diaryDateSet = diaryDateSet,
+                onDateClick = { clicked ->
+                    selectedDateMillis = clicked
+                    val cal = Calendar.getInstance().apply { timeInMillis = clicked }
+                    currentYear = cal.get(Calendar.YEAR)
+                    currentMonth = cal.get(Calendar.MONTH)
                 }
             )
 
-            Text(
-                text = "선택 날짜: $selectedDate",
-                style = MaterialTheme.typography.labelLarge
-            )
+            Spacer(modifier = Modifier.height(8.dp))
 
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 if (filteredEntries.isEmpty()) {
@@ -151,6 +191,96 @@ fun CalendarScreen(
                                 )
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeekHeader() {
+    val labels = listOf("일", "월", "화", "수", "목", "금", "토")
+    Row(modifier = Modifier.fillMaxWidth()) {
+        labels.forEach { label ->
+            Text(
+                text = label,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 8.dp),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun MonthGrid(
+    year: Int,
+    month: Int,
+    selectedDateText: String,
+    diaryDateSet: Set<String>,
+    onDateClick: (Long) -> Unit
+) {
+    val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    val firstDay = Calendar.getInstance().apply {
+        set(Calendar.YEAR, year)
+        set(Calendar.MONTH, month)
+        set(Calendar.DAY_OF_MONTH, 1)
+    }
+    val offset = firstDay.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY
+    val daysInMonth = firstDay.getActualMaximum(Calendar.DAY_OF_MONTH)
+    val totalCells = ((offset + daysInMonth + 6) / 7) * 7
+
+    Column {
+        var dayNumber = 1
+        repeat(totalCells / 7) { row ->
+            Row(modifier = Modifier.fillMaxWidth()) {
+                repeat(7) { col ->
+                    val cellIndex = row * 7 + col
+                    val inMonth = cellIndex >= offset && dayNumber <= daysInMonth
+
+                    if (inMonth) {
+                        val dateCalendar = Calendar.getInstance().apply {
+                            set(Calendar.YEAR, year)
+                            set(Calendar.MONTH, month)
+                            set(Calendar.DAY_OF_MONTH, dayNumber)
+                        }
+                        val dateMillis = dateCalendar.timeInMillis
+                        val dateText = dateFormatter.format(dateMillis)
+                        val isSelected = dateText == selectedDateText
+                        val hasDiary = diaryDateSet.contains(dateText)
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp)
+                                .clickable { onDateClick(dateMillis) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val bgColor = when {
+                                isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                                hasDiary -> Color(0xFFFF9800).copy(alpha = 0.26f)
+                                else -> Color.Transparent
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .background(bgColor, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = dayNumber.toString())
+                            }
+                        }
+                        dayNumber += 1
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp)
+                        )
                     }
                 }
             }
