@@ -106,29 +106,64 @@ fun CalendarScreen(
                 .padding(innerPadding)
                 .navigationBarsPadding()
         ) {
-            TextButton(
-                onClick = {
-                    DatePickerDialog(
-                        context,
-                        { _, year, month, dayOfMonth ->
-                            currentYear = year
-                            currentMonth = month
-                            selectedDateMillis = Calendar.getInstance().apply {
-                                set(Calendar.YEAR, year)
-                                set(Calendar.MONTH, month)
-                                set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                            }.timeInMillis
-                        },
-                        currentYear,
-                        currentMonth,
-                        selectedCalendar.get(Calendar.DAY_OF_MONTH)
-                    ).show()
-                },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp)
+                    .padding(top = 4.dp, start = 8.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = monthTitle)
+                TextButton(
+                    onClick = {
+                        val cal = Calendar.getInstance().apply {
+                            set(Calendar.YEAR, currentYear)
+                            set(Calendar.MONTH, currentMonth)
+                            set(Calendar.DAY_OF_MONTH, 1)
+                            add(Calendar.MONTH, -1)
+                        }
+                        currentYear = cal.get(Calendar.YEAR)
+                        currentMonth = cal.get(Calendar.MONTH)
+                    }
+                ) {
+                    Text(text = "◀")
+                }
+
+                TextButton(
+                    onClick = {
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, dayOfMonth ->
+                                currentYear = year
+                                currentMonth = month
+                                selectedDateMillis = Calendar.getInstance().apply {
+                                    set(Calendar.YEAR, year)
+                                    set(Calendar.MONTH, month)
+                                    set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                }.timeInMillis
+                            },
+                            currentYear,
+                            currentMonth,
+                            selectedCalendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                    }
+                ) {
+                    Text(text = monthTitle)
+                }
+
+                TextButton(
+                    onClick = {
+                        val cal = Calendar.getInstance().apply {
+                            set(Calendar.YEAR, currentYear)
+                            set(Calendar.MONTH, currentMonth)
+                            set(Calendar.DAY_OF_MONTH, 1)
+                            add(Calendar.MONTH, 1)
+                        }
+                        currentYear = cal.get(Calendar.YEAR)
+                        currentMonth = cal.get(Calendar.MONTH)
+                    }
+                ) {
+                    Text(text = "▶")
+                }
             }
 
             WeekHeader()
