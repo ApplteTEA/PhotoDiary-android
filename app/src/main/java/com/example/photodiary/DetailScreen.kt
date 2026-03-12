@@ -2,7 +2,6 @@ package com.example.photodiary
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +20,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ZoomIn
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -91,8 +93,11 @@ fun DetailScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 navigationIcon = {
-                    TextButton(onClick = onBackClick) {
-                        Text(text = "뒤로")
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "뒤로가기"
+                        )
                     }
                 },
                 actions = {
@@ -116,50 +121,81 @@ fun DetailScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = entry.diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.labelLarge
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = entry.diaryDate.toDisplayDate(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-            Text(
-                text = entry.title,
-                style = MaterialTheme.typography.titleLarge
-            )
+                    Text(
+                        text = entry.title,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
 
-            Text(
-                text = entry.content,
-                style = MaterialTheme.typography.bodyLarge
-            )
+                    Text(
+                        text = entry.content,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
 
             if (imagePaths.isNotEmpty()) {
-                Text(
-                    text = "사진",
-                    style = MaterialTheme.typography.titleSmall
-                )
-                imagePaths.forEachIndexed { index, _ ->
-                    if (index % 2 == 0) {
-                        val leftImage = imagePaths.getOrNull(index)
-                        val rightImage = imagePaths.getOrNull(index + 1)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "첨부 사진",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            if (leftImage != null) {
-                                DetailThumbnailCard(
-                                    imagePath = leftImage,
-                                    onPreviewClick = { previewImagePath = leftImage },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                            if (rightImage != null) {
-                                DetailThumbnailCard(
-                                    imagePath = rightImage,
-                                    onPreviewClick = { previewImagePath = rightImage },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            } else {
-                                Box(modifier = Modifier.weight(1f))
+                        imagePaths.forEachIndexed { index, _ ->
+                            if (index % 2 == 0) {
+                                val leftImage = imagePaths.getOrNull(index)
+                                val rightImage = imagePaths.getOrNull(index + 1)
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    if (leftImage != null) {
+                                        DetailThumbnailCard(
+                                            imagePath = leftImage,
+                                            onPreviewClick = { previewImagePath = leftImage },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                    if (rightImage != null) {
+                                        DetailThumbnailCard(
+                                            imagePath = rightImage,
+                                            onPreviewClick = { previewImagePath = rightImage },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    } else {
+                                        Box(modifier = Modifier.weight(1f))
+                                    }
+                                }
                             }
                         }
                     }
@@ -178,7 +214,7 @@ private fun DetailThumbnailCard(
     Surface(
         modifier = modifier
             .aspectRatio(4f / 5f),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
