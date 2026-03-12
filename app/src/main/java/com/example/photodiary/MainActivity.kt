@@ -48,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -244,8 +243,6 @@ fun MainScreen(
         )
     }
 
-    val layoutDirection = LocalLayoutDirection.current
-
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
@@ -270,11 +267,8 @@ fun MainScreen(
             onEntryClick = onEntryClick,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = innerPadding.calculateStartPadding(layoutDirection) + 12.dp,
-                    top = innerPadding.calculateTopPadding() + 8.dp,
-                    end = innerPadding.calculateEndPadding(layoutDirection) + 12.dp
-                )
+                .padding(innerPadding)
+                .padding(horizontal = 12.dp, top = 8.dp)
         )
     }
 }
@@ -320,7 +314,7 @@ private fun DiaryListSection(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(top = 6.dp)
+                contentPadding = PaddingValues(top = 6.dp, bottom = 8.dp)
             ) {
                 items(entries, key = { it.id }) { entry ->
                     val imagePaths = entry.imagePath.toImagePathList().take(5)

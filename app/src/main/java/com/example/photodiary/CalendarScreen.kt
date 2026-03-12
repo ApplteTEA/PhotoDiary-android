@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -101,8 +100,6 @@ fun CalendarScreen(
             )
     }
 
-    val layoutDirection = LocalLayoutDirection.current
-
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
@@ -126,11 +123,7 @@ fun CalendarScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = innerPadding.calculateStartPadding(layoutDirection),
-                    top = innerPadding.calculateTopPadding(),
-                    end = innerPadding.calculateEndPadding(layoutDirection)
-                )
+                .padding(innerPadding)
                 .padding(horizontal = 12.dp, top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
@@ -265,7 +258,7 @@ fun CalendarScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(top = 6.dp)
+                        contentPadding = PaddingValues(top = 6.dp, bottom = 8.dp)
                     ) {
                         items(filteredEntries, key = { it.id }) { entry ->
                             val imagePaths = entry.imagePath.toImagePathList().take(5)
