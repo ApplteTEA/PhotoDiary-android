@@ -268,7 +268,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
         )
     }
 }
@@ -284,15 +284,37 @@ private fun DiaryListSection(
         contentAlignment = Alignment.Center
     ) {
         if (entries.isEmpty()) {
-            Text(
-                text = "아직 작성된 다이어리가 없습니다.",
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "아직 작성된 다이어리가 없습니다.",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Text(
+                        text = "Write 버튼으로 첫 기록을 남겨보세요.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                contentPadding = PaddingValues(vertical = 8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 6.dp)
             ) {
                 items(entries, key = { it.id }) { entry ->
                     val imagePaths = entry.imagePath.toImagePathList().take(5)
@@ -306,52 +328,51 @@ private fun DiaryListSection(
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
-                        Text(
-                            text = entry.diaryDate.toDisplayDate(),
-                            modifier = Modifier
-                                .padding(start = 12.dp, top = 12.dp, end = 12.dp),
-                            style = MaterialTheme.typography.labelSmall
-                                .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        )
-                        Text(
-                            text = entry.title,
-                            modifier = Modifier
-                                .padding(start = 12.dp, top = 2.dp, end = 12.dp),
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = entry.content,
-                            modifier = Modifier
-                                .padding(start = 12.dp, top = 4.dp, end = 12.dp),
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Column(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = entry.diaryDate.toDisplayDate(),
+                                style = MaterialTheme.typography.labelSmall
+                                    .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            )
+                            Text(
+                                text = entry.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = entry.content,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
 
-                        if (imagePaths.isNotEmpty()) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                imagePaths.forEach { imagePath ->
-                                    AsyncImage(
-                                        model = imagePath,
-                                        contentDescription = "첨부 이미지",
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .aspectRatio(1f)
-                                    )
-                                }
-                                repeat(5 - imagePaths.size) {
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .aspectRatio(1f)
-                                    )
+                            if (imagePaths.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    imagePaths.forEach { imagePath ->
+                                        AsyncImage(
+                                            model = imagePath,
+                                            contentDescription = "첨부 이미지",
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .aspectRatio(1f)
+                                        )
+                                    }
+                                    repeat(5 - imagePaths.size) {
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .aspectRatio(1f)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -368,41 +389,46 @@ private fun BottomButtonBar(
     onWriteClick: () -> Unit,
     onMyPageClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
     ) {
-        TextButton(
-            onClick = onCalendarClick,
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(text = "Calendar")
-        }
+            TextButton(
+                onClick = onCalendarClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(46.dp)
+            ) {
+                Text(text = "Calendar")
+            }
 
-        FilledTonalButton(
-            onClick = onWriteClick,
-            modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
-        ) {
-            Text(
-                text = "Write",
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+            FilledTonalButton(
+                onClick = onWriteClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(46.dp)
+            ) {
+                Text(
+                    text = "Write",
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
 
-        TextButton(
-            onClick = onMyPageClick,
-            modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
-        ) {
-            Text(text = "MyPage")
+            TextButton(
+                onClick = onMyPageClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(46.dp)
+            ) {
+                Text(text = "MyPage")
+            }
         }
     }
 }

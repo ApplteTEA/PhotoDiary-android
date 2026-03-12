@@ -227,22 +227,25 @@ fun CalendarScreen(
                 }
             }
 
-            Card(
-                modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 2.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (filteredEntries.isEmpty()) {
+                if (filteredEntries.isEmpty()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
                         Column(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.EventNote,
@@ -251,47 +254,50 @@ fun CalendarScreen(
                             )
                             Text(
                                 text = "선택한 날짜의 기록이 없습니다.",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            Text(
+                                text = "다른 날짜를 선택하거나 새 기록을 작성해보세요.",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(14.dp),
-                            contentPadding = PaddingValues(vertical = 8.dp)
-                        ) {
-                            items(filteredEntries, key = { it.id }) { entry ->
-                                val imagePaths = entry.imagePath.toImagePathList().take(5)
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { onEntryClick(entry.id) },
-                                    shape = RoundedCornerShape(16.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surface
-                                    ),
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(vertical = 6.dp)
+                    ) {
+                        items(filteredEntries, key = { it.id }) { entry ->
+                            val imagePaths = entry.imagePath.toImagePathList().take(5)
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onEntryClick(entry.id) },
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Text(
                                         text = entry.diaryDate.toDisplayDate(),
-                                        modifier = Modifier
-                                            .padding(start = 12.dp, top = 12.dp, end = 12.dp),
                                         style = MaterialTheme.typography.labelSmall
                                             .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     )
                                     Text(
                                         text = entry.title,
-                                        modifier = Modifier
-                                            .padding(start = 12.dp, top = 2.dp, end = 12.dp),
                                         style = MaterialTheme.typography.titleMedium,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
                                         text = entry.content,
-                                        modifier = Modifier
-                                            .padding(start = 12.dp, top = 4.dp, end = 12.dp),
                                         style = MaterialTheme.typography.bodyMedium,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
@@ -301,7 +307,7 @@ fun CalendarScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp),
+                                                .padding(top = 4.dp),
                                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                                         ) {
                                             imagePaths.forEach { imagePath ->

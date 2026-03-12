@@ -37,7 +37,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.Scaffold
@@ -245,21 +244,27 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .navigationBarsPadding()
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(9.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(9.dp)
                 ) {
+                    Text(
+                        text = "오늘의 기록",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
                     FilledTonalButton(
                         onClick = {
                             val calendar = Calendar.getInstance().apply {
@@ -295,7 +300,7 @@ fun WriteScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         label = { Text("제목") },
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(12.dp)
                     )
 
                     TextField(
@@ -305,7 +310,7 @@ fun WriteScreen(
                             .fillMaxWidth()
                             .heightIn(min = 220.dp),
                         label = { Text("내용") },
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(12.dp)
                     )
 
                     Text(
@@ -313,7 +318,7 @@ fun WriteScreen(
                         style = MaterialTheme.typography.titleSmall
                     )
 
-                    OutlinedButton(
+                    FilledTonalButton(
                         onClick = { showAttachPicker = true },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -371,7 +376,7 @@ private fun ThumbnailCard(
     Card(
         modifier = modifier
             .aspectRatio(4f / 5f),
-        shape = RoundedCornerShape(14.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
