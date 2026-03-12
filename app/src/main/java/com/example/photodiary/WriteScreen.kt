@@ -103,7 +103,11 @@ fun WriteScreen(
         } else {
             imagePaths.addAll(newPaths.take(remaining))
             if (newPaths.size > remaining) {
-                Toast.makeText(context, "사진은 최대 5장까지 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "사진은 최대 5장까지 첨부할 수 있어 일부 사진만 추가되었습니다.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
