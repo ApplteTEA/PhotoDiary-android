@@ -51,7 +51,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -297,10 +296,8 @@ fun WriteScreen(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     disabledContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
                     focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     cursorColor = MaterialTheme.colorScheme.onSurface
@@ -319,10 +316,8 @@ fun WriteScreen(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     disabledContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
                     focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     cursorColor = MaterialTheme.colorScheme.onSurface
