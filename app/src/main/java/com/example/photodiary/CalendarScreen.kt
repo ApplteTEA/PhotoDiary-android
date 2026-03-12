@@ -128,7 +128,7 @@ fun CalendarScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 12.dp, top = 8.dp),
+                    .padding(start = 12.dp, top = 8.dp, end = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Card(
@@ -264,62 +264,63 @@ fun CalendarScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             contentPadding = PaddingValues(top = 6.dp, bottom = 10.dp)
                         ) {
-                        items(filteredEntries, key = { it.id }) { entry ->
-                            val imagePaths = entry.imagePath.toImagePathList().take(5)
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onEntryClick(entry.id) },
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                            items(filteredEntries, key = { it.id }) { entry ->
+                                val imagePaths = entry.imagePath.toImagePathList().take(5)
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { onEntryClick(entry.id) },
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                                 ) {
-                                    Text(
-                                        text = entry.diaryDate.toDisplayDate(),
-                                        style = MaterialTheme.typography.labelSmall
-                                            .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    )
-                                    Text(
-                                        text = entry.title,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    Text(
-                                        text = entry.content,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Text(
+                                            text = entry.diaryDate.toDisplayDate(),
+                                            style = MaterialTheme.typography.labelSmall
+                                                .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        )
+                                        Text(
+                                            text = entry.title,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = entry.content,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
 
-                                    if (imagePaths.isNotEmpty()) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(top = 4.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                        ) {
-                                            imagePaths.forEach { imagePath ->
-                                                AsyncImage(
-                                                    model = imagePath,
-                                                    contentDescription = "첨부 이미지",
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .aspectRatio(1f)
-                                                )
-                                            }
-                                            repeat(5 - imagePaths.size) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .aspectRatio(1f)
-                                                )
+                                        if (imagePaths.isNotEmpty()) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(top = 4.dp),
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                imagePaths.forEach { imagePath ->
+                                                    AsyncImage(
+                                                        model = imagePath,
+                                                        contentDescription = "첨부 이미지",
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .aspectRatio(1f)
+                                                    )
+                                                }
+                                                repeat(5 - imagePaths.size) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .aspectRatio(1f)
+                                                    )
+                                                }
                                             }
                                         }
                                     }
