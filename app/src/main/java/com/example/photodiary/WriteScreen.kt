@@ -25,16 +25,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -202,8 +207,11 @@ fun WriteScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 navigationIcon = {
-                    TextButton(onClick = onBackClick) {
-                        Text(text = "뒤로")
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "뒤로가기"
+                        )
                     }
                 },
                 actions = {
@@ -241,84 +249,110 @@ fun WriteScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedButton(
-                onClick = {
-                    val calendar = Calendar.getInstance().apply {
-                        timeInMillis = selectedDateMillis
-                    }
-                    DatePickerDialog(
-                        context,
-                        { _, year, month, dayOfMonth ->
-                            selectedDateMillis = Calendar.getInstance().apply {
-                                set(Calendar.YEAR, year)
-                                set(Calendar.MONTH, month)
-                                set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                            }.timeInMillis.toDayStartMillis()
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    FilledTonalButton(
+                        onClick = {
+                            val calendar = Calendar.getInstance().apply {
+                                timeInMillis = selectedDateMillis
+                            }
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, dayOfMonth ->
+                                    selectedDateMillis = Calendar.getInstance().apply {
+                                        set(Calendar.YEAR, year)
+                                        set(Calendar.MONTH, month)
+                                        set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                    }.timeInMillis.toDayStartMillis()
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
                         },
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
-                    ).show()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "날짜: ${selectedDateMillis.toDisplayDate()}")
-            }
-
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                label = { Text("제목") }
-            )
-
-            OutlinedTextField(
-                value = content,
-                onValueChange = { content = it },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 8,
-                label = { Text("내용") }
-            )
-
-            Text(
-                text = "첨부 사진 (${imagePaths.size}/$MAX_IMAGE_COUNT)",
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            OutlinedButton(
-                onClick = { showAttachPicker = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "사진 추가")
-            }
-
-            imagePaths.forEachIndexed { index, image ->
-                if (index % 2 == 0) {
-                    val leftImage = imagePaths.getOrNull(index)
-                    val rightImage = imagePaths.getOrNull(index + 1)
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        if (leftImage != null) {
-                            ThumbnailCard(
-                                imagePath = leftImage,
-                                onDeleteClick = { imagePaths.remove(leftImage) },
-                                onPreviewClick = { previewImagePath = leftImage },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        if (rightImage != null) {
-                            ThumbnailCard(
-                                imagePath = rightImage,
-                                onDeleteClick = { imagePaths.remove(rightImage) },
-                                onPreviewClick = { previewImagePath = rightImage },
-                                modifier = Modifier.weight(1f)
-                            )
-                        } else {
-                            Box(modifier = Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Filled.CalendarToday,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                        Text(text = selectedDateMillis.toDisplayDate())
+                    }
+
+                    TextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text("제목") },
+                        shape = RoundedCornerShape(14.dp)
+                    )
+
+                    TextField(
+                        value = content,
+                        onValueChange = { content = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 220.dp),
+                        label = { Text("내용") },
+                        shape = RoundedCornerShape(14.dp)
+                    )
+
+                    Text(
+                        text = "첨부 사진 (${imagePaths.size}/$MAX_IMAGE_COUNT)",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+
+                    OutlinedButton(
+                        onClick = { showAttachPicker = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.PhotoLibrary,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                        Text(text = "사진 추가")
+                    }
+
+                    imagePaths.forEachIndexed { index, _ ->
+                        if (index % 2 == 0) {
+                            val leftImage = imagePaths.getOrNull(index)
+                            val rightImage = imagePaths.getOrNull(index + 1)
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (leftImage != null) {
+                                    ThumbnailCard(
+                                        imagePath = leftImage,
+                                        onDeleteClick = { imagePaths.remove(leftImage) },
+                                        onPreviewClick = { previewImagePath = leftImage },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                if (rightImage != null) {
+                                    ThumbnailCard(
+                                        imagePath = rightImage,
+                                        onDeleteClick = { imagePaths.remove(rightImage) },
+                                        onPreviewClick = { previewImagePath = rightImage },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                } else {
+                                    Box(modifier = Modifier.weight(1f))
+                                }
+                            }
                         }
                     }
                 }
