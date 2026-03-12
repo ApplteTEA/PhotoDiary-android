@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +25,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -104,8 +110,11 @@ fun CalendarScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 navigationIcon = {
-                    TextButton(onClick = onBackClick) {
-                        Text(text = "뒤로")
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "뒤로가기"
+                        )
                     }
                 },
                 windowInsets = WindowInsets.statusBars
@@ -117,163 +126,200 @@ fun CalendarScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .navigationBarsPadding()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 6.dp, start = 10.dp, end = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                TextButton(
-                    onClick = {
-                        val cal = Calendar.getInstance().apply {
-                            set(Calendar.YEAR, currentYear)
-                            set(Calendar.MONTH, currentMonth)
-                            set(Calendar.DAY_OF_MONTH, 1)
-                            add(Calendar.MONTH, -1)
-                        }
-                        currentYear = cal.get(Calendar.YEAR)
-                        currentMonth = cal.get(Calendar.MONTH)
-                        selectedDateMillis = Calendar.getInstance().apply {
-                            set(Calendar.YEAR, currentYear)
-                            set(Calendar.MONTH, currentMonth)
-                            set(Calendar.DAY_OF_MONTH, 1)
-                        }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
-                    }
-                ) { Text(text = "◀") }
-
-                TextButton(
-                    onClick = {
-                        DatePickerDialog(
-                            context,
-                            { _, year, month, dayOfMonth ->
-                                currentYear = year
-                                currentMonth = month
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {
+                                val cal = Calendar.getInstance().apply {
+                                    set(Calendar.YEAR, currentYear)
+                                    set(Calendar.MONTH, currentMonth)
+                                    set(Calendar.DAY_OF_MONTH, 1)
+                                    add(Calendar.MONTH, -1)
+                                }
+                                currentYear = cal.get(Calendar.YEAR)
+                                currentMonth = cal.get(Calendar.MONTH)
                                 selectedDateMillis = Calendar.getInstance().apply {
-                                    set(Calendar.YEAR, year)
-                                    set(Calendar.MONTH, month)
-                                    set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                    set(Calendar.YEAR, currentYear)
+                                    set(Calendar.MONTH, currentMonth)
+                                    set(Calendar.DAY_OF_MONTH, 1)
                                 }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
-                            },
-                            currentYear,
-                            currentMonth,
-                            selectedCalendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
-                    }
-                ) { Text(text = monthTitle) }
-
-                TextButton(
-                    onClick = {
-                        val cal = Calendar.getInstance().apply {
-                            set(Calendar.YEAR, currentYear)
-                            set(Calendar.MONTH, currentMonth)
-                            set(Calendar.DAY_OF_MONTH, 1)
-                            add(Calendar.MONTH, 1)
+                            }
+                        ) {
+                            Icon(imageVector = Icons.Filled.ChevronLeft, contentDescription = "이전 달")
                         }
-                        currentYear = cal.get(Calendar.YEAR)
-                        currentMonth = cal.get(Calendar.MONTH)
-                        selectedDateMillis = Calendar.getInstance().apply {
-                            set(Calendar.YEAR, currentYear)
-                            set(Calendar.MONTH, currentMonth)
-                            set(Calendar.DAY_OF_MONTH, 1)
-                        }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
+
+                        TextButton(
+                            onClick = {
+                                DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        currentYear = year
+                                        currentMonth = month
+                                        selectedDateMillis = Calendar.getInstance().apply {
+                                            set(Calendar.YEAR, year)
+                                            set(Calendar.MONTH, month)
+                                            set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                        }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
+                                    },
+                                    currentYear,
+                                    currentMonth,
+                                    selectedCalendar.get(Calendar.DAY_OF_MONTH)
+                                ).show()
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = monthTitle,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+
+                        IconButton(
+                            onClick = {
+                                val cal = Calendar.getInstance().apply {
+                                    set(Calendar.YEAR, currentYear)
+                                    set(Calendar.MONTH, currentMonth)
+                                    set(Calendar.DAY_OF_MONTH, 1)
+                                    add(Calendar.MONTH, 1)
+                                }
+                                currentYear = cal.get(Calendar.YEAR)
+                                currentMonth = cal.get(Calendar.MONTH)
+                                selectedDateMillis = Calendar.getInstance().apply {
+                                    set(Calendar.YEAR, currentYear)
+                                    set(Calendar.MONTH, currentMonth)
+                                    set(Calendar.DAY_OF_MONTH, 1)
+                                }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
+                            }
+                        ) {
+                            Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = "다음 달")
+                        }
                     }
-                ) { Text(text = "▶") }
+
+                    WeekHeader()
+
+                    MonthGrid(
+                        year = currentYear,
+                        month = currentMonth,
+                        selectedDateMillis = selectedDay,
+                        diaryDateSet = diaryDateSet,
+                        onDateClick = { clicked ->
+                            selectedDateMillis = clicked.toDayStartMillis().also(onSelectedDateChange)
+                            val cal = Calendar.getInstance().apply { timeInMillis = clicked }
+                            currentYear = cal.get(Calendar.YEAR)
+                            currentMonth = cal.get(Calendar.MONTH)
+                        }
+                    )
+                }
             }
 
-            WeekHeader()
-
-            MonthGrid(
-                year = currentYear,
-                month = currentMonth,
-                selectedDateMillis = selectedDay,
-                diaryDateSet = diaryDateSet,
-                onDateClick = { clicked ->
-                    selectedDateMillis = clicked.toDayStartMillis().also(onSelectedDateChange)
-                    val cal = Calendar.getInstance().apply { timeInMillis = clicked }
-                    currentYear = cal.get(Calendar.YEAR)
-                    currentMonth = cal.get(Calendar.MONTH)
-                }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp),
-                contentAlignment = Alignment.Center
+            Card(
+                modifier = Modifier.fillMaxSize(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                if (filteredEntries.isEmpty()) {
-                    Text(
-                        text = "선택한 날짜의 기록이 없습니다.",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
-                        contentPadding = PaddingValues(vertical = 8.dp)
-                    ) {
-                        items(filteredEntries, key = { it.id }) { entry ->
-                            val imagePaths = entry.imagePath.toImagePathList().take(5)
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onEntryClick(entry.id) },
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                            ) {
-                                Text(
-                                    text = entry.diaryDate.toDisplayDate(),
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (filteredEntries.isEmpty()) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.EventNote,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "선택한 날짜의 기록이 없습니다.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(14.dp),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            items(filteredEntries, key = { it.id }) { entry ->
+                                val imagePaths = entry.imagePath.toImagePathList().take(5)
+                                Card(
                                     modifier = Modifier
-                                        .padding(start = 12.dp, top = 12.dp, end = 12.dp),
-                                    style = MaterialTheme.typography.labelSmall
-                                        .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                )
-                                Text(
-                                    text = entry.title,
-                                    modifier = Modifier
-                                        .padding(start = 12.dp, top = 2.dp, end = 12.dp),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = entry.content,
-                                    modifier = Modifier
-                                        .padding(start = 12.dp, top = 4.dp, end = 12.dp),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-
-                                if (imagePaths.isNotEmpty()) {
-                                    Row(
+                                        .fillMaxWidth()
+                                        .clickable { onEntryClick(entry.id) },
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                                ) {
+                                    Text(
+                                        text = entry.diaryDate.toDisplayDate(),
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        imagePaths.forEach { imagePath ->
-                                            AsyncImage(
-                                                model = imagePath,
-                                                contentDescription = "첨부 이미지",
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .aspectRatio(1f)
-                                            )
-                                        }
-                                        repeat(5 - imagePaths.size) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .aspectRatio(1f)
-                                            )
+                                            .padding(start = 12.dp, top = 12.dp, end = 12.dp),
+                                        style = MaterialTheme.typography.labelSmall
+                                            .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    )
+                                    Text(
+                                        text = entry.title,
+                                        modifier = Modifier
+                                            .padding(start = 12.dp, top = 2.dp, end = 12.dp),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = entry.content,
+                                        modifier = Modifier
+                                            .padding(start = 12.dp, top = 4.dp, end = 12.dp),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+
+                                    if (imagePaths.isNotEmpty()) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            imagePaths.forEach { imagePath ->
+                                                AsyncImage(
+                                                    model = imagePath,
+                                                    contentDescription = "첨부 이미지",
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .aspectRatio(1f)
+                                                )
+                                            }
+                                            repeat(5 - imagePaths.size) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .aspectRatio(1f)
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -297,7 +343,8 @@ private fun WeekHeader() {
                     .weight(1f)
                     .padding(vertical = 8.dp),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelSmall
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -341,7 +388,7 @@ private fun MonthGrid(
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(44.dp)
+                                .height(42.dp)
                                 .clickable { onDateClick(dateMillis) },
                             contentAlignment = Alignment.Center
                         ) {
@@ -353,7 +400,7 @@ private fun MonthGrid(
 
                             Box(
                                 modifier = Modifier
-                                    .size(30.dp)
+                                    .size(28.dp)
                                     .background(bgColor, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -365,7 +412,7 @@ private fun MonthGrid(
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(44.dp)
+                                .height(42.dp)
                         )
                     }
                 }
