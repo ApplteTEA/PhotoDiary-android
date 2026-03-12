@@ -5,6 +5,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.layout.Arrangement
@@ -136,7 +137,9 @@ fun WriteScreen(
                 TextButton(
                     onClick = {
                         showAttachPicker = false
-                        imagePickerLauncher.launch(PickVisualMedia.ImageOnly)
+                        imagePickerLauncher.launch(
+                            PickVisualMediaRequest(PickVisualMedia.ImageOnly)
+                        )
                     }
                 ) {
                     Text("갤러리에서 선택")
