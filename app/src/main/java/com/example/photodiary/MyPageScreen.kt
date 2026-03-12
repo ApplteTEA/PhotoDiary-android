@@ -49,11 +49,12 @@ fun MyPageScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(text = "마이페이지") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.background
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -71,9 +72,9 @@ fun MyPageScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             SectionCard(
                 icon = Icons.Outlined.Info,
@@ -123,15 +124,15 @@ private fun SectionCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -151,7 +152,7 @@ private fun SectionCard(
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
 
@@ -163,7 +164,7 @@ private fun SectionCard(
                 }
                 Text(
                     text = line,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = if (index == 0) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                     color = color
                 )
             }
