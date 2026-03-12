@@ -124,7 +124,7 @@ fun CalendarScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Card(
@@ -258,7 +258,7 @@ fun CalendarScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(vertical = 6.dp)
+                        contentPadding = PaddingValues(top = 6.dp)
                     ) {
                         items(filteredEntries, key = { it.id }) { entry ->
                             val imagePaths = entry.imagePath.toImagePathList().take(5)
