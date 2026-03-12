@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -100,6 +101,8 @@ fun CalendarScreen(
             )
     }
 
+    val layoutDirection = LocalLayoutDirection.current
+
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
@@ -123,8 +126,14 @@ fun CalendarScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 12.dp, top = 8.dp),
+                .padding(
+                    PaddingValues(
+                        start = innerPadding.calculateStartPadding(layoutDirection) + 12.dp,
+                        top = innerPadding.calculateTopPadding() + 8.dp,
+                        end = innerPadding.calculateEndPadding(layoutDirection) + 12.dp,
+                        bottom = innerPadding.calculateBottomPadding()
+                    )
+                ),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Card(
