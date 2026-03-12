@@ -333,7 +333,19 @@ fun WriteScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                TextButton(onClick = { showAttachPicker = true }) {
+                TextButton(
+                    onClick = {
+                        if (imagePaths.size >= MAX_IMAGE_COUNT) {
+                            Toast.makeText(
+                                context,
+                                "사진은 최대 5장까지 첨부할 수 있습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            showAttachPicker = true
+                        }
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Filled.PhotoLibrary,
                         contentDescription = null,
