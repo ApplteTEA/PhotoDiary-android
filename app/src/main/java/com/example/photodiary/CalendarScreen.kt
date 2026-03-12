@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -101,8 +100,6 @@ fun CalendarScreen(
             )
     }
 
-    val layoutDirection = LocalLayoutDirection.current
-
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
@@ -123,152 +120,150 @@ fun CalendarScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    PaddingValues(
-                        start = innerPadding.calculateStartPadding(layoutDirection) + 12.dp,
-                        top = innerPadding.calculateTopPadding() + 8.dp,
-                        end = innerPadding.calculateEndPadding(layoutDirection) + 12.dp,
-                        bottom = innerPadding.calculateBottomPadding()
-                    )
-                ),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(innerPadding)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = {
-                                val cal = Calendar.getInstance().apply {
-                                    set(Calendar.YEAR, currentYear)
-                                    set(Calendar.MONTH, currentMonth)
-                                    set(Calendar.DAY_OF_MONTH, 1)
-                                    add(Calendar.MONTH, -1)
-                                }
-                                currentYear = cal.get(Calendar.YEAR)
-                                currentMonth = cal.get(Calendar.MONTH)
-                                selectedDateMillis = Calendar.getInstance().apply {
-                                    set(Calendar.YEAR, currentYear)
-                                    set(Calendar.MONTH, currentMonth)
-                                    set(Calendar.DAY_OF_MONTH, 1)
-                                }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
-                            }
-                        ) {
-                            Icon(imageVector = Icons.Filled.ChevronLeft, contentDescription = "이전 달")
-                        }
-
-                        TextButton(
-                            onClick = {
-                                DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
-                                        currentYear = year
-                                        currentMonth = month
-                                        selectedDateMillis = Calendar.getInstance().apply {
-                                            set(Calendar.YEAR, year)
-                                            set(Calendar.MONTH, month)
-                                            set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                        }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
-                                    },
-                                    currentYear,
-                                    currentMonth,
-                                    selectedCalendar.get(Calendar.DAY_OF_MONTH)
-                                ).show()
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = monthTitle,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                val cal = Calendar.getInstance().apply {
-                                    set(Calendar.YEAR, currentYear)
-                                    set(Calendar.MONTH, currentMonth)
-                                    set(Calendar.DAY_OF_MONTH, 1)
-                                    add(Calendar.MONTH, 1)
-                                }
-                                currentYear = cal.get(Calendar.YEAR)
-                                currentMonth = cal.get(Calendar.MONTH)
-                                selectedDateMillis = Calendar.getInstance().apply {
-                                    set(Calendar.YEAR, currentYear)
-                                    set(Calendar.MONTH, currentMonth)
-                                    set(Calendar.DAY_OF_MONTH, 1)
-                                }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
-                            }
-                        ) {
-                            Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = "다음 달")
-                        }
-                    }
-
-                    WeekHeader()
-
-                    MonthGrid(
-                        year = currentYear,
-                        month = currentMonth,
-                        selectedDateMillis = selectedDay,
-                        diaryDateSet = diaryDateSet,
-                        onDateClick = { clicked ->
-                            selectedDateMillis = clicked.toDayStartMillis().also(onSelectedDateChange)
-                            val cal = Calendar.getInstance().apply { timeInMillis = clicked }
-                            currentYear = cal.get(Calendar.YEAR)
-                            currentMonth = cal.get(Calendar.MONTH)
-                        }
-                    )
-                }
-            }
-
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 2.dp),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 12.dp, top = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (filteredEntries.isEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.EventNote,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "선택한 날짜의 기록이 없습니다.",
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                        Text(
-                            text = "다른 날짜를 선택하거나 새 기록을 작성해보세요.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    val cal = Calendar.getInstance().apply {
+                                        set(Calendar.YEAR, currentYear)
+                                        set(Calendar.MONTH, currentMonth)
+                                        set(Calendar.DAY_OF_MONTH, 1)
+                                        add(Calendar.MONTH, -1)
+                                    }
+                                    currentYear = cal.get(Calendar.YEAR)
+                                    currentMonth = cal.get(Calendar.MONTH)
+                                    selectedDateMillis = Calendar.getInstance().apply {
+                                        set(Calendar.YEAR, currentYear)
+                                        set(Calendar.MONTH, currentMonth)
+                                        set(Calendar.DAY_OF_MONTH, 1)
+                                    }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
+                                }
+                            ) {
+                                Icon(imageVector = Icons.Filled.ChevronLeft, contentDescription = "이전 달")
+                            }
+
+                            TextButton(
+                                onClick = {
+                                    DatePickerDialog(
+                                        context,
+                                        { _, year, month, dayOfMonth ->
+                                            currentYear = year
+                                            currentMonth = month
+                                            selectedDateMillis = Calendar.getInstance().apply {
+                                                set(Calendar.YEAR, year)
+                                                set(Calendar.MONTH, month)
+                                                set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                            }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
+                                        },
+                                        currentYear,
+                                        currentMonth,
+                                        selectedCalendar.get(Calendar.DAY_OF_MONTH)
+                                    ).show()
+                                },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = monthTitle,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    val cal = Calendar.getInstance().apply {
+                                        set(Calendar.YEAR, currentYear)
+                                        set(Calendar.MONTH, currentMonth)
+                                        set(Calendar.DAY_OF_MONTH, 1)
+                                        add(Calendar.MONTH, 1)
+                                    }
+                                    currentYear = cal.get(Calendar.YEAR)
+                                    currentMonth = cal.get(Calendar.MONTH)
+                                    selectedDateMillis = Calendar.getInstance().apply {
+                                        set(Calendar.YEAR, currentYear)
+                                        set(Calendar.MONTH, currentMonth)
+                                        set(Calendar.DAY_OF_MONTH, 1)
+                                    }.timeInMillis.toDayStartMillis().also(onSelectedDateChange)
+                                }
+                            ) {
+                                Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = "다음 달")
+                            }
+                        }
+
+                        WeekHeader()
+
+                        MonthGrid(
+                            year = currentYear,
+                            month = currentMonth,
+                            selectedDateMillis = selectedDay,
+                            diaryDateSet = diaryDateSet,
+                            onDateClick = { clicked ->
+                                selectedDateMillis = clicked.toDayStartMillis().also(onSelectedDateChange)
+                                val cal = Calendar.getInstance().apply { timeInMillis = clicked }
+                                currentYear = cal.get(Calendar.YEAR)
+                                currentMonth = cal.get(Calendar.MONTH)
+                            }
                         )
                     }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(top = 6.dp, bottom = 8.dp)
-                    ) {
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (filteredEntries.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.EventNote,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "선택한 날짜의 기록이 없습니다.",
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            Text(
+                                text = "다른 날짜를 선택하거나 새 기록을 작성해보세요.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(top = 6.dp, bottom = 10.dp)
+                        ) {
                         items(filteredEntries, key = { it.id }) { entry ->
                             val imagePaths = entry.imagePath.toImagePathList().take(5)
                             Card(
