@@ -1,12 +1,12 @@
 package com.example.photodiary
 
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -108,19 +108,9 @@ fun WriteScreen(
     }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenMultipleDocuments(),
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = MAX_IMAGE_COUNT),
         onResult = { uris ->
             if (uris.isNotEmpty()) {
-                uris.forEach { uri ->
-                    try {
-                        context.contentResolver.takePersistableUriPermission(
-                            uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        )
-                    } catch (_: SecurityException) {
-                        // no-op
-                    }
-                }
                 appendImages(uris.map { it.toString() })
             }
         }
@@ -146,7 +136,7 @@ fun WriteScreen(
                 TextButton(
                     onClick = {
                         showAttachPicker = false
-                        imagePickerLauncher.launch(arrayOf("image/*"))
+                        imagePickerLauncher.launch(PickVisualMedia.ImageOnly)
                     }
                 ) {
                     Text("갤러리에서 선택")
