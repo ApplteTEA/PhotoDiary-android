@@ -34,8 +34,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -245,15 +243,6 @@ fun MainScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Photo Diary") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                windowInsets = WindowInsets.statusBars
-            )
-        },
         bottomBar = {
             BottomButtonBar(
                 onCalendarClick = onCalendarClick,

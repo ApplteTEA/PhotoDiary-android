@@ -102,11 +102,12 @@ fun CalendarScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Calendar") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.background
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -128,7 +129,7 @@ fun CalendarScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 12.dp, top = 8.dp, end = 12.dp),
+                    .padding(start = 12.dp, top = 4.dp, end = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Card(

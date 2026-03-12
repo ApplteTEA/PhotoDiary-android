@@ -240,9 +240,9 @@ fun WriteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -271,7 +271,7 @@ fun WriteScreen(
                                 calendar.get(Calendar.DAY_OF_MONTH)
                             ).show()
                         }
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -325,7 +325,7 @@ fun WriteScreen(
                         onValueChange = { content = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 260.dp),
+                            .heightIn(min = 230.dp),
                         placeholder = {
                             Text(
                                 text = "내용을 입력하세요",
