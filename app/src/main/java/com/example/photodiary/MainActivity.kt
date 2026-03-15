@@ -9,6 +9,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +47,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -307,7 +310,7 @@ private fun DiaryListSection(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
                 contentPadding = PaddingValues(top = 6.dp, bottom = 12.dp)
             ) {
                 items(entries, key = { it.id }) { entry ->
@@ -323,8 +326,8 @@ private fun DiaryListSection(
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
                         Column(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
-                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
                                 text = entry.diaryDate.toDisplayDate(),
@@ -333,7 +336,7 @@ private fun DiaryListSection(
                             )
                             Text(
                                 text = entry.title,
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleMedium,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -352,19 +355,28 @@ private fun DiaryListSection(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     imagePaths.forEach { imagePath ->
-                                        AsyncImage(
-                                            model = imagePath,
-                                            contentDescription = "첨부 이미지",
+                                        Box(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .aspectRatio(1f)
-                                        )
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f))
+                                        ) {
+                                            AsyncImage(
+                                                model = imagePath,
+                                                contentDescription = "첨부 이미지",
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
                                     }
                                     repeat(5 - imagePaths.size) {
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .aspectRatio(1f)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
                                         )
                                     }
                                 }
