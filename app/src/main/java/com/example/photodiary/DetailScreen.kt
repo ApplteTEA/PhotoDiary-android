@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
@@ -124,7 +125,7 @@ fun DetailScreen(
                 .padding(horizontal = 14.dp)
                 .padding(top = 6.dp, bottom = 10.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -135,7 +136,7 @@ fun DetailScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
@@ -146,12 +147,13 @@ fun DetailScreen(
 
                     Text(
                         text = entry.title,
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.titleLarge
                     )
 
                     Text(
                         text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -170,7 +172,7 @@ fun DetailScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "첨부 사진",
+                            text = "기록 사진 ${imagePaths.size}장",
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -232,15 +234,19 @@ private fun DetailThumbnailCard(
 
             Surface(
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(8.dp),
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
             ) {
-                IconButton(onClick = onPreviewClick) {
+                IconButton(
+                    onClick = onPreviewClick,
+                    modifier = Modifier.size(30.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.ZoomIn,
-                        contentDescription = "이미지 확대"
+                        contentDescription = "이미지 확대",
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
