@@ -68,7 +68,7 @@ fun DetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = 520.dp),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Crop
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -124,18 +124,18 @@ fun DetailScreen(
                 .padding(horizontal = 14.dp)
                 .padding(top = 6.dp, bottom = 10.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
@@ -159,14 +159,14 @@ fun DetailScreen(
             if (imagePaths.isNotEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
@@ -218,8 +218,8 @@ private fun DetailThumbnailCard(
 ) {
     Surface(
         modifier = modifier
-            .aspectRatio(4f / 5f),
-        shape = RoundedCornerShape(14.dp),
+            .aspectRatio(1f),
+        shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -227,7 +227,7 @@ private fun DetailThumbnailCard(
                 model = Uri.parse(imagePath),
                 contentDescription = "저장된 사진",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Crop
             )
 
             Surface(

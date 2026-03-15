@@ -247,9 +247,9 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp)
-                .padding(top = 4.dp, bottom = 10.dp)
+                .padding(top = 3.dp, bottom = 8.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -335,7 +335,7 @@ fun WriteScreen(
                         onValueChange = { content = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 188.dp),
+                            .heightIn(min = 176.dp),
                         placeholder = {
                             Text(
                                 text = "내용을 입력하세요",
@@ -362,7 +362,7 @@ fun WriteScreen(
                 text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = Modifier
             )
 
             imagePaths.forEachIndexed { index, _ ->
@@ -410,7 +410,7 @@ fun WriteScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.Start)
-                    .padding(top = if (imagePaths.isEmpty()) 0.dp else 2.dp)
+                    .padding(top = if (imagePaths.isEmpty()) 0.dp else 4.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.PhotoLibrary,
