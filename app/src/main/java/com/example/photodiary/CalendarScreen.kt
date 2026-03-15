@@ -105,7 +105,12 @@ fun CalendarScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Calendar") },
+                title = {
+                    Text(
+                        text = "Calendar",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
@@ -129,7 +134,7 @@ fun CalendarScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 12.dp, top = 4.dp, end = 12.dp),
+                    .padding(start = 12.dp, top = 6.dp, end = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Card(

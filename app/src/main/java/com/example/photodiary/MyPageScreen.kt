@@ -52,7 +52,12 @@ fun MyPageScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = "마이페이지") },
+                title = {
+                    Text(
+                        text = "마이페이지",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
@@ -73,6 +78,7 @@ fun MyPageScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp)
+                .padding(top = 6.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
