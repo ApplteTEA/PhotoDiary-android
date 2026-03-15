@@ -247,9 +247,9 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp)
-                .padding(top = 6.dp, bottom = 8.dp)
+                .padding(top = 4.dp, bottom = 10.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -301,7 +301,10 @@ fun WriteScreen(
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.5.dp
             ) {
-                Column(modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
                     TextField(
                         value = title,
                         onValueChange = { title = it },
@@ -332,7 +335,7 @@ fun WriteScreen(
                         onValueChange = { content = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 210.dp),
+                            .heightIn(min = 188.dp),
                         placeholder = {
                             Text(
                                 text = "내용을 입력하세요",
@@ -355,40 +358,12 @@ fun WriteScreen(
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                TextButton(
-                    onClick = {
-                        if (imagePaths.size >= MAX_IMAGE_COUNT) {
-                            Toast.makeText(
-                                context,
-                                "사진은 최대 5장까지 첨부할 수 있습니다.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            showAttachPicker = true
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.PhotoLibrary,
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 6.dp)
-                    )
-                    Text(text = "사진 추가")
-                }
-            }
+            Text(
+                text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
 
             imagePaths.forEachIndexed { index, _ ->
                 if (index % 2 == 0) {
@@ -419,6 +394,30 @@ fun WriteScreen(
                         }
                     }
                 }
+            }
+
+            TextButton(
+                onClick = {
+                    if (imagePaths.size >= MAX_IMAGE_COUNT) {
+                        Toast.makeText(
+                            context,
+                            "사진은 최대 5장까지 첨부할 수 있습니다.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        showAttachPicker = true
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(top = if (imagePaths.isEmpty()) 0.dp else 2.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PhotoLibrary,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 6.dp)
+                )
+                Text(text = "사진 추가")
             }
         }
     }
