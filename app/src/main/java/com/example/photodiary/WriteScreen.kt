@@ -249,7 +249,7 @@ fun WriteScreen(
                 .padding(horizontal = 14.dp)
                 .padding(top = 6.dp, bottom = 8.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -332,7 +332,7 @@ fun WriteScreen(
                         onValueChange = { content = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 230.dp),
+                            .heightIn(min = 210.dp),
                         placeholder = {
                             Text(
                                 text = "내용을 입력하세요",
@@ -356,7 +356,9 @@ fun WriteScreen(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
