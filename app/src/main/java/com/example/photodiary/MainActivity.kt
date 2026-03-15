@@ -281,7 +281,7 @@ private fun DiaryListSection(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
+                    .padding(horizontal = 2.dp, vertical = 4.dp),
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -289,9 +289,9 @@ private fun DiaryListSection(
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
                         text = "아직 작성된 다이어리가 없습니다.",
@@ -307,7 +307,7 @@ private fun DiaryListSection(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 contentPadding = PaddingValues(top = 6.dp, bottom = 12.dp)
             ) {
                 items(entries, key = { it.id }) { entry ->
@@ -323,8 +323,8 @@ private fun DiaryListSection(
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
                         Column(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Text(
                                 text = entry.diaryDate.toDisplayDate(),
@@ -333,7 +333,7 @@ private fun DiaryListSection(
                             )
                             Text(
                                 text = entry.title,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleSmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )

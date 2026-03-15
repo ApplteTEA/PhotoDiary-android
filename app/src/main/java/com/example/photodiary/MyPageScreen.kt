@@ -80,7 +80,7 @@ fun MyPageScreen(
                 .padding(horizontal = 14.dp)
                 .padding(top = 6.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(9.dp)
         ) {
             SectionCard(
                 icon = Icons.Outlined.Info,
@@ -138,7 +138,7 @@ private fun SectionCard(
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -170,7 +170,13 @@ private fun SectionCard(
                 }
                 Text(
                     text = line,
-                    style = if (index == 0) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
+                    style = if (index == 0) {
+                        MaterialTheme.typography.bodyMedium
+                    } else {
+                        MaterialTheme.typography.bodySmall.copy(
+                            lineHeight = MaterialTheme.typography.bodySmall.lineHeight
+                        )
+                    },
                     color = color
                 )
             }

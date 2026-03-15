@@ -239,15 +239,15 @@ fun CalendarScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 2.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.TopCenter
                 ) {
                     if (filteredEntries.isEmpty()) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 10.dp),
+                                .padding(top = 24.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.EventNote,
@@ -267,7 +267,7 @@ fun CalendarScreen(
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
                             contentPadding = PaddingValues(top = 6.dp, bottom = 10.dp)
                         ) {
                             items(filteredEntries, key = { it.id }) { entry ->
@@ -283,8 +283,8 @@ fun CalendarScreen(
                                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+                                        verticalArrangement = Arrangement.spacedBy(5.dp)
                                     ) {
                                         Text(
                                             text = entry.diaryDate.toDisplayDate(),
@@ -293,7 +293,7 @@ fun CalendarScreen(
                                         )
                                         Text(
                                             text = entry.title,
-                                            style = MaterialTheme.typography.titleMedium,
+                                            style = MaterialTheme.typography.titleSmall,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
