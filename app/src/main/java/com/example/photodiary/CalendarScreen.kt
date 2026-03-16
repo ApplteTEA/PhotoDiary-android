@@ -42,6 +42,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -76,8 +77,10 @@ fun CalendarScreen(
     val context = LocalContext.current
     val monthFormatter = remember { SimpleDateFormat("yyyy년 M월", Locale.getDefault()) }
 
-    var selectedDateMillis by remember(initialSelectedDateMillis) {
-        mutableLongStateOf(initialSelectedDateMillis.toDayStartMillis())
+    var selectedDateMillis by remember { mutableLongStateOf(initialSelectedDateMillis.toDayStartMillis()) }
+
+    LaunchedEffect(initialSelectedDateMillis) {
+        selectedDateMillis = initialSelectedDateMillis.toDayStartMillis()
     }
 
     val selectedCalendar = remember(selectedDateMillis) {
