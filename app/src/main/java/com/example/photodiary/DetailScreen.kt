@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ZoomIn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,6 +60,7 @@ fun DetailScreen(
 
     val imagePaths = entry.imagePath.toImagePathList()
     var previewImagePath by remember { mutableStateOf<String?>(null) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
     if (!previewImagePath.isNullOrBlank()) {
         Dialog(onDismissRequest = { previewImagePath = null }) {
@@ -83,6 +85,29 @@ fun DetailScreen(
                 }
             }
         }
+    }
+
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            title = { Text("이 기록을 삭제할까요?") },
+            text = { Text("삭제한 기록은 복구할 수 없습니다.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirmDialog = false
+                        onDeleteClick()
+                    }
+                ) {
+                    Text("삭제")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text("취소")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -111,7 +136,7 @@ fun DetailScreen(
                     TextButton(onClick = onEditClick) {
                         Text(text = "수정")
                     }
-                    TextButton(onClick = onDeleteClick) {
+                    TextButton(onClick = { showDeleteConfirmDialog = true }) {
                         Text(text = "삭제")
                     }
                 },

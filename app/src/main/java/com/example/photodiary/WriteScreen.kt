@@ -81,7 +81,6 @@ fun WriteScreen(
     initialImagePaths: List<String> = emptyList(),
     onSaveClick: (diaryDate: Long, title: String, content: String, imagePaths: List<String>) -> Unit
 ) {
-    BackHandler(onBack = onBackClick)
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -101,6 +100,38 @@ fun WriteScreen(
             addAll(initialImagePaths.take(MAX_IMAGE_COUNT))
         }
     }
+    val initialImagePathsSnapshot = remember(initialImagePaths) { initialImagePaths.take(MAX_IMAGE_COUNT) }
+    var showExitConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+
+    val hasChanges = remember(
+        selectedDateMillis,
+        title,
+        content,
+        imagePaths.size,
+        initialDateMillis,
+        initialTitle,
+        initialContent,
+        initialImagePathsSnapshot
+    ) {
+        selectedDateMillis.toDayStartMillis() != initialDateMillis.toDayStartMillis() ||
+            title != initialTitle ||
+            content != initialContent ||
+            imagePaths.toList() != initialImagePathsSnapshot
+    }
+
+    val canSave = remember(title, content, imagePaths.size) {
+        !(title.isBlank() && content.isBlank() && imagePaths.isEmpty())
+    }
+
+    val attemptExit: () -> Unit = {
+        if (hasChanges) {
+            showExitConfirmDialog = true
+        } else {
+            onBackClick()
+        }
+    }
+
+    BackHandler(onBack = attemptExit)
 
     val appendImages: (List<String>) -> Unit = { newPaths ->
         val remaining = MAX_IMAGE_COUNT - imagePaths.size
@@ -214,6 +245,29 @@ fun WriteScreen(
         }
     }
 
+    if (showExitConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmDialog = false },
+            title = { Text("작성 중인 내용을 나갈까요?") },
+            text = { Text("저장하지 않으면 입력한 내용이 사라집니다.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitConfirmDialog = false
+                        onBackClick()
+                    }
+                ) {
+                    Text("나가기")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text("계속 작성")
+                }
+            }
+        )
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         containerColor = MaterialTheme.colorScheme.background,
@@ -229,7 +283,7 @@ fun WriteScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = attemptExit) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "뒤로가기"
@@ -239,21 +293,15 @@ fun WriteScreen(
                 actions = {
                     TextButton(
                         onClick = {
-                            if (title.isBlank() || content.isBlank()) {
-                                Toast.makeText(
-                                    context,
-                                    "제목과 내용을 입력해주세요.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                onSaveClick(
-                                    selectedDateMillis.toDayStartMillis(),
-                                    title.trim(),
-                                    content.trim(),
-                                    imagePaths.toList()
-                                )
-                            }
-                        }
+                            if (!canSave) return@TextButton
+                            onSaveClick(
+                                selectedDateMillis.toDayStartMillis(),
+                                title.trim(),
+                                content.trim(),
+                                imagePaths.toList()
+                            )
+                        },
+                        enabled = canSave
                     ) {
                         Text(text = "저장")
                     }
