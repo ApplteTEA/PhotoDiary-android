@@ -360,7 +360,7 @@ private fun DiaryListSection(
                     modifier = Modifier.padding(top = 10.dp)
                 )
                 Text(
-                    text = "Write 버튼으로 첫 기록을 남겨보세요.",
+                    text = "+ 버튼으로 첫 기록을 남겨보세요.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
