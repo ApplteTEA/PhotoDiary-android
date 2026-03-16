@@ -248,6 +248,10 @@ fun WriteScreen(
     if (showExitConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showExitConfirmDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             title = { Text("작성 중인 내용을 나갈까요?") },
             text = { Text("저장하지 않으면 입력한 내용이 사라집니다.") },
             confirmButton = {
@@ -257,12 +261,18 @@ fun WriteScreen(
                         onBackClick()
                     }
                 ) {
-                    Text("나가기")
+                    Text(
+                        text = "나가기",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showExitConfirmDialog = false }) {
-                    Text("계속 작성")
+                    Text(
+                        text = "계속 작성",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         )

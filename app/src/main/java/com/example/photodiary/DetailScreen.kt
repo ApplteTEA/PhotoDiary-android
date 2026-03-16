@@ -90,6 +90,10 @@ fun DetailScreen(
     if (showDeleteConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             title = { Text("이 기록을 삭제할까요?") },
             text = { Text("삭제한 기록은 복구할 수 없습니다.") },
             confirmButton = {
@@ -99,12 +103,18 @@ fun DetailScreen(
                         onDeleteClick()
                     }
                 ) {
-                    Text("삭제")
+                    Text(
+                        text = "삭제",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text("취소")
+                    Text(
+                        text = "취소",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         )
