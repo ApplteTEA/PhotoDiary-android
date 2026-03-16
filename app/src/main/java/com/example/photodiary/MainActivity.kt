@@ -42,6 +42,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -408,41 +410,49 @@ private fun BottomButtonBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(start = 14.dp, top = 6.dp, end = 14.dp, bottom = 10.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(46.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(top = 10.dp)
+                    .height(50.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                TextButton(
-                    onClick = onCalendarClick,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Calendar",
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                BottomNavigationTab(
+                    text = "Calendar",
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.CalendarToday,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    selected = true,
+                    modifier = Modifier.weight(1f),
+                    onClick = onCalendarClick
+                )
 
-                Spacer(modifier = Modifier.width(64.dp))
+                Spacer(modifier = Modifier.width(68.dp))
 
-                TextButton(
-                    onClick = onMyPageClick,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "MyPage",
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                BottomNavigationTab(
+                    text = "MyPage",
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    selected = false,
+                    modifier = Modifier.weight(1f),
+                    onClick = onMyPageClick
+                )
             }
 
             Surface(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = (-12).dp),
+                modifier = Modifier.align(Alignment.TopCenter),
                 shape = RoundedCornerShape(999.dp),
                 color = MaterialTheme.colorScheme.primaryContainer,
                 tonalElevation = 2.dp,
@@ -450,7 +460,7 @@ private fun BottomButtonBar(
             ) {
                 IconButton(
                     onClick = onWriteClick,
-                    modifier = Modifier.size(50.dp)
+                    modifier = Modifier.size(52.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
@@ -462,6 +472,55 @@ private fun BottomButtonBar(
         }
     }
 }
+
+@Composable
+private fun BottomNavigationTab(
+    text: String,
+    icon: @Composable () -> Unit,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
+    ) {
+        TextButton(
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                val contentColor = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+
+                androidx.compose.material3.ProvideTextStyle(
+                    MaterialTheme.typography.labelSmall.copy(color = contentColor)
+                ) {
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        androidx.compose.material3.LocalContentColor provides contentColor
+                    ) {
+                        icon()
+                        Text(text = text)
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 private suspend fun MutableList<DiaryEntry>.replaceFromDatabase(dao: DiaryDao) {
     val loaded = withContext(Dispatchers.IO) {
