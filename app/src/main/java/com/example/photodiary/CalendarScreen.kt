@@ -115,7 +115,7 @@ fun CalendarScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Calendar",
+                        text = "일정",
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
@@ -323,7 +323,7 @@ fun CalendarScreen(
                                         }
                                         Text(
                                             text = entry.title,
-                                            style = MaterialTheme.typography.titleMedium,
+                                            style = MaterialTheme.typography.titleSmall,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
