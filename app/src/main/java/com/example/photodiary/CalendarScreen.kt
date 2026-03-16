@@ -129,7 +129,13 @@ fun CalendarScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { onAddClick(selectedDateMillis.toDayStartMillis()) }) {
+                    IconButton(
+                        onClick = {
+                            val selectedDayMillis = selectedDateMillis.toDayStartMillis()
+                            onSelectedDateChange(selectedDayMillis)
+                            onAddClick(selectedDayMillis)
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "기록 추가"
