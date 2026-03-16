@@ -144,8 +144,8 @@ class MainActivity : ComponentActivity() {
 
                         AppScreen.Calendar -> CalendarScreen(
                             entries = diaryEntries.toList(),
-                            initialSelectedDateMillis = calendarSelectedDateMillis,
-                            onSelectedDateChange = { calendarSelectedDateMillis = it },
+                            initialSelectedDateMillis = System.currentTimeMillis().toDayStartMillis(),
+                            onSelectedDateChange = {},
                             onBackClick = { currentScreen = AppScreen.Main },
                             onAddClick = { selectedDateMillis ->
                                 selectedEntryId = null
