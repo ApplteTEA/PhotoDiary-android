@@ -429,7 +429,7 @@ private fun BottomButtonBar(
                             modifier = Modifier.size(18.dp)
                         )
                     },
-                    selected = true,
+                    selected = false,
                     modifier = Modifier.weight(1f),
                     onClick = onCalendarClick
                 )
@@ -454,9 +454,9 @@ private fun BottomButtonBar(
             Surface(
                 modifier = Modifier.align(Alignment.TopCenter),
                 shape = RoundedCornerShape(999.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
-                tonalElevation = 2.dp,
-                shadowElevation = 2.dp
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+                tonalElevation = 1.dp,
+                shadowElevation = 1.dp
             ) {
                 IconButton(
                     onClick = onWriteClick,
@@ -465,7 +465,7 @@ private fun BottomButtonBar(
                     Icon(
                         imageVector = Icons.Filled.Add,
                         contentDescription = "새 일기 작성",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -481,40 +481,29 @@ private fun BottomNavigationTab(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        color = if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
+    TextButton(
+        onClick = onClick,
+        modifier = modifier
+            .height(50.dp)
     ) {
-        TextButton(
-            onClick = onClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                val contentColor = if (selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
+            val contentColor = if (selected) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
 
-                androidx.compose.material3.ProvideTextStyle(
-                    MaterialTheme.typography.labelSmall.copy(color = contentColor)
+            androidx.compose.material3.ProvideTextStyle(
+                MaterialTheme.typography.labelSmall.copy(color = contentColor)
+            ) {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.material3.LocalContentColor provides contentColor
                 ) {
-                    androidx.compose.runtime.CompositionLocalProvider(
-                        androidx.compose.material3.LocalContentColor provides contentColor
-                    ) {
-                        icon()
-                        Text(text = text)
-                    }
+                    icon()
+                    Text(text = text)
                 }
             }
         }
