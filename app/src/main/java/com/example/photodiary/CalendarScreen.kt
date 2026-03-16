@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,6 +41,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -67,6 +68,7 @@ fun CalendarScreen(
     initialSelectedDateMillis: Long,
     onSelectedDateChange: (Long) -> Unit,
     onBackClick: () -> Unit,
+    onAddClick: (Long) -> Unit,
     onEntryClick: (Long) -> Unit
 ) {
     BackHandler(onBack = onBackClick)
@@ -74,8 +76,10 @@ fun CalendarScreen(
     val context = LocalContext.current
     val monthFormatter = remember { SimpleDateFormat("yyyy년 M월", Locale.getDefault()) }
 
-    var selectedDateMillis by remember(initialSelectedDateMillis) {
-        mutableLongStateOf(initialSelectedDateMillis.toDayStartMillis())
+    var selectedDateMillis by remember { mutableLongStateOf(initialSelectedDateMillis.toDayStartMillis()) }
+
+    LaunchedEffect(initialSelectedDateMillis) {
+        selectedDateMillis = initialSelectedDateMillis.toDayStartMillis()
     }
 
     val selectedCalendar = remember(selectedDateMillis) {
@@ -123,6 +127,20 @@ fun CalendarScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "뒤로가기"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            val selectedDayMillis = selectedDateMillis.toDayStartMillis()
+                            onSelectedDateChange(selectedDayMillis)
+                            onAddClick(selectedDayMillis)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "기록 추가"
                         )
                     }
                 },
@@ -243,13 +261,13 @@ fun CalendarScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 2.dp),
-                    contentAlignment = Alignment.TopCenter
+                    contentAlignment = Alignment.Center
                 ) {
                     if (filteredEntries.isEmpty()) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 24.dp),
+                                .padding(bottom = 28.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
@@ -271,8 +289,8 @@ fun CalendarScreen(
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(9.dp),
-                            contentPadding = PaddingValues(top = 6.dp, bottom = 10.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(top = 4.dp, bottom = 10.dp)
                         ) {
                             items(filteredEntries, key = { it.id }) { entry ->
                                 val imagePaths = entry.imagePath.toImagePathList().take(5)
@@ -287,17 +305,17 @@ fun CalendarScreen(
                                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                                        verticalArrangement = Arrangement.spacedBy(3.dp)
                                     ) {
                                         Text(
                                             text = entry.diaryDate.toDisplayDate(),
-                                            style = MaterialTheme.typography.labelSmall
-                                                .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
                                         )
                                         Text(
                                             text = entry.title,
-                                            style = MaterialTheme.typography.titleMedium,
+                                            style = MaterialTheme.typography.titleSmall,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -312,14 +330,14 @@ fun CalendarScreen(
                                             Row(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .padding(top = 4.dp)
+                                                    .padding(top = 5.dp)
                                                     .horizontalScroll(rememberScrollState()),
                                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                                             ) {
                                                 imagePaths.forEach { imagePath ->
                                                     Box(
                                                         modifier = Modifier
-                                                            .size(64.dp)
+                                                            .size(62.dp)
                                                             .clip(RoundedCornerShape(10.dp))
                                                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f))
                                                     ) {
