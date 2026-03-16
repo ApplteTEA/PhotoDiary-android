@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -450,16 +451,18 @@ private fun BottomButtonBar(
                     )
                 }
 
-                Surface(
+                Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .offset(y = 1.dp)
-                        .size(56.dp)
-                        .clip(CircleShape),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
-                    tonalElevation = 0.dp,
-                    shadowElevation = 0.dp
+                        .size(58.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                            shape = CircleShape
+                        )
                 ) {
                     IconButton(
                         onClick = onWriteClick,
