@@ -309,11 +309,11 @@ fun WriteScreen(
                 textStyle = MaterialTheme.typography.titleMedium,
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.28f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
                     cursorColor = MaterialTheme.colorScheme.onSurface
                 )
             )
@@ -333,11 +333,11 @@ fun WriteScreen(
                 textStyle = MaterialTheme.typography.bodyLarge,
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.28f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
                     cursorColor = MaterialTheme.colorScheme.onSurface
                 )
             )
@@ -350,7 +350,7 @@ fun WriteScreen(
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -393,7 +393,7 @@ fun WriteScreen(
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 if (leftImage != null) {
                                     ThumbnailCard(
@@ -433,7 +433,7 @@ private fun ThumbnailCard(
     Card(
         modifier = modifier
             .aspectRatio(1f),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(10.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
@@ -448,16 +448,16 @@ private fun ThumbnailCard(
                     .align(Alignment.TopEnd)
                     .padding(6.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)
             ) {
                 IconButton(
                     onClick = onDeleteClick,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
                         contentDescription = "이미지 삭제",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(14.dp)
                     )
                 }
             }
@@ -467,16 +467,16 @@ private fun ThumbnailCard(
                     .align(Alignment.BottomStart)
                     .padding(6.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)
             ) {
                 IconButton(
                     onClick = onPreviewClick,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ZoomIn,
                         contentDescription = "이미지 확대",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(14.dp)
                     )
                 }
             }

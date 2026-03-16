@@ -143,7 +143,7 @@ fun DetailScreen(
                     Text(
                         text = entry.diaryDate.toDisplayDate(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
                     )
 
                     Text(
@@ -153,14 +153,15 @@ fun DetailScreen(
 
                     Text(
                         text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 26.sp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 2.dp)
                     )
 
                     if (imagePaths.isNotEmpty()) {
                         Column(
                             modifier = Modifier.padding(top = 2.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(
                                 text = "사진 ${imagePaths.size}장",
@@ -175,7 +176,7 @@ fun DetailScreen(
 
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                                     ) {
                                         if (leftImage != null) {
                                             DetailThumbnailCard(
@@ -213,7 +214,7 @@ private fun DetailThumbnailCard(
     Surface(
         modifier = modifier
             .aspectRatio(1f),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -229,16 +230,16 @@ private fun DetailThumbnailCard(
                     .align(Alignment.TopEnd)
                     .padding(6.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.84f)
             ) {
                 IconButton(
                     onClick = onPreviewClick,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(24.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ZoomIn,
                         contentDescription = "이미지 확대",
-                        modifier = Modifier.size(13.dp)
+                        modifier = Modifier.size(12.dp)
                     )
                 }
             }

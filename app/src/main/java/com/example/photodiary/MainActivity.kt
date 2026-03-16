@@ -360,14 +360,14 @@ private fun DiaryListSection(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 4.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     imagePaths.forEach { imagePath ->
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .aspectRatio(1f)
-                                                .clip(RoundedCornerShape(8.dp))
+                                                .clip(RoundedCornerShape(10.dp))
                                                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f))
                                         ) {
                                             AsyncImage(
@@ -383,7 +383,7 @@ private fun DiaryListSection(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .aspectRatio(1f)
-                                                .clip(RoundedCornerShape(8.dp))
+                                                .clip(RoundedCornerShape(10.dp))
                                                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
                                         )
                                     }
@@ -418,14 +418,14 @@ private fun BottomButtonBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(start = 14.dp, top = 8.dp, end = 14.dp, bottom = 10.dp)
-                    .height(68.dp)
+                    .padding(start = 14.dp, top = 7.dp, end = 14.dp, bottom = 9.dp)
+                    .height(70.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .height(52.dp),
+                        .height(50.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
@@ -451,8 +451,8 @@ private fun BottomButtonBar(
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = 1.dp)
-                        .size(58.dp)
+                        .offset(y = 0.dp)
+                        .size(56.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surface)
                         .border(
@@ -496,21 +496,21 @@ private fun BottomNavigationTab(
     TextButton(
         onClick = onClick,
         modifier = modifier
-            .height(52.dp)
+            .height(50.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(17.dp),
                 tint = contentColor
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelSmall,
                 color = contentColor
             )
         }
