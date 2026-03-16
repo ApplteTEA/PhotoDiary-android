@@ -77,6 +77,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Calendar
 
+private const val PREFS_NAME = "photo_diary_prefs"
+private const val PREF_THEME_KEY = "selected_theme"
+
 private enum class AppScreen {
     Main,
     Write,
@@ -108,8 +111,16 @@ class MainActivity : ComponentActivity() {
                 Color.TRANSPARENT
             )
         )
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val initialTheme = DiaryTheme.fromKey(prefs.getString(PREF_THEME_KEY, DiaryTheme.Cream.key))
+
         setContent {
-            PhotoDiaryTheme {
+            var selectedTheme by remember { mutableStateOf(initialTheme) }
+            LaunchedEffect(selectedTheme) {
+                prefs.edit().putString(PREF_THEME_KEY, selectedTheme.key).apply()
+            }
+
+            PhotoDiaryTheme(theme = selectedTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -343,6 +354,8 @@ class MainActivity : ComponentActivity() {
 
                         AppScreen.MyPage -> MyPageScreen(
                             diaryCount = diaryEntries.size,
+                            selectedTheme = selectedTheme,
+                            onThemeChange = { selectedTheme = it },
                             onBackClick = { currentScreen = AppScreen.Main }
                         )
                     }
