@@ -453,15 +453,19 @@ private fun BottomButtonBar(
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = 2.dp),
+                        .offset(y = 1.dp)
+                        .size(56.dp)
+                        .clip(CircleShape),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                    tonalElevation = 2.dp,
-                    shadowElevation = 1.dp
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
+                    tonalElevation = 0.dp,
+                    shadowElevation = 0.dp
                 ) {
                     IconButton(
                         onClick = onWriteClick,
-                        modifier = Modifier.size(54.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
