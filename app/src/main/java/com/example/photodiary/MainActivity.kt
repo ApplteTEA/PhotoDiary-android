@@ -295,10 +295,25 @@ class MainActivity : ComponentActivity() {
                                 val monthImagePaths = monthEntries
                                     .flatMap { it.imagePath.toImagePathList() }
                                     .distinct()
+                                val moodSummary = monthEntries
+                                    .map { it.mood }
+                                    .topCountKeys()
+                                    .mapNotNull { it.toMetaLabelOrNull(moodOptions) }
+                                val weatherSummary = monthEntries
+                                    .map { it.weather }
+                                    .topCountKeys()
+                                    .mapNotNull { it.toMetaLabelOrNull(weatherOptions) }
+                                val tagSummary = monthEntries
+                                    .map { it.tag.trim() }
+                                    .topCountKeys()
+                                    .map { "#$it" }
                                 MonthlyReflectionScreen(
                                     monthKey = monthKey,
                                     entriesCount = monthEntries.size,
                                     imagePaths = monthImagePaths,
+                                    moodSummary = moodSummary,
+                                    weatherSummary = weatherSummary,
+                                    tagSummary = tagSummary,
                                     initialCoverImagePath = monthlyReflections[monthKey]?.coverImagePath.orEmpty(),
                                     initialReflectionText = monthlyReflections[monthKey]?.reflectionText.orEmpty(),
                                     onBackClick = { currentScreen = AppScreen.Main },
@@ -693,6 +708,21 @@ private fun String.toYearMonthLabel(): String {
     val year = parts[0].toIntOrNull() ?: return this
     val month = parts[1].toIntOrNull() ?: return this
     return "${year}년 ${month}월"
+}
+
+private fun List<String>.topCountKeys(limit: Int = 3): List<String> {
+    return asSequence()
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+        .groupingBy { it }
+        .eachCount()
+        .entries
+        .sortedWith(
+            compareByDescending<Map.Entry<String, Int>> { it.value }
+                .thenBy { it.key }
+        )
+        .take(limit)
+        .map { it.key }
 }
 
 private fun List<String>.deleteInternalImageCopies(context: Context) {

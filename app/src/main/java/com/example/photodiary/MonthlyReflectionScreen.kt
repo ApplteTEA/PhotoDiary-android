@@ -51,6 +51,9 @@ fun MonthlyReflectionScreen(
     monthKey: String,
     entriesCount: Int,
     imagePaths: List<String>,
+    moodSummary: List<String>,
+    weatherSummary: List<String>,
+    tagSummary: List<String>,
     initialCoverImagePath: String,
     initialReflectionText: String,
     onBackClick: () -> Unit,
@@ -123,7 +126,7 @@ fun MonthlyReflectionScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "기록 ${entriesCount}개",
+                        text = "이달에 남긴 기록 ${entriesCount}개",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -222,6 +225,50 @@ fun MonthlyReflectionScreen(
                     Text("이달을 돌아보는 짧은 회고를 남겨보세요")
                 },
                 shape = RoundedCornerShape(12.dp)
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.5.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "한 달 요약",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "기록 ${entriesCount}개",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (moodSummary.isNotEmpty()) {
+                        Text(
+                            text = "많이 남긴 감정: ${moodSummary.joinToString(", ")}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (weatherSummary.isNotEmpty()) {
+                        Text(
+                            text = "자주 기록한 날씨: ${weatherSummary.joinToString(", ")}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (tagSummary.isNotEmpty()) {
+                        Text(
+                            text = "자주 남긴 태그: ${tagSummary.joinToString(" ")}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             )
         }
     }
