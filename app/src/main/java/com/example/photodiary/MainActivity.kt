@@ -407,12 +407,12 @@ private fun BottomButtonBar(
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
+        tonalElevation = 3.dp,
         shadowElevation = 1.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                 thickness = 1.dp
             )
 
@@ -421,12 +421,13 @@ private fun BottomButtonBar(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(start = 14.dp, top = 8.dp, end = 14.dp, bottom = 10.dp)
+                    .height(68.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .height(50.dp),
+                        .align(Alignment.BottomCenter)
+                        .height(52.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
@@ -452,15 +453,15 @@ private fun BottomButtonBar(
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = (-4).dp),
+                        .offset(y = 2.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
                     tonalElevation = 2.dp,
                     shadowElevation = 1.dp
                 ) {
                     IconButton(
                         onClick = onWriteClick,
-                        modifier = Modifier.size(52.dp)
+                        modifier = Modifier.size(54.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
@@ -491,7 +492,7 @@ private fun BottomNavigationTab(
     TextButton(
         onClick = onClick,
         modifier = modifier
-            .height(50.dp)
+            .height(52.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -505,7 +506,7 @@ private fun BottomNavigationTab(
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = contentColor
             )
         }
