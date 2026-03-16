@@ -181,6 +181,15 @@ fun DetailScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
                     )
 
+                    val metaLine = entry.toMetaLine()
+                    if (metaLine.isNotBlank()) {
+                        Text(
+                            text = metaLine,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
                     Text(
                         text = entry.title,
                         style = MaterialTheme.typography.titleLarge

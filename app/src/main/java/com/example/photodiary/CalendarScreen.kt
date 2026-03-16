@@ -313,6 +313,14 @@ fun CalendarScreen(
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                                         )
+                                        val metaLine = entry.toMetaLine()
+                                        if (metaLine.isNotBlank()) {
+                                            Text(
+                                                text = metaLine,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                         Text(
                                             text = entry.title,
                                             style = MaterialTheme.typography.titleSmall,

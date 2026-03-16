@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -79,7 +81,18 @@ fun WriteScreen(
     initialTitle: String = "",
     initialContent: String = "",
     initialImagePaths: List<String> = emptyList(),
-    onSaveClick: (diaryDate: Long, title: String, content: String, imagePaths: List<String>) -> Unit
+    initialMood: String = "",
+    initialWeather: String = "",
+    initialTag: String = "",
+    onSaveClick: (
+        diaryDate: Long,
+        title: String,
+        content: String,
+        imagePaths: List<String>,
+        mood: String,
+        weather: String,
+        tag: String
+    ) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -101,6 +114,9 @@ fun WriteScreen(
         }
     }
     val initialImagePathsSnapshot = remember(initialImagePaths) { initialImagePaths.take(MAX_IMAGE_COUNT) }
+    var selectedMood by remember(initialMood) { androidx.compose.runtime.mutableStateOf(initialMood) }
+    var selectedWeather by remember(initialWeather) { androidx.compose.runtime.mutableStateOf(initialWeather) }
+    var tag by remember(initialTag) { androidx.compose.runtime.mutableStateOf(initialTag) }
     var showExitConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
 
     val hasChanges = remember(
@@ -108,15 +124,24 @@ fun WriteScreen(
         title,
         content,
         imagePaths.size,
+        selectedMood,
+        selectedWeather,
+        tag,
         initialDateMillis,
         initialTitle,
         initialContent,
-        initialImagePathsSnapshot
+        initialImagePathsSnapshot,
+        initialMood,
+        initialWeather,
+        initialTag
     ) {
         selectedDateMillis.toDayStartMillis() != initialDateMillis.toDayStartMillis() ||
             title != initialTitle ||
             content != initialContent ||
-            imagePaths.toList() != initialImagePathsSnapshot
+            imagePaths.toList() != initialImagePathsSnapshot ||
+            selectedMood != initialMood ||
+            selectedWeather != initialWeather ||
+            tag != initialTag
     }
 
     val canSave = remember(title, content, imagePaths.size) {
@@ -308,7 +333,10 @@ fun WriteScreen(
                                 selectedDateMillis.toDayStartMillis(),
                                 title.trim(),
                                 content.trim(),
-                                imagePaths.toList()
+                                imagePaths.toList(),
+                                selectedMood,
+                                selectedWeather,
+                                tag.trim()
                             )
                         },
                         enabled = canSave
@@ -369,6 +397,120 @@ fun WriteScreen(
                         text = selectedDateMillis.toDisplayDate(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                placeholder = {
+                    Text(
+                        text = "제목",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                textStyle = MaterialTheme.typography.titleMedium,
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
+                    cursorColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+
+            OutlinedTextField(
+                value = content,
+                onValueChange = { content = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 190.dp),
+                placeholder = {
+                    Text(
+                        text = "내용을 입력해주세요",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                textStyle = MaterialTheme.typography.bodyLarge,
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
+                    cursorColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.5.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "오늘의 분위기",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        moodOptions.forEach { option ->
+                            FilterChip(
+                                selected = selectedMood == option.key,
+                                onClick = {
+                                    selectedMood = if (selectedMood == option.key) "" else option.key
+                                },
+                                label = { Text(option.label) }
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        weatherOptions.forEach { option ->
+                            FilterChip(
+                                selected = selectedWeather == option.key,
+                                onClick = {
+                                    selectedWeather = if (selectedWeather == option.key) "" else option.key
+                                },
+                                label = { Text(option.label) }
+                            )
+                        }
+                    }
+                    OutlinedTextField(
+                        value = tag,
+                        onValueChange = { value -> tag = value.take(16) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text("태그 (예: 가족, 여행, 카페)") },
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
+                            cursorColor = MaterialTheme.colorScheme.onSurface
+                        )
                     )
                 }
             }

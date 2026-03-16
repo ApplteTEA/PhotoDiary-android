@@ -90,6 +90,9 @@ data class DiaryEntry(
     val title: String,
     val content: String,
     val imagePath: String?,
+    val mood: String = "",
+    val weather: String = "",
+    val tag: String = "",
     val createdAt: Long,
     val updatedAt: Long
 )
@@ -185,7 +188,10 @@ class MainActivity : ComponentActivity() {
                                 initialTitle = editingEntry?.title.orEmpty(),
                                 initialContent = editingEntry?.content.orEmpty(),
                                 initialImagePaths = editingEntry?.imagePath.toImagePathList(),
-                                onSaveClick = { diaryDate, title, content, imagePaths ->
+                                initialMood = editingEntry?.mood.orEmpty(),
+                                initialWeather = editingEntry?.weather.orEmpty(),
+                                initialTag = editingEntry?.tag.orEmpty(),
+                                onSaveClick = { diaryDate, title, content, imagePaths, mood, weather, tag ->
                                     val now = System.currentTimeMillis()
                                     scope.launch {
                                         withContext(Dispatchers.IO) {
@@ -196,6 +202,9 @@ class MainActivity : ComponentActivity() {
                                                         title = title,
                                                         content = content,
                                                         imagePath = imagePaths.toImagePathPayload(),
+                                                        mood = mood,
+                                                        weather = weather,
+                                                        tag = tag,
                                                         createdAt = now,
                                                         updatedAt = now
                                                     )
@@ -210,6 +219,9 @@ class MainActivity : ComponentActivity() {
                                                         title = title,
                                                         content = content,
                                                         imagePath = imagePaths.toImagePathPayload(),
+                                                        mood = mood,
+                                                        weather = weather,
+                                                        tag = tag,
                                                         updatedAt = now
                                                     ).toEntity()
                                                 )
@@ -419,6 +431,14 @@ private fun DiaryListSection(
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                                 )
+                                val metaLine = entry.toMetaLine()
+                                if (metaLine.isNotBlank()) {
+                                    Text(
+                                        text = metaLine,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                                 Text(
                                     text = entry.title,
                                     style = MaterialTheme.typography.titleMedium,
@@ -585,6 +605,7 @@ private fun BottomNavigationTab(
         }
     }
 }
+
 
 
 private fun List<String>.deleteInternalImageCopies(context: Context) {
