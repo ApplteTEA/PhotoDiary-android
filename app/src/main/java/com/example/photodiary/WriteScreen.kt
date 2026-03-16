@@ -51,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +62,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -80,6 +84,7 @@ fun WriteScreen(
     BackHandler(onBack = onBackClick)
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val initialDateMillis = remember(initialDiaryDate) {
         (initialDiaryDate ?: System.currentTimeMillis()).toDayStartMillis()
@@ -117,7 +122,22 @@ fun WriteScreen(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = MAX_IMAGE_COUNT),
         onResult = { uris ->
             if (uris.isNotEmpty()) {
-                appendImages(uris.map { it.toString() })
+                scope.launch {
+                    val copiedPaths = withContext(Dispatchers.IO) {
+                        uris.mapNotNull { uri ->
+                            copyImageToInternalStorage(context, uri)
+                        }
+                    }
+                    if (copiedPaths.isEmpty()) {
+                        Toast.makeText(
+                            context,
+                            "이미지를 불러오지 못했습니다.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        appendImages(copiedPaths)
+                    }
+                }
             }
         }
     )
@@ -398,7 +418,10 @@ fun WriteScreen(
                                 if (leftImage != null) {
                                     ThumbnailCard(
                                         imagePath = leftImage,
-                                        onDeleteClick = { imagePaths.remove(leftImage) },
+                                        onDeleteClick = {
+                                            deleteInternalImageIfExists(context, leftImage)
+                                            imagePaths.remove(leftImage)
+                                        },
                                         onPreviewClick = { previewImagePath = leftImage },
                                         modifier = Modifier.weight(1f)
                                     )
@@ -406,7 +429,10 @@ fun WriteScreen(
                                 if (rightImage != null) {
                                     ThumbnailCard(
                                         imagePath = rightImage,
-                                        onDeleteClick = { imagePaths.remove(rightImage) },
+                                        onDeleteClick = {
+                                            deleteInternalImageIfExists(context, rightImage)
+                                            imagePaths.remove(rightImage)
+                                        },
                                         onPreviewClick = { previewImagePath = rightImage },
                                         modifier = Modifier.weight(1f)
                                     )
@@ -482,6 +508,55 @@ private fun ThumbnailCard(
             }
         }
     }
+}
+
+
+private fun copyImageToInternalStorage(context: android.content.Context, sourceUri: Uri): String? {
+    return runCatching {
+        val resolver = context.contentResolver
+        val mimeType = resolver.getType(sourceUri)
+        val extension = when (mimeType) {
+            "image/png" -> "png"
+            "image/webp" -> "webp"
+            else -> "jpg"
+        }
+
+        val imageDirectory = File(context.filesDir, "images").apply {
+            if (!exists()) mkdirs()
+        }
+
+        val fileName = "gallery_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis())}_${(1000..9999).random()}.$extension"
+        val targetFile = File(imageDirectory, fileName)
+
+        resolver.openInputStream(sourceUri).use { input ->
+            if (input == null) return null
+            targetFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        Uri.fromFile(targetFile).toString()
+    }.getOrNull()
+}
+
+private fun deleteInternalImageIfExists(context: android.content.Context, imagePath: String) {
+    val file = imagePath.toInternalImageFileOrNull(context)
+    if (file?.exists() == true) {
+        file.delete()
+    }
+}
+
+private fun String.toInternalImageFileOrNull(context: android.content.Context): File? {
+    val parsed = runCatching { Uri.parse(this) }.getOrNull() ?: return null
+    val candidate = when {
+        parsed.scheme == "file" -> parsed.path?.let(::File)
+        startsWith(context.filesDir.absolutePath) -> File(this)
+        else -> null
+    } ?: return null
+
+    val basePath = runCatching { context.filesDir.canonicalPath }.getOrNull() ?: return null
+    val candidatePath = runCatching { candidate.canonicalPath }.getOrNull() ?: return null
+    return if (candidatePath.startsWith(basePath)) candidate else null
 }
 
 private fun createCameraImageUri(context: android.content.Context): Uri {

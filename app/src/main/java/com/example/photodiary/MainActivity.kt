@@ -1,7 +1,9 @@
 package com.example.photodiary
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -70,6 +72,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 private enum class AppScreen {
     Main,
@@ -169,6 +172,9 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                 )
                                             } else {
+                                                val previousImagePaths = editingEntry.imagePath.toImagePathList()
+                                                val removedImagePaths = previousImagePaths - imagePaths.toSet()
+
                                                 dao.update(
                                                     editingEntry.copy(
                                                         diaryDate = diaryDate.toDayStartMillis(),
@@ -178,6 +184,8 @@ class MainActivity : ComponentActivity() {
                                                         updatedAt = now
                                                     ).toEntity()
                                                 )
+
+                                                removedImagePaths.deleteInternalImageCopies(applicationContext)
                                             }
                                         }
                                         diaryEntries.replaceFromDatabase(dao)
@@ -200,6 +208,9 @@ class MainActivity : ComponentActivity() {
                                         scope.launch {
                                             withContext(Dispatchers.IO) {
                                                 dao.delete(selectedEntry.toEntity())
+                                                selectedEntry.imagePath
+                                                    .toImagePathList()
+                                                    .deleteInternalImageCopies(applicationContext)
                                             }
                                             diaryEntries.replaceFromDatabase(dao)
                                             selectedEntryId = null
@@ -517,6 +528,29 @@ private fun BottomNavigationTab(
     }
 }
 
+
+private fun List<String>.deleteInternalImageCopies(context: Context) {
+    forEach { path ->
+        path.toInternalImageFileOrNull(context)?.let { file ->
+            if (file.exists()) {
+                file.delete()
+            }
+        }
+    }
+}
+
+private fun String.toInternalImageFileOrNull(context: Context): File? {
+    val parsed = runCatching { Uri.parse(this) }.getOrNull() ?: return null
+    val candidate = when {
+        parsed.scheme == "file" -> parsed.path?.let(::File)
+        startsWith(context.filesDir.absolutePath) -> File(this)
+        else -> null
+    } ?: return null
+
+    val basePath = runCatching { context.filesDir.canonicalPath }.getOrNull() ?: return null
+    val candidatePath = runCatching { candidate.canonicalPath }.getOrNull() ?: return null
+    return if (candidatePath.startsWith(basePath)) candidate else null
+}
 
 private suspend fun MutableList<DiaryEntry>.replaceFromDatabase(dao: DiaryDao) {
     val loaded = withContext(Dispatchers.IO) {
