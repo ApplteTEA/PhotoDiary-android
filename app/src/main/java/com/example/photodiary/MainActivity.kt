@@ -171,7 +171,8 @@ class MainActivity : ComponentActivity() {
                             WriteScreen(
                                 onBackClick = {
                                     if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
-                                        calendarWriteDateMillis?.let { calendarSelectedDateMillis = it }
+                                        calendarSelectedDateMillis =
+                                            calendarWriteDateMillis ?: calendarSelectedDateMillis
                                         currentScreen = AppScreen.Calendar
                                         calendarWriteDateMillis = null
                                     } else {
@@ -216,7 +217,8 @@ class MainActivity : ComponentActivity() {
                                         }
                                         diaryEntries.replaceFromDatabase(dao)
                                         if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
-                                            calendarSelectedDateMillis = diaryDate.toDayStartMillis()
+                                            calendarSelectedDateMillis =
+                                                calendarWriteDateMillis ?: diaryDate.toDayStartMillis()
                                             currentScreen = AppScreen.Calendar
                                             calendarWriteDateMillis = null
                                         } else {
