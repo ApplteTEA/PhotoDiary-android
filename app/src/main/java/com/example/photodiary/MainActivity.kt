@@ -55,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -81,7 +82,8 @@ private enum class AppScreen {
     Write,
     Detail,
     Calendar,
-    MyPage
+    MyPage,
+    MonthReflection
 }
 
 data class DiaryEntry(
@@ -120,17 +122,23 @@ class MainActivity : ComponentActivity() {
                         mutableLongStateOf(System.currentTimeMillis().toDayStartMillis())
                     }
                     var calendarWriteDateMillis by remember { mutableStateOf<Long?>(null) }
+                    var selectedReflectionMonthKey by remember { mutableStateOf<String?>(null) }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
+                    val monthlyReflections = remember { mutableStateMapOf<String, MonthlyReflectionEntity>() }
                     val scope = rememberCoroutineScope()
-                    val dao = remember { DiaryDatabase.getInstance(applicationContext).diaryDao() }
+                    val database = remember { DiaryDatabase.getInstance(applicationContext) }
+                    val dao = remember { database.diaryDao() }
+                    val monthlyReflectionDao = remember { database.monthlyReflectionDao() }
 
                     LaunchedEffect(Unit) {
                         diaryEntries.replaceFromDatabase(dao)
+                        monthlyReflections.replaceFromDatabase(monthlyReflectionDao)
                     }
 
                     when (currentScreen) {
                         AppScreen.Main -> MainScreen(
                             entries = diaryEntries.toList(),
+                            monthlyReflections = monthlyReflections,
                             onCalendarClick = {
                                 calendarSelectedDateMillis = System.currentTimeMillis().toDayStartMillis()
                                 calendarWriteDateMillis = null
@@ -146,6 +154,10 @@ class MainActivity : ComponentActivity() {
                                 selectedEntryId = entryId
                                 detailBackScreen = AppScreen.Main
                                 currentScreen = AppScreen.Detail
+                            },
+                            onMonthlyReflectionClick = { monthKey ->
+                                selectedReflectionMonthKey = monthKey
+                                currentScreen = AppScreen.MonthReflection
                             }
                         )
 
@@ -273,6 +285,47 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
+                        AppScreen.MonthReflection -> {
+                            val monthKey = selectedReflectionMonthKey
+                            val currentMonthKey = System.currentTimeMillis().toYearMonthKey()
+                            if (monthKey.isNullOrBlank() || monthKey == currentMonthKey) {
+                                currentScreen = AppScreen.Main
+                            } else {
+                                val monthEntries = diaryEntries.filter { it.diaryDate.toYearMonthKey() == monthKey }
+                                val monthImagePaths = monthEntries
+                                    .flatMap { it.imagePath.toImagePathList() }
+                                    .distinct()
+                                MonthlyReflectionScreen(
+                                    monthKey = monthKey,
+                                    entriesCount = monthEntries.size,
+                                    imagePaths = monthImagePaths,
+                                    initialCoverImagePath = monthlyReflections[monthKey]?.coverImagePath.orEmpty(),
+                                    initialReflectionText = monthlyReflections[monthKey]?.reflectionText.orEmpty(),
+                                    onBackClick = { currentScreen = AppScreen.Main },
+                                    onSaveClick = { coverImagePath, reflectionText ->
+                                        scope.launch {
+                                            val now = System.currentTimeMillis()
+                                            withContext(Dispatchers.IO) {
+                                                val existing = monthlyReflectionDao.getByYearMonth(monthKey)
+                                                monthlyReflectionDao.upsert(
+                                                    MonthlyReflectionEntity(
+                                                        id = existing?.id ?: 0,
+                                                        yearMonth = monthKey,
+                                                        coverImagePath = coverImagePath,
+                                                        reflectionText = reflectionText,
+                                                        createdAt = existing?.createdAt ?: now,
+                                                        updatedAt = now
+                                                    )
+                                                )
+                                            }
+                                            monthlyReflections.replaceFromDatabase(monthlyReflectionDao)
+                                            currentScreen = AppScreen.Main
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
                         AppScreen.MyPage -> MyPageScreen(
                             diaryCount = diaryEntries.size,
                             onBackClick = { currentScreen = AppScreen.Main }
@@ -288,10 +341,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     entries: List<DiaryEntry>,
+    monthlyReflections: Map<String, MonthlyReflectionEntity>,
     onCalendarClick: () -> Unit,
     onMyPageClick: () -> Unit,
     onWriteClick: () -> Unit,
-    onEntryClick: (Long) -> Unit
+    onEntryClick: (Long) -> Unit,
+    onMonthlyReflectionClick: (String) -> Unit
 ) {
     val context = LocalContext.current
     var lastBackPressedAt by remember { mutableLongStateOf(0L) }
@@ -334,7 +389,9 @@ fun MainScreen(
         ) {
             DiaryListSection(
                 entries = sortedEntries,
+                monthlyReflections = monthlyReflections,
                 onEntryClick = onEntryClick,
+                onMonthlyReflectionClick = onMonthlyReflectionClick,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 12.dp, top = 8.dp, end = 12.dp)
@@ -346,7 +403,9 @@ fun MainScreen(
 @Composable
 private fun DiaryListSection(
     entries: List<DiaryEntry>,
+    monthlyReflections: Map<String, MonthlyReflectionEntity>,
     onEntryClick: (Long) -> Unit,
+    onMonthlyReflectionClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -379,18 +438,15 @@ private fun DiaryListSection(
                 )
             }
         } else {
+            val currentMonthKey = remember { System.currentTimeMillis().toYearMonthKey() }
             val groupedEntries = remember(entries) {
                 entries
-                    .groupBy { entry ->
-                        Calendar.getInstance().apply { timeInMillis = entry.diaryDate }.let {
-                            it.get(Calendar.YEAR) to it.get(Calendar.MONTH)
-                        }
-                    }
-                    .map { (yearMonth, monthEntries) ->
+                    .groupBy { it.diaryDate.toYearMonthKey() }
+                    .map { (yearMonthKey, monthEntries) ->
                         Triple(
-                            "${yearMonth.first}년 ${yearMonth.second + 1}월",
+                            yearMonthKey.toYearMonthLabel(),
                             monthEntries,
-                            "${yearMonth.first}-${yearMonth.second}"
+                            yearMonthKey
                         )
                     }
             }
@@ -402,12 +458,27 @@ private fun DiaryListSection(
             ) {
                 groupedEntries.forEach { (monthLabel, monthEntries, monthKey) ->
                     item(key = "header-$monthKey") {
-                        Text(
-                            text = monthLabel,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f),
-                            modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 4.dp)
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 4.dp, top = 8.dp, end = 2.dp, bottom = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = monthLabel,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
+                            )
+                            if (monthKey != currentMonthKey) {
+                                TextButton(onClick = { onMonthlyReflectionClick(monthKey) }) {
+                                    Text(
+                                        text = if (monthlyReflections[monthKey] == null) "회고 작성" else "회고 보기",
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     items(monthEntries, key = { it.id }) { entry ->
@@ -608,6 +679,22 @@ private fun BottomNavigationTab(
 
 
 
+
+private fun Long.toYearMonthKey(): String {
+    val cal = Calendar.getInstance().apply { timeInMillis = this@toYearMonthKey }
+    val year = cal.get(Calendar.YEAR)
+    val month = cal.get(Calendar.MONTH) + 1
+    return "%04d-%02d".format(year, month)
+}
+
+private fun String.toYearMonthLabel(): String {
+    val parts = split("-")
+    if (parts.size != 2) return this
+    val year = parts[0].toIntOrNull() ?: return this
+    val month = parts[1].toIntOrNull() ?: return this
+    return "${year}년 ${month}월"
+}
+
 private fun List<String>.deleteInternalImageCopies(context: Context) {
     forEach { path ->
         path.toInternalImageFileOrNull(context)?.let { file ->
@@ -637,4 +724,16 @@ private suspend fun MutableList<DiaryEntry>.replaceFromDatabase(dao: DiaryDao) {
     }
     clear()
     addAll(loaded)
+}
+
+private suspend fun MutableMap<String, MonthlyReflectionEntity>.replaceFromDatabase(
+    dao: MonthlyReflectionDao
+) {
+    val loaded = withContext(Dispatchers.IO) {
+        dao.getAll()
+    }
+    clear()
+    loaded.forEach { item ->
+        this[item.yearMonth] = item
+    }
 }
