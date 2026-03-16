@@ -1,7 +1,9 @@
 package com.example.photodiary
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +39,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
@@ -43,6 +47,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MyPageScreen(
     diaryCount: Int,
+    selectedTheme: DiaryTheme,
+    onThemeChange: (DiaryTheme) -> Unit,
     onBackClick: () -> Unit
 ) {
     BackHandler(onBack = onBackClick)
@@ -91,13 +97,9 @@ fun MyPageScreen(
                 )
             )
 
-            SectionCard(
-                icon = Icons.Outlined.Palette,
-                title = "표시 / 설정",
-                lines = listOf(
-                    "현재 테마: 라이트 모드",
-                    "시스템바: 투명 상태 유지"
-                )
+            ThemeSectionCard(
+                selectedTheme = selectedTheme,
+                onThemeChange = onThemeChange
             )
 
             SectionCard(
@@ -123,6 +125,87 @@ fun MyPageScreen(
 }
 
 @Composable
+private fun ThemeSectionCard(
+    selectedTheme: DiaryTheme,
+    onThemeChange: (DiaryTheme) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Palette,
+                        contentDescription = null,
+                        modifier = Modifier.padding(7.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                    )
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    text = "테마 선택",
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+
+            diaryThemeOptions.forEach { option ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .background(option.previewColor, CircleShape)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = option.theme.displayName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    RadioButton(
+                        selected = selectedTheme == option.theme,
+                        onClick = { onThemeChange(option.theme) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+data class DiaryThemeOption(
+    val theme: DiaryTheme,
+    val previewColor: Color
+)
+
+private val diaryThemeOptions = listOf(
+    DiaryThemeOption(DiaryTheme.Cream, Color(0xFFD6C5AB)),
+    DiaryThemeOption(DiaryTheme.SoftPink, Color(0xFFD5A9B4)),
+    DiaryThemeOption(DiaryTheme.SageGreen, Color(0xFF9DB49B)),
+    DiaryThemeOption(DiaryTheme.LightBlue, Color(0xFF9FBFD3)),
+    DiaryThemeOption(DiaryTheme.Lavender, Color(0xFFB3A8CC))
+)
+
+@Composable
 private fun SectionCard(
     icon: ImageVector,
     title: String,
@@ -137,8 +220,8 @@ private fun SectionCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -152,7 +235,7 @@ private fun SectionCard(
                         imageVector = icon,
                         contentDescription = null,
                         modifier = Modifier.padding(7.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
                     )
                 }
                 Spacer(modifier = Modifier.size(8.dp))
@@ -166,7 +249,7 @@ private fun SectionCard(
                 val color = if (index == 0) {
                     MaterialTheme.colorScheme.onSurface
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
                 }
                 Text(
                     text = line,

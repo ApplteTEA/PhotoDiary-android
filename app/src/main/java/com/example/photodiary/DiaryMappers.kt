@@ -6,6 +6,9 @@ fun DiaryEntity.toUiModel(): DiaryEntry = DiaryEntry(
     title = title,
     content = content,
     imagePath = imagePath,
+    mood = mood,
+    weather = weather,
+    tag = tag,
     createdAt = createdAt,
     updatedAt = updatedAt
 )
@@ -16,6 +19,9 @@ fun DiaryEntry.toEntity(): DiaryEntity = DiaryEntity(
     title = title,
     content = content,
     imagePath = imagePath,
+    mood = mood,
+    weather = weather,
+    tag = tag,
     createdAt = createdAt,
     updatedAt = updatedAt
 )

@@ -10,6 +10,9 @@ data class DiaryEntity(
     val title: String,
     val content: String,
     val imagePath: String?,
+    val mood: String = "",
+    val weather: String = "",
+    val tag: String = "",
     val createdAt: Long,
     val updatedAt: Long
 )
