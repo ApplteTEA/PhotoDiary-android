@@ -110,6 +110,10 @@ class MainActivity : ComponentActivity() {
                     var currentScreen by remember { mutableStateOf(AppScreen.Main) }
                     var selectedEntryId by remember { mutableStateOf<Long?>(null) }
                     var detailBackScreen by remember { mutableStateOf(AppScreen.Main) }
+                    var writeOriginScreen by remember { mutableStateOf(AppScreen.Main) }
+                    var calendarSelectedDateMillis by remember {
+                        mutableLongStateOf(System.currentTimeMillis().toDayStartMillis())
+                    }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
                     val scope = rememberCoroutineScope()
                     val dao = remember { DiaryDatabase.getInstance(applicationContext).diaryDao() }
@@ -121,10 +125,14 @@ class MainActivity : ComponentActivity() {
                     when (currentScreen) {
                         AppScreen.Main -> MainScreen(
                             entries = diaryEntries.toList(),
-                            onCalendarClick = { currentScreen = AppScreen.Calendar },
+                            onCalendarClick = {
+                                calendarSelectedDateMillis = System.currentTimeMillis().toDayStartMillis()
+                                currentScreen = AppScreen.Calendar
+                            },
                             onMyPageClick = { currentScreen = AppScreen.MyPage },
                             onWriteClick = {
                                 selectedEntryId = null
+                                writeOriginScreen = AppScreen.Main
                                 currentScreen = AppScreen.Write
                             },
                             onEntryClick = { entryId ->
@@ -139,6 +147,12 @@ class MainActivity : ComponentActivity() {
                             initialSelectedDateMillis = System.currentTimeMillis().toDayStartMillis(),
                             onSelectedDateChange = {},
                             onBackClick = { currentScreen = AppScreen.Main },
+                            onAddClick = { selectedDateMillis ->
+                                selectedEntryId = null
+                                writeOriginScreen = AppScreen.Calendar
+                                calendarSelectedDateMillis = selectedDateMillis.toDayStartMillis()
+                                currentScreen = AppScreen.Write
+                            },
                             onEntryClick = { entryId ->
                                 selectedEntryId = entryId
                                 detailBackScreen = AppScreen.Calendar
@@ -150,7 +164,7 @@ class MainActivity : ComponentActivity() {
                             val editingEntry = diaryEntries.firstOrNull { it.id == selectedEntryId }
                             WriteScreen(
                                 onBackClick = {
-                                    currentScreen = if (editingEntry == null) AppScreen.Main else AppScreen.Detail
+                                    currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
                                 },
                                 initialDiaryDate = editingEntry?.diaryDate,
                                 initialTitle = editingEntry?.title.orEmpty(),
@@ -189,7 +203,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                         diaryEntries.replaceFromDatabase(dao)
-                                        currentScreen = if (editingEntry == null) AppScreen.Main else AppScreen.Detail
+                                        currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
                                     }
                                 }
                             )
@@ -203,7 +217,10 @@ class MainActivity : ComponentActivity() {
                                 DetailScreen(
                                     entry = selectedEntry,
                                     onBackClick = { currentScreen = detailBackScreen },
-                                    onEditClick = { currentScreen = AppScreen.Write },
+                                    onEditClick = {
+                                        writeOriginScreen = AppScreen.Detail
+                                        currentScreen = AppScreen.Write
+                                    },
                                     onDeleteClick = {
                                         scope.launch {
                                             withContext(Dispatchers.IO) {

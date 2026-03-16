@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -67,6 +68,7 @@ fun CalendarScreen(
     initialSelectedDateMillis: Long,
     onSelectedDateChange: (Long) -> Unit,
     onBackClick: () -> Unit,
+    onAddClick: (Long) -> Unit,
     onEntryClick: (Long) -> Unit
 ) {
     BackHandler(onBack = onBackClick)
@@ -123,6 +125,14 @@ fun CalendarScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "뒤로가기"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onAddClick(selectedDateMillis.toDayStartMillis()) }) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "기록 추가"
                         )
                     }
                 },
