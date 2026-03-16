@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.clickable
@@ -37,10 +38,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -53,7 +54,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -179,7 +179,7 @@ fun WriteScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = 520.dp),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Crop
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -249,7 +249,7 @@ fun WriteScreen(
                 .padding(horizontal = 14.dp)
                 .padding(top = 3.dp, bottom = 8.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -295,129 +295,129 @@ fun WriteScreen(
                 }
             }
 
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                placeholder = {
+                    Text(
+                        text = "제목",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                textStyle = MaterialTheme.typography.titleMedium,
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.28f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    cursorColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+
+            OutlinedTextField(
+                value = content,
+                onValueChange = { content = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 190.dp),
+                placeholder = {
+                    Text(
+                        text = "내용을 입력해주세요",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                textStyle = MaterialTheme.typography.bodyLarge,
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.28f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    cursorColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.5.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TextField(
-                        value = title,
-                        onValueChange = { title = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        placeholder = {
-                            Text(
-                                text = "제목",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.titleMedium,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            disabledContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent,
-                            cursorColor = MaterialTheme.colorScheme.onSurface
-                        )
-                    )
-
-                    TextField(
-                        value = content,
-                        onValueChange = { content = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 176.dp),
-                        placeholder = {
-                            Text(
-                                text = "내용을 입력하세요",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            disabledContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent,
-                            cursorColor = MaterialTheme.colorScheme.onSurface
-                        )
-                    )
-                }
-            }
-
-            Text(
-                text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-            )
-
-            imagePaths.forEachIndexed { index, _ ->
-                if (index % 2 == 0) {
-                    val leftImage = imagePaths.getOrNull(index)
-                    val rightImage = imagePaths.getOrNull(index + 1)
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (leftImage != null) {
-                            ThumbnailCard(
-                                imagePath = leftImage,
-                                onDeleteClick = { imagePaths.remove(leftImage) },
-                                onPreviewClick = { previewImagePath = leftImage },
-                                modifier = Modifier.weight(1f)
+                        Text(
+                            text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        TextButton(
+                            onClick = {
+                                if (imagePaths.size >= MAX_IMAGE_COUNT) {
+                                    Toast.makeText(
+                                        context,
+                                        "사진은 최대 5장까지 첨부할 수 있습니다.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    showAttachPicker = true
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.PhotoLibrary,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .size(16.dp)
                             )
-                        }
-                        if (rightImage != null) {
-                            ThumbnailCard(
-                                imagePath = rightImage,
-                                onDeleteClick = { imagePaths.remove(rightImage) },
-                                onPreviewClick = { previewImagePath = rightImage },
-                                modifier = Modifier.weight(1f)
-                            )
-                        } else {
-                            Box(modifier = Modifier.weight(1f))
+                            Text(text = "사진 추가")
                         }
                     }
-                }
-            }
 
-            TextButton(
-                onClick = {
-                    if (imagePaths.size >= MAX_IMAGE_COUNT) {
-                        Toast.makeText(
-                            context,
-                            "사진은 최대 5장까지 첨부할 수 있습니다.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        showAttachPicker = true
+                    imagePaths.forEachIndexed { index, _ ->
+                        if (index % 2 == 0) {
+                            val leftImage = imagePaths.getOrNull(index)
+                            val rightImage = imagePaths.getOrNull(index + 1)
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (leftImage != null) {
+                                    ThumbnailCard(
+                                        imagePath = leftImage,
+                                        onDeleteClick = { imagePaths.remove(leftImage) },
+                                        onPreviewClick = { previewImagePath = leftImage },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                if (rightImage != null) {
+                                    ThumbnailCard(
+                                        imagePath = rightImage,
+                                        onDeleteClick = { imagePaths.remove(rightImage) },
+                                        onPreviewClick = { previewImagePath = rightImage },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                } else {
+                                    Box(modifier = Modifier.weight(1f))
+                                }
+                            }
+                        }
                     }
-                },
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(top = if (imagePaths.isEmpty()) 0.dp else 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PhotoLibrary,
-                    contentDescription = null,
-                    modifier = Modifier.padding(end = 6.dp)
-                )
-                Text(text = "사진 추가")
+
+                }
             }
         }
     }
@@ -432,7 +432,7 @@ private fun ThumbnailCard(
 ) {
     Card(
         modifier = modifier
-            .aspectRatio(4f / 5f),
+            .aspectRatio(1f),
         shape = RoundedCornerShape(12.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -440,20 +440,24 @@ private fun ThumbnailCard(
                 model = Uri.parse(imagePath),
                 contentDescription = "첨부 이미지",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Crop
             )
 
             Surface(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp),
+                    .padding(6.dp),
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
             ) {
-                IconButton(onClick = onDeleteClick) {
+                IconButton(
+                    onClick = onDeleteClick,
+                    modifier = Modifier.size(30.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
-                        contentDescription = "이미지 삭제"
+                        contentDescription = "이미지 삭제",
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -461,14 +465,18 @@ private fun ThumbnailCard(
             Surface(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(8.dp),
+                    .padding(6.dp),
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
             ) {
-                IconButton(onClick = onPreviewClick) {
+                IconButton(
+                    onClick = onPreviewClick,
+                    modifier = Modifier.size(30.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.ZoomIn,
-                        contentDescription = "이미지 확대"
+                        contentDescription = "이미지 확대",
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
