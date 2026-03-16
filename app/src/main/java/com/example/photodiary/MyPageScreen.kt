@@ -137,8 +137,8 @@ private fun SectionCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -152,7 +152,7 @@ private fun SectionCard(
                         imageVector = icon,
                         contentDescription = null,
                         modifier = Modifier.padding(7.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
                     )
                 }
                 Spacer(modifier = Modifier.size(8.dp))
@@ -166,7 +166,7 @@ private fun SectionCard(
                 val color = if (index == 0) {
                     MaterialTheme.colorScheme.onSurface
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
                 }
                 Text(
                     text = line,
