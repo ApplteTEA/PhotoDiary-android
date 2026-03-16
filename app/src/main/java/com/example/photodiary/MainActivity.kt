@@ -16,18 +16,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Card
@@ -37,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +57,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -400,41 +404,60 @@ private fun BottomButtonBar(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 1.dp
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
-            TextButton(
-                onClick = onCalendarClick,
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(46.dp)
+                    .fillMaxWidth()
+                    .height(46.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Calendar")
+                TextButton(
+                    onClick = onCalendarClick,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "Calendar",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(64.dp))
+
+                TextButton(
+                    onClick = onMyPageClick,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "MyPage",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
 
-            FilledTonalButton(
-                onClick = onWriteClick,
+            Surface(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(46.dp)
+                    .align(Alignment.TopCenter)
+                    .offset(y = (-12).dp),
+                shape = RoundedCornerShape(999.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                tonalElevation = 2.dp,
+                shadowElevation = 2.dp
             ) {
-                Text(
-                    text = "Write",
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-            TextButton(
-                onClick = onMyPageClick,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(46.dp)
-            ) {
-                Text(text = "MyPage")
+                IconButton(
+                    onClick = onWriteClick,
+                    modifier = Modifier.size(50.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "새 일기 작성",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
         }
     }
