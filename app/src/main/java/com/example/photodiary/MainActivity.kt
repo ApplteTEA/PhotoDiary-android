@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -62,6 +63,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -404,69 +406,79 @@ private fun BottomButtonBar(
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp
+        tonalElevation = 2.dp,
+        shadowElevation = 1.dp
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(start = 14.dp, top = 6.dp, end = 14.dp, bottom = 10.dp)
-        ) {
-            Row(
+        Column(modifier = Modifier.fillMaxWidth()) {
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                thickness = 1.dp
+            )
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp)
-                    .height(50.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    .navigationBarsPadding()
+                    .padding(start = 14.dp, top = 8.dp, end = 14.dp, bottom = 10.dp)
             ) {
-                BottomNavigationTab(
-                    text = "Calendar",
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.CalendarToday,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    },
-                    selected = false,
-                    modifier = Modifier.weight(1f),
-                    onClick = onCalendarClick
-                )
-
-                Spacer(modifier = Modifier.width(68.dp))
-
-                BottomNavigationTab(
-                    text = "MyPage",
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    },
-                    selected = false,
-                    modifier = Modifier.weight(1f),
-                    onClick = onMyPageClick
-                )
-            }
-
-            Surface(
-                modifier = Modifier.align(Alignment.TopCenter),
-                shape = RoundedCornerShape(999.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-                tonalElevation = 1.dp,
-                shadowElevation = 1.dp
-            ) {
-                IconButton(
-                    onClick = onWriteClick,
-                    modifier = Modifier.size(52.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .height(50.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "새 일기 작성",
-                        tint = MaterialTheme.colorScheme.onSurface
+                    BottomNavigationTab(
+                        text = "Calendar",
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Filled.CalendarToday,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        selected = false,
+                        modifier = Modifier.weight(1f),
+                        onClick = onCalendarClick
                     )
+
+                    Spacer(modifier = Modifier.width(68.dp))
+
+                    BottomNavigationTab(
+                        text = "MyPage",
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        selected = false,
+                        modifier = Modifier.weight(1f),
+                        onClick = onMyPageClick
+                    )
+                }
+
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .offset(y = (-4).dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 2.dp,
+                    shadowElevation = 1.dp
+                ) {
+                    IconButton(
+                        onClick = onWriteClick,
+                        modifier = Modifier.size(52.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "새 일기 작성",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
             }
         }
@@ -495,6 +507,9 @@ private fun BottomNavigationTab(
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             }
+        }
+    }
+}
 
             androidx.compose.material3.ProvideTextStyle(
                 MaterialTheme.typography.labelSmall.copy(color = contentColor)
