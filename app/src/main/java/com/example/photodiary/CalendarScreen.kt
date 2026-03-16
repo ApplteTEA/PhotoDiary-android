@@ -115,7 +115,7 @@ fun CalendarScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Calendar",
+                        text = "일정",
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
