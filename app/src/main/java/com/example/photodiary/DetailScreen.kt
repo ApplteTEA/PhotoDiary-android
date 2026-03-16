@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 
@@ -124,7 +126,7 @@ fun DetailScreen(
                 .padding(horizontal = 14.dp)
                 .padding(top = 6.dp, bottom = 10.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -135,12 +137,12 @@ fun DetailScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
                         text = entry.diaryDate.toDisplayDate(),
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
@@ -151,7 +153,8 @@ fun DetailScreen(
 
                     Text(
                         text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -169,11 +172,22 @@ fun DetailScreen(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "첨부 사진",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "기록에 담은 사진",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "${imagePaths.size}장",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
 
                         imagePaths.forEachIndexed { index, _ ->
                             if (index % 2 == 0) {
@@ -232,15 +246,19 @@ private fun DetailThumbnailCard(
 
             Surface(
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(8.dp),
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
             ) {
-                IconButton(onClick = onPreviewClick) {
+                IconButton(
+                    onClick = onPreviewClick,
+                    modifier = Modifier.size(28.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.ZoomIn,
-                        contentDescription = "이미지 확대"
+                        contentDescription = "이미지 확대",
+                        modifier = Modifier.size(14.dp)
                     )
                 }
             }
