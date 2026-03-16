@@ -269,7 +269,7 @@ fun MonthlyReflectionScreen(
                         )
                     }
                 }
-            )
+            }
         }
     }
 }
