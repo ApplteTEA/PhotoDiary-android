@@ -56,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -431,13 +432,7 @@ private fun BottomButtonBar(
                 ) {
                     BottomNavigationTab(
                         text = "Calendar",
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.CalendarToday,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        },
+                        icon = Icons.Filled.CalendarToday,
                         selected = false,
                         modifier = Modifier.weight(1f),
                         onClick = onCalendarClick
@@ -447,13 +442,7 @@ private fun BottomButtonBar(
 
                     BottomNavigationTab(
                         text = "MyPage",
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.Person,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        },
+                        icon = Icons.Filled.Person,
                         selected = false,
                         modifier = Modifier.weight(1f),
                         onClick = onMyPageClick
@@ -488,11 +477,17 @@ private fun BottomButtonBar(
 @Composable
 private fun BottomNavigationTab(
     text: String,
-    icon: @Composable () -> Unit,
+    icon: ImageVector,
     selected: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
     TextButton(
         onClick = onClick,
         modifier = modifier
@@ -502,25 +497,17 @@ private fun BottomNavigationTab(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            val contentColor = if (selected) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            }
-        }
-    }
-}
-
-            androidx.compose.material3.ProvideTextStyle(
-                MaterialTheme.typography.labelSmall.copy(color = contentColor)
-            ) {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.material3.LocalContentColor provides contentColor
-                ) {
-                    icon()
-                    Text(text = text)
-                }
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = contentColor
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall,
+                color = contentColor
+            )
         }
     }
 }
