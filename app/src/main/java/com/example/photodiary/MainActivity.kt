@@ -507,6 +507,9 @@ private fun BottomNavigationTab(
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             }
+        }
+    }
+}
 
             androidx.compose.material3.ProvideTextStyle(
                 MaterialTheme.typography.labelSmall.copy(color = contentColor)
