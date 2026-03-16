@@ -162,11 +162,13 @@ class MainActivity : ComponentActivity() {
 
                         AppScreen.Write -> {
                             val editingEntry = diaryEntries.firstOrNull { it.id == selectedEntryId }
+                            val writeInitialDiaryDate = editingEntry?.diaryDate
+                                ?: if (writeOriginScreen == AppScreen.Calendar) calendarSelectedDateMillis else null
                             WriteScreen(
                                 onBackClick = {
                                     currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
                                 },
-                                initialDiaryDate = editingEntry?.diaryDate,
+                                initialDiaryDate = writeInitialDiaryDate,
                                 initialTitle = editingEntry?.title.orEmpty(),
                                 initialContent = editingEntry?.content.orEmpty(),
                                 initialImagePaths = editingEntry?.imagePath.toImagePathList(),
