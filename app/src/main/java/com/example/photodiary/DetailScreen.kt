@@ -156,63 +156,43 @@ fun DetailScreen(
                         style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                }
-            }
 
-            if (imagePaths.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    if (imagePaths.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.padding(top = 2.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "기록에 담은 사진",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "${imagePaths.size}장",
+                                text = "사진 ${imagePaths.size}장",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                        }
 
-                        imagePaths.forEachIndexed { index, _ ->
-                            if (index % 2 == 0) {
-                                val leftImage = imagePaths.getOrNull(index)
-                                val rightImage = imagePaths.getOrNull(index + 1)
+                            imagePaths.forEachIndexed { index, _ ->
+                                if (index % 2 == 0) {
+                                    val leftImage = imagePaths.getOrNull(index)
+                                    val rightImage = imagePaths.getOrNull(index + 1)
 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    if (leftImage != null) {
-                                        DetailThumbnailCard(
-                                            imagePath = leftImage,
-                                            onPreviewClick = { previewImagePath = leftImage },
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                    }
-                                    if (rightImage != null) {
-                                        DetailThumbnailCard(
-                                            imagePath = rightImage,
-                                            onPreviewClick = { previewImagePath = rightImage },
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                    } else {
-                                        Box(modifier = Modifier.weight(1f))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        if (leftImage != null) {
+                                            DetailThumbnailCard(
+                                                imagePath = leftImage,
+                                                onPreviewClick = { previewImagePath = leftImage },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
+                                        if (rightImage != null) {
+                                            DetailThumbnailCard(
+                                                imagePath = rightImage,
+                                                onPreviewClick = { previewImagePath = rightImage },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        } else {
+                                            Box(modifier = Modifier.weight(1f))
+                                        }
                                     }
                                 }
                             }
@@ -253,12 +233,12 @@ private fun DetailThumbnailCard(
             ) {
                 IconButton(
                     onClick = onPreviewClick,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(26.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ZoomIn,
                         contentDescription = "이미지 확대",
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
