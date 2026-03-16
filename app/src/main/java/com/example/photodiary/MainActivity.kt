@@ -107,9 +107,6 @@ class MainActivity : ComponentActivity() {
                     var currentScreen by remember { mutableStateOf(AppScreen.Main) }
                     var selectedEntryId by remember { mutableStateOf<Long?>(null) }
                     var detailBackScreen by remember { mutableStateOf(AppScreen.Main) }
-                    var calendarSelectedDateMillis by remember {
-                        mutableLongStateOf(System.currentTimeMillis().toDayStartMillis())
-                    }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
                     val scope = rememberCoroutineScope()
                     val dao = remember { DiaryDatabase.getInstance(applicationContext).diaryDao() }
@@ -136,8 +133,8 @@ class MainActivity : ComponentActivity() {
 
                         AppScreen.Calendar -> CalendarScreen(
                             entries = diaryEntries.toList(),
-                            initialSelectedDateMillis = calendarSelectedDateMillis,
-                            onSelectedDateChange = { calendarSelectedDateMillis = it },
+                            initialSelectedDateMillis = System.currentTimeMillis().toDayStartMillis(),
+                            onSelectedDateChange = {},
                             onBackClick = { currentScreen = AppScreen.Main },
                             onEntryClick = { entryId ->
                                 selectedEntryId = entryId
