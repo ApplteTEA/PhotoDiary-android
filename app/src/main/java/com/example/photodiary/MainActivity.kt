@@ -146,8 +146,8 @@ class MainActivity : ComponentActivity() {
 
                         AppScreen.Calendar -> CalendarScreen(
                             entries = diaryEntries.toList(),
-                            initialSelectedDateMillis = System.currentTimeMillis().toDayStartMillis(),
-                            onSelectedDateChange = {},
+                            initialSelectedDateMillis = calendarSelectedDateMillis,
+                            onSelectedDateChange = { calendarSelectedDateMillis = it },
                             onBackClick = { currentScreen = AppScreen.Main },
                             onAddClick = { selectedDateMillis ->
                                 selectedEntryId = null
@@ -171,8 +171,6 @@ class MainActivity : ComponentActivity() {
                             WriteScreen(
                                 onBackClick = {
                                     if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
-                                        calendarSelectedDateMillis =
-                                            calendarWriteDateMillis ?: calendarSelectedDateMillis
                                         currentScreen = AppScreen.Calendar
                                         calendarWriteDateMillis = null
                                     } else {
@@ -217,8 +215,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                         diaryEntries.replaceFromDatabase(dao)
                                         if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
-                                            calendarSelectedDateMillis =
-                                                calendarWriteDateMillis ?: diaryDate.toDayStartMillis()
+                                            calendarSelectedDateMillis = diaryDate.toDayStartMillis()
                                             currentScreen = AppScreen.Calendar
                                             calendarWriteDateMillis = null
                                         } else {
