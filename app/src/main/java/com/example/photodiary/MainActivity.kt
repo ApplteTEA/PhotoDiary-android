@@ -429,13 +429,13 @@ private fun BottomButtonBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(start = 14.dp, top = 7.dp, end = 14.dp, bottom = 9.dp)
-                    .height(70.dp)
+                    .padding(start = 14.dp, top = 6.dp, end = 14.dp, bottom = 8.dp)
+                    .height(68.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
+                        .align(Alignment.Center)
                         .height(50.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -448,7 +448,7 @@ private fun BottomButtonBar(
                         onClick = onCalendarClick
                     )
 
-                    Spacer(modifier = Modifier.width(68.dp))
+                    Spacer(modifier = Modifier.width(66.dp))
 
                     BottomNavigationTab(
                         text = "MyPage",
@@ -461,8 +461,8 @@ private fun BottomButtonBar(
 
                 Box(
                     modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .offset(y = 0.dp)
+                        .align(Alignment.Center)
+                        .offset(y = (-10).dp)
                         .size(56.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surface)
