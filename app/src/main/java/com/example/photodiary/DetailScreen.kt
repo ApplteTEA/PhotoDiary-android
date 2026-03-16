@@ -148,7 +148,7 @@ fun DetailScreen(
 
                     Text(
                         text = entry.title,
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.titleLarge
                     )
 
                     Text(
