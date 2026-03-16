@@ -114,6 +114,7 @@ class MainActivity : ComponentActivity() {
                     var calendarSelectedDateMillis by remember {
                         mutableLongStateOf(System.currentTimeMillis().toDayStartMillis())
                     }
+                    var calendarWriteDateMillis by remember { mutableStateOf<Long?>(null) }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
                     val scope = rememberCoroutineScope()
                     val dao = remember { DiaryDatabase.getInstance(applicationContext).diaryDao() }
@@ -127,6 +128,7 @@ class MainActivity : ComponentActivity() {
                             entries = diaryEntries.toList(),
                             onCalendarClick = {
                                 calendarSelectedDateMillis = System.currentTimeMillis().toDayStartMillis()
+                                calendarWriteDateMillis = null
                                 currentScreen = AppScreen.Calendar
                             },
                             onMyPageClick = { currentScreen = AppScreen.MyPage },
@@ -151,6 +153,7 @@ class MainActivity : ComponentActivity() {
                                 selectedEntryId = null
                                 writeOriginScreen = AppScreen.Calendar
                                 calendarSelectedDateMillis = selectedDateMillis.toDayStartMillis()
+                                calendarWriteDateMillis = selectedDateMillis.toDayStartMillis()
                                 currentScreen = AppScreen.Write
                             },
                             onEntryClick = { entryId ->
@@ -163,10 +166,17 @@ class MainActivity : ComponentActivity() {
                         AppScreen.Write -> {
                             val editingEntry = diaryEntries.firstOrNull { it.id == selectedEntryId }
                             val writeInitialDiaryDate = editingEntry?.diaryDate
+                                ?: calendarWriteDateMillis
                                 ?: if (writeOriginScreen == AppScreen.Calendar) calendarSelectedDateMillis else null
                             WriteScreen(
                                 onBackClick = {
-                                    currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
+                                    if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
+                                        calendarWriteDateMillis?.let { calendarSelectedDateMillis = it }
+                                        currentScreen = AppScreen.Calendar
+                                        calendarWriteDateMillis = null
+                                    } else {
+                                        currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
+                                    }
                                 },
                                 initialDiaryDate = writeInitialDiaryDate,
                                 initialTitle = editingEntry?.title.orEmpty(),
@@ -205,7 +215,13 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                         diaryEntries.replaceFromDatabase(dao)
-                                        currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
+                                        if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
+                                            calendarSelectedDateMillis = diaryDate.toDayStartMillis()
+                                            currentScreen = AppScreen.Calendar
+                                            calendarWriteDateMillis = null
+                                        } else {
+                                            currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
+                                        }
                                     }
                                 }
                             )
@@ -221,6 +237,7 @@ class MainActivity : ComponentActivity() {
                                     onBackClick = { currentScreen = detailBackScreen },
                                     onEditClick = {
                                         writeOriginScreen = AppScreen.Detail
+                                        calendarWriteDateMillis = null
                                         currentScreen = AppScreen.Write
                                     },
                                     onDeleteClick = {
