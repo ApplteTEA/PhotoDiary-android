@@ -161,7 +161,7 @@ fun DetailScreen(
                 .padding(horizontal = 14.dp)
                 .padding(top = 6.dp, bottom = 10.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -173,12 +173,12 @@ fun DetailScreen(
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text(
                         text = entry.diaryDate.toDisplayDate(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
                     )
 
                     Text(
@@ -188,15 +188,15 @@ fun DetailScreen(
 
                     Text(
                         text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 26.sp),
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 2.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     )
 
                     if (imagePaths.isNotEmpty()) {
                         Column(
-                            modifier = Modifier.padding(top = 2.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                            modifier = Modifier.padding(top = 4.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
                                 text = "사진 ${imagePaths.size}장",

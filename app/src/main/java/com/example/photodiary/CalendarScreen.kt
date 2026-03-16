@@ -306,12 +306,12 @@ fun CalendarScreen(
                                 ) {
                                     Column(
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-                                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         Text(
                                             text = entry.diaryDate.toDisplayDate(),
                                             style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                                         )
                                         Text(
                                             text = entry.title,

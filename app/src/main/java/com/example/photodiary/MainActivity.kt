@@ -360,7 +360,7 @@ private fun DiaryListSection(
                     modifier = Modifier.padding(top = 10.dp)
                 )
                 Text(
-                    text = "+ 버튼으로 첫 기록을 남겨보세요.",
+                    text = "Write 버튼으로 첫 기록을 남겨보세요.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
@@ -393,8 +393,8 @@ private fun DiaryListSection(
                         Text(
                             text = monthLabel,
                             style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 2.dp, top = 4.dp, bottom = 2.dp)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f),
+                            modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 4.dp)
                         )
                     }
 
@@ -412,16 +412,16 @@ private fun DiaryListSection(
                         ) {
                             Column(
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-                                verticalArrangement = Arrangement.spacedBy(3.dp)
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Text(
                                     text = entry.diaryDate.toDisplayDate(),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                                 )
                                 Text(
                                     text = entry.title,
-                                    style = MaterialTheme.typography.titleSmall,
+                                    style = MaterialTheme.typography.titleMedium,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )

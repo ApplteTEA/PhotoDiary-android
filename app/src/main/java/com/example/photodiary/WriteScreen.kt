@@ -387,11 +387,11 @@ fun WriteScreen(
                 textStyle = MaterialTheme.typography.titleMedium,
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
                     cursorColor = MaterialTheme.colorScheme.onSurface
                 )
             )
@@ -411,11 +411,11 @@ fun WriteScreen(
                 textStyle = MaterialTheme.typography.bodyLarge,
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
                     cursorColor = MaterialTheme.colorScheme.onSurface
                 )
             )
