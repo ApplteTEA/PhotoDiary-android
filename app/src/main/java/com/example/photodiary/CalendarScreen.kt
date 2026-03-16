@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -290,8 +289,8 @@ fun CalendarScreen(
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(9.dp),
-                            contentPadding = PaddingValues(top = 6.dp, bottom = 10.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(top = 4.dp, bottom = 10.dp)
                         ) {
                             items(filteredEntries, key = { it.id }) { entry ->
                                 val imagePaths = entry.imagePath.toImagePathList().take(5)
@@ -306,17 +305,17 @@ fun CalendarScreen(
                                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                                        verticalArrangement = Arrangement.spacedBy(3.dp)
                                     ) {
                                         Text(
                                             text = entry.diaryDate.toDisplayDate(),
-                                            style = MaterialTheme.typography.labelSmall
-                                                .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
                                         )
                                         Text(
                                             text = entry.title,
-                                            style = MaterialTheme.typography.titleMedium,
+                                            style = MaterialTheme.typography.titleSmall,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -331,14 +330,14 @@ fun CalendarScreen(
                                             Row(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .padding(top = 4.dp)
+                                                    .padding(top = 5.dp)
                                                     .horizontalScroll(rememberScrollState()),
                                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                                             ) {
                                                 imagePaths.forEach { imagePath ->
                                                     Box(
                                                         modifier = Modifier
-                                                            .size(64.dp)
+                                                            .size(62.dp)
                                                             .clip(RoundedCornerShape(10.dp))
                                                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f))
                                                     ) {

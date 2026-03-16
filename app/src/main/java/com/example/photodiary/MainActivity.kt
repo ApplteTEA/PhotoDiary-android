@@ -11,12 +11,12 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
@@ -73,6 +74,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.Calendar
 
 private enum class AppScreen {
     Main,
@@ -171,6 +173,8 @@ class MainActivity : ComponentActivity() {
                             WriteScreen(
                                 onBackClick = {
                                     if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
+                                        calendarSelectedDateMillis =
+                                            calendarWriteDateMillis ?: calendarSelectedDateMillis
                                         currentScreen = AppScreen.Calendar
                                         calendarWriteDateMillis = null
                                     } else {
@@ -215,7 +219,8 @@ class MainActivity : ComponentActivity() {
                                         }
                                         diaryEntries.replaceFromDatabase(dao)
                                         if (editingEntry == null && writeOriginScreen == AppScreen.Calendar) {
-                                            calendarSelectedDateMillis = diaryDate.toDayStartMillis()
+                                            calendarSelectedDateMillis =
+                                                calendarWriteDateMillis ?: diaryDate.toDayStartMillis()
                                             currentScreen = AppScreen.Calendar
                                             calendarWriteDateMillis = null
                                         } else {
@@ -362,76 +367,94 @@ private fun DiaryListSection(
                 )
             }
         } else {
+            val groupedEntries = remember(entries) {
+                entries
+                    .groupBy { entry ->
+                        Calendar.getInstance().apply { timeInMillis = entry.diaryDate }.let {
+                            it.get(Calendar.YEAR) to it.get(Calendar.MONTH)
+                        }
+                    }
+                    .map { (yearMonth, monthEntries) ->
+                        Triple(
+                            "${yearMonth.first}년 ${yearMonth.second + 1}월",
+                            monthEntries,
+                            "${yearMonth.first}-${yearMonth.second}"
+                        )
+                    }
+            }
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(9.dp),
-                contentPadding = PaddingValues(top = 6.dp, bottom = 12.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(top = 4.dp, bottom = 12.dp)
             ) {
-                items(entries, key = { it.id }) { entry ->
-                    val imagePaths = entry.imagePath.toImagePathList().take(5)
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onEntryClick(entry.id) },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = entry.diaryDate.toDisplayDate(),
-                                style = MaterialTheme.typography.labelSmall
-                                    .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            )
-                            Text(
-                                text = entry.title,
-                                style = MaterialTheme.typography.titleMedium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = entry.content,
-                                style = MaterialTheme.typography.bodyMedium,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                groupedEntries.forEach { (monthLabel, monthEntries, monthKey) ->
+                    item(key = "header-$monthKey") {
+                        Text(
+                            text = monthLabel,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 2.dp, top = 4.dp, bottom = 2.dp)
+                        )
+                    }
 
-                            if (imagePaths.isNotEmpty()) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 4.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    imagePaths.forEach { imagePath ->
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .aspectRatio(1f)
-                                                .clip(RoundedCornerShape(10.dp))
-                                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f))
-                                        ) {
-                                            AsyncImage(
-                                                model = imagePath,
-                                                contentDescription = "첨부 이미지",
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentScale = ContentScale.Crop
-                                            )
+                    items(monthEntries, key = { it.id }) { entry ->
+                        val imagePaths = entry.imagePath.toImagePathList().take(5)
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onEntryClick(entry.id) },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                                verticalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
+                                Text(
+                                    text = entry.diaryDate.toDisplayDate(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+                                )
+                                Text(
+                                    text = entry.title,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = entry.content,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                if (imagePaths.isNotEmpty()) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 5.dp)
+                                            .horizontalScroll(rememberScrollState()),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        imagePaths.forEach { imagePath ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(62.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f))
+                                            ) {
+                                                AsyncImage(
+                                                    model = imagePath,
+                                                    contentDescription = "첨부 이미지",
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                            }
                                         }
-                                    }
-                                    repeat(5 - imagePaths.size) {
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .aspectRatio(1f)
-                                                .clip(RoundedCornerShape(10.dp))
-                                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
-                                        )
                                     }
                                 }
                             }
