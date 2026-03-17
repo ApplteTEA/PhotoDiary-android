@@ -515,53 +515,6 @@ fun WriteScreen(
                 }
             }
 
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                placeholder = {
-                    Text(
-                        text = "제목",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                textStyle = MaterialTheme.typography.titleMedium,
-                shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
-                    cursorColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-
-            OutlinedTextField(
-                value = content,
-                onValueChange = { content = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 190.dp),
-                placeholder = {
-                    Text(
-                        text = "내용을 입력해주세요",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                textStyle = MaterialTheme.typography.bodyLarge,
-                shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
-                    cursorColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
