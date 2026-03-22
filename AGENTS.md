@@ -60,3 +60,13 @@
   - regression risks
   - manual QA checklist
   - remaining issues
+
+## Finalization Protocol For Completed Work
+- Only when the user's full requested scope is complete, finalize work in this order:
+  1. self-check of the implemented changes
+  2. final review through the `reviewer` role when possible, or the closest available review procedure
+  3. summarize regression risks, missing tests, and manual QA checklist
+  4. create a GitHub branch when possible
+  5. create a PR when possible
+  6. if PR creation is not possible, clearly explain why and replace it with a local final review result
+- Do not create a branch or PR for partial progress or intermediate milestones.
