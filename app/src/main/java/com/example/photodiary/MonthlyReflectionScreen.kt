@@ -61,12 +61,22 @@ fun MonthlyReflectionScreen(
 ) {
     BackHandler(onBack = onBackClick)
 
-    var selectedCoverImagePath by remember(initialCoverImagePath) {
-        mutableStateOf(initialCoverImagePath)
+    var selectedCoverImagePath by remember(initialCoverImagePath, imagePaths) {
+        mutableStateOf(
+            when {
+                initialCoverImagePath.isNotBlank() -> initialCoverImagePath
+                imagePaths.size == 1 -> imagePaths.first()
+                else -> ""
+            }
+        )
     }
     var reflectionText by remember(initialReflectionText) {
         mutableStateOf(initialReflectionText)
     }
+    val hasSelectedContent = remember(selectedCoverImagePath, reflectionText) {
+        selectedCoverImagePath.isNotBlank() || reflectionText.isNotBlank()
+    }
+    val hasSelectableImages = imagePaths.isNotEmpty()
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -97,7 +107,8 @@ fun MonthlyReflectionScreen(
                                 selectedCoverImagePath,
                                 reflectionText.trim()
                             )
-                        }
+                        },
+                        enabled = hasSelectedContent
                     ) {
                         Text("저장")
                     }
@@ -146,7 +157,11 @@ fun MonthlyReflectionScreen(
                             )
                         } else {
                             Text(
-                                text = "대표 사진을 선택해주세요",
+                                text = if (hasSelectableImages) {
+                                    "이달을 대표할 사진을 골라주세요"
+                                } else {
+                                    "이번 달에는 고를 수 있는 사진이 아직 없습니다"
+                                },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(12.dp)
@@ -168,7 +183,7 @@ fun MonthlyReflectionScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "대표 사진 선택",
+                            text = "이달을 대표할 사진",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -223,6 +238,11 @@ fun MonthlyReflectionScreen(
                 maxLines = 4,
                 placeholder = {
                     Text("이달을 돌아보는 짧은 회고를 남겨보세요")
+                },
+                supportingText = {
+                    if (!hasSelectedContent) {
+                        Text("대표 사진이나 한 줄 회고 중 하나는 남겨주세요")
+                    }
                 },
                 shape = RoundedCornerShape(12.dp)
             )

@@ -303,52 +303,63 @@ class MainActivity : ComponentActivity() {
                                 currentScreen = AppScreen.Main
                             } else {
                                 val monthEntries = diaryEntries.filter { it.diaryDate.toYearMonthKey() == monthKey }
-                                val monthImagePaths = monthEntries
-                                    .flatMap { it.imagePath.toImagePathList() }
-                                    .distinct()
-                                val moodSummary = monthEntries
-                                    .map { it.mood }
-                                    .topCountKeys()
-                                    .mapNotNull { it.toMetaLabelOrNull(moodOptions) }
-                                val weatherSummary = monthEntries
-                                    .map { it.weather }
-                                    .topCountKeys()
-                                    .mapNotNull { it.toMetaLabelOrNull(weatherOptions) }
-                                val tagSummary = monthEntries
-                                    .map { it.tag.trim() }
-                                    .topCountKeys()
-                                    .map { "#$it" }
-                                MonthlyReflectionScreen(
-                                    monthKey = monthKey,
-                                    entriesCount = monthEntries.size,
-                                    imagePaths = monthImagePaths,
-                                    moodSummary = moodSummary,
-                                    weatherSummary = weatherSummary,
-                                    tagSummary = tagSummary,
-                                    initialCoverImagePath = monthlyReflections[monthKey]?.coverImagePath.orEmpty(),
-                                    initialReflectionText = monthlyReflections[monthKey]?.reflectionText.orEmpty(),
-                                    onBackClick = { currentScreen = AppScreen.Main },
-                                    onSaveClick = { coverImagePath, reflectionText ->
-                                        scope.launch {
-                                            val now = System.currentTimeMillis()
-                                            withContext(Dispatchers.IO) {
-                                                val existing = monthlyReflectionDao.getByYearMonth(monthKey)
-                                                monthlyReflectionDao.upsert(
-                                                    MonthlyReflectionEntity(
-                                                        id = existing?.id ?: 0,
-                                                        yearMonth = monthKey,
-                                                        coverImagePath = coverImagePath,
-                                                        reflectionText = reflectionText,
-                                                        createdAt = existing?.createdAt ?: now,
-                                                        updatedAt = now
-                                                    )
-                                                )
-                                            }
-                                            monthlyReflections.replaceFromDatabase(monthlyReflectionDao)
-                                            currentScreen = AppScreen.Main
+                                if (monthEntries.isEmpty()) {
+                                    currentScreen = AppScreen.Main
+                                } else {
+                                    val monthImagePaths = monthEntries
+                                        .flatMap { it.imagePath.toImagePathList() }
+                                        .distinct()
+                                    val storedReflection = monthlyReflections[monthKey]
+                                    val initialCoverImagePath = storedReflection?.coverImagePath
+                                        ?.takeIf { savedPath ->
+                                            savedPath.isNotBlank() &&
+                                                (monthImagePaths.isEmpty() || monthImagePaths.contains(savedPath))
                                         }
-                                    }
-                                )
+                                        .orEmpty()
+                                    val moodSummary = monthEntries
+                                        .map { it.mood }
+                                        .topCountKeys()
+                                        .mapNotNull { it.toMetaLabelOrNull(moodOptions) }
+                                    val weatherSummary = monthEntries
+                                        .map { it.weather }
+                                        .topCountKeys()
+                                        .mapNotNull { it.toMetaLabelOrNull(weatherOptions) }
+                                    val tagSummary = monthEntries
+                                        .map { it.tag.trim() }
+                                        .topCountKeys()
+                                        .map { "#$it" }
+                                    MonthlyReflectionScreen(
+                                        monthKey = monthKey,
+                                        entriesCount = monthEntries.size,
+                                        imagePaths = monthImagePaths,
+                                        moodSummary = moodSummary,
+                                        weatherSummary = weatherSummary,
+                                        tagSummary = tagSummary,
+                                        initialCoverImagePath = initialCoverImagePath,
+                                        initialReflectionText = storedReflection?.reflectionText.orEmpty(),
+                                        onBackClick = { currentScreen = AppScreen.Main },
+                                        onSaveClick = { coverImagePath, reflectionText ->
+                                            scope.launch {
+                                                val now = System.currentTimeMillis()
+                                                withContext(Dispatchers.IO) {
+                                                    val existing = monthlyReflectionDao.getByYearMonth(monthKey)
+                                                    monthlyReflectionDao.upsert(
+                                                        MonthlyReflectionEntity(
+                                                            id = existing?.id ?: 0,
+                                                            yearMonth = monthKey,
+                                                            coverImagePath = coverImagePath,
+                                                            reflectionText = reflectionText,
+                                                            createdAt = existing?.createdAt ?: now,
+                                                            updatedAt = now
+                                                        )
+                                                    )
+                                                }
+                                                monthlyReflections.replaceFromDatabase(monthlyReflectionDao)
+                                                currentScreen = AppScreen.Main
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
 
