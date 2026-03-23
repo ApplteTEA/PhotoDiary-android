@@ -182,9 +182,10 @@ fun WriteScreen(
     LaunchedEffect(content, contentScrollState.maxValue) {
         val currentLength = content.length
         val contentGrew = currentLength > previousContentLength
+        val isNearBottom = contentScrollState.value >= (contentScrollState.maxValue - 120).coerceAtLeast(0)
         previousContentLength = currentLength
 
-        if (contentGrew && contentScrollState.maxValue > 0) {
+        if (contentGrew && contentScrollState.maxValue > 0 && isNearBottom) {
             contentScrollState.animateScrollTo(contentScrollState.maxValue)
         }
     }
