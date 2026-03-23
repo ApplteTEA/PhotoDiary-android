@@ -648,41 +648,32 @@ private fun WriteInfoHeader(
     onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Row(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.26f),
-        tonalElevation = 0.5.dp
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        WriteDateCard(
+            diaryDate = diaryDate,
+            onClick = onDateClick,
+            modifier = Modifier.weight(1f)
+        )
+
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(start = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            WriteDateCard(
-                diaryDate = diaryDate,
-                onClick = onDateClick,
-                modifier = Modifier.weight(1f)
+            DiaryMetaPill(
+                label = moodLabel,
+                selected = isMoodSelected,
+                onClick = onMoodClick
             )
-
-            Row(
-                modifier = Modifier.padding(start = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DiaryMetaPill(
-                    title = "기분",
-                    label = moodLabel,
-                    selected = isMoodSelected,
-                    onClick = onMoodClick
-                )
-                DiaryMetaPill(
-                    title = "날씨",
-                    label = weatherLabel,
-                    selected = isWeatherSelected,
-                    onClick = onWeatherClick
-                )
-            }
+            DiaryMetaPill(
+                label = weatherLabel,
+                selected = isWeatherSelected,
+                onClick = onWeatherClick
+            )
         }
     }
 }
@@ -699,28 +690,27 @@ private fun WriteDateCard(
 
     Surface(
         modifier = modifier.clickable(onClick = onClick),
-        color = Color.Transparent,
-        shape = RoundedCornerShape(20.dp)
+        color = Color.Transparent
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+            modifier = Modifier.padding(vertical = 2.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                text = "${calendar.get(Calendar.DAY_OF_MONTH)}",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                 Text(
                     text = "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${calendar.get(Calendar.DAY_OF_MONTH)}일",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = diaryDate.toDisplayDate(),
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "${calendar.get(Calendar.DAY_OF_MONTH)}일 ${diaryDate.toDisplayDate()}",
+                    style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -736,7 +726,6 @@ private fun WriteDateCard(
 
 @Composable
 private fun DiaryMetaPill(
-    title: String,
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
@@ -753,25 +742,16 @@ private fun DiaryMetaPill(
         tonalElevation = if (selected) 1.dp else 0.dp,
         shadowElevation = if (selected) 1.dp else 0.dp
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (selected) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
-        }
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+            style = MaterialTheme.typography.labelLarge,
+            color = if (selected) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+        )
     }
 }
 
