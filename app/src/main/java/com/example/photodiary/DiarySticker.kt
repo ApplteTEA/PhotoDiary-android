@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlin.math.roundToInt
 import org.json.JSONArray
 import org.json.JSONObject
@@ -393,26 +394,41 @@ private fun DiaryStickerWritingSurface(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .onSizeChanged { canvasSize = it }
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(
-                    horizontal = DiaryPageHorizontalPadding,
-                    vertical = DiaryPageVerticalPadding
-                )
         ) {
-            content()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        horizontal = DiaryPageHorizontalPadding,
+                        vertical = DiaryPageVerticalPadding
+                    )
+            ) {
+                content()
+            }
 
-            placements.forEachIndexed { index, placement ->
-                DiaryStickerPlacementNode(
-                    index = index,
-                    placement = placement,
-                    canvasSize = canvasSize,
-                    stickerWidthPx = stickerWidthPx,
-                    stickerHeightPx = stickerHeightPx,
-                    editable = editable,
-                    onMoveSticker = onMoveSticker,
-                    onRemoveSticker = onRemoveSticker
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        horizontal = DiaryPageHorizontalPadding,
+                        vertical = DiaryPageVerticalPadding
+                    )
+                    .onSizeChanged { canvasSize = it }
+                    .zIndex(1f)
+            ) {
+                placements.forEachIndexed { index, placement ->
+                    DiaryStickerPlacementNode(
+                        index = index,
+                        placement = placement,
+                        canvasSize = canvasSize,
+                        stickerWidthPx = stickerWidthPx,
+                        stickerHeightPx = stickerHeightPx,
+                        editable = editable,
+                        onMoveSticker = onMoveSticker,
+                        onRemoveSticker = onRemoveSticker
+                    )
+                }
             }
         }
     }

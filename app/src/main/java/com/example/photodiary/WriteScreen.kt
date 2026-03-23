@@ -50,7 +50,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -173,6 +175,18 @@ fun WriteScreen(
 
     val canSave = remember(title, content, imagePaths.size, stickerPlacements.size) {
         !(title.isBlank() && content.isBlank() && imagePaths.isEmpty() && stickerPlacements.isEmpty())
+    }
+    val contentScrollState = rememberScrollState()
+    var previousContentLength by remember(initialContent) { mutableIntStateOf(initialContent.length) }
+
+    LaunchedEffect(content, contentScrollState.maxValue) {
+        val currentLength = content.length
+        val contentGrew = currentLength > previousContentLength
+        previousContentLength = currentLength
+
+        if (contentGrew && contentScrollState.maxValue > 0) {
+            contentScrollState.animateScrollTo(contentScrollState.maxValue)
+        }
     }
 
     val attemptExit: () -> Unit = {
@@ -538,13 +552,11 @@ fun WriteScreen(
                     )
                 },
                 onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxSize()
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(bottom = 28.dp),
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     WriteInfoHeader(
@@ -604,29 +616,37 @@ fun WriteScreen(
                         colors = lowChromeTextFieldColors()
                     )
 
-                    OutlinedTextField(
-                        value = content,
-                        onValueChange = {
-                            content = it
-                            collapseToolPanels()
-                        },
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onFocusChanged { state ->
-                                if (state.isFocused) collapseToolPanels()
+                            .weight(1f, fill = true)
+                            .verticalScroll(contentScrollState)
+                            .padding(bottom = 28.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = content,
+                            onValueChange = {
+                                content = it
+                                collapseToolPanels()
                             },
-                        placeholder = {
-                            Text(
-                                text = "오늘의 이야기를 천천히 적어보세요.",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = lowChromeTextFieldColors(),
-                        minLines = 8,
-                        maxLines = Int.MAX_VALUE
-                    )
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onFocusChanged { state ->
+                                    if (state.isFocused) collapseToolPanels()
+                                },
+                            placeholder = {
+                                Text(
+                                    text = "오늘의 이야기를 천천히 적어보세요.",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                )
+                            },
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            colors = lowChromeTextFieldColors(),
+                            minLines = 8,
+                            maxLines = Int.MAX_VALUE
+                        )
+                    }
                 }
             }
         }
