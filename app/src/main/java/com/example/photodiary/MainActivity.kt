@@ -506,6 +506,7 @@ private fun DiaryListSection(
                 contentPadding = PaddingValues(top = 4.dp, bottom = 12.dp)
             ) {
                 groupedEntries.forEach { (monthLabel, monthEntries, monthKey) ->
+                    val monthlyReflection = monthlyReflections[monthKey]
                     item(key = "header-$monthKey") {
                         Row(
                             modifier = Modifier
@@ -519,14 +520,25 @@ private fun DiaryListSection(
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                             )
-                            if (monthKey != currentMonthKey) {
+                            if (monthKey != currentMonthKey && monthlyReflection == null) {
                                 TextButton(onClick = { onMonthlyReflectionClick(monthKey) }) {
                                     Text(
-                                        text = if (monthlyReflections[monthKey] == null) "회고 작성" else "회고 보기",
+                                        text = "회고 작성",
                                         style = MaterialTheme.typography.labelMedium
                                     )
                                 }
                             }
+                        }
+                    }
+
+                    if (monthKey != currentMonthKey && monthlyReflection != null) {
+                        item(key = "reflection-$monthKey") {
+                            MonthlyReflectionPreviewCard(
+                                monthLabel = monthLabel,
+                                reflection = monthlyReflection,
+                                entryCount = monthEntries.size,
+                                onClick = { onMonthlyReflectionClick(monthKey) }
+                            )
                         }
                     }
 
@@ -602,6 +614,85 @@ private fun DiaryListSection(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun MonthlyReflectionPreviewCard(
+    monthLabel: String,
+    reflection: MonthlyReflectionEntity,
+    entryCount: Int,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(78.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.24f)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (reflection.coverImagePath.isNotBlank()) {
+                    AsyncImage(
+                        model = reflection.coverImagePath,
+                        contentDescription = "월간 회고 대표 사진",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Text(
+                        text = "회고",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "$monthLabel 회고",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = reflection.reflectionText.ifBlank {
+                        "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "기록 ${entryCount}개",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
+                )
+            }
+
+            Text(
+                text = "보기",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

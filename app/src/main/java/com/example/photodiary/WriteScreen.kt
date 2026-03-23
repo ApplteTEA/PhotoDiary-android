@@ -545,50 +545,39 @@ fun WriteScreen(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        WriteDateCard(
-                            diaryDate = selectedDateMillis,
-                            onClick = {
-                                val calendar = Calendar.getInstance().apply {
-                                    timeInMillis = selectedDateMillis
-                                }
-                                DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
-                                        selectedDateMillis = Calendar.getInstance().apply {
-                                            set(Calendar.YEAR, year)
-                                            set(Calendar.MONTH, month)
-                                            set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                        }.timeInMillis.toDayStartMillis()
-                                    },
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH)
-                                ).show()
+                    WriteInfoHeader(
+                        diaryDate = selectedDateMillis,
+                        moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
+                        weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
+                        isMoodSelected = selectedMood.isNotBlank(),
+                        isWeatherSelected = selectedWeather.isNotBlank(),
+                        onDateClick = {
+                            val calendar = Calendar.getInstance().apply {
+                                timeInMillis = selectedDateMillis
                             }
-                        )
-
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            DiaryMetaPill(
-                                label = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분",
-                                onClick = {
-                                    showMoodPicker = true
-                                    showWeatherPicker = false
-                                }
-                            )
-                            DiaryMetaPill(
-                                label = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨",
-                                onClick = {
-                                    showWeatherPicker = true
-                                    showMoodPicker = false
-                                }
-                            )
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, dayOfMonth ->
+                                    selectedDateMillis = Calendar.getInstance().apply {
+                                        set(Calendar.YEAR, year)
+                                        set(Calendar.MONTH, month)
+                                        set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                    }.timeInMillis.toDayStartMillis()
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        },
+                        onMoodClick = {
+                            showMoodPicker = true
+                            showWeatherPicker = false
+                        },
+                        onWeatherClick = {
+                            showWeatherPicker = true
+                            showMoodPicker = false
                         }
-                    }
+                    )
 
                     OutlinedTextField(
                         value = title,
@@ -646,6 +635,62 @@ fun WriteScreen(
 }
 
 @Composable
+private fun WriteInfoHeader(
+    diaryDate: Long,
+    moodLabel: String,
+    weatherLabel: String,
+    isMoodSelected: Boolean,
+    isWeatherSelected: Boolean,
+    onDateClick: () -> Unit,
+    onMoodClick: () -> Unit,
+    onWeatherClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        tonalElevation = 0.5.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            WriteDateCard(
+                diaryDate = diaryDate,
+                onClick = onDateClick,
+                modifier = Modifier.weight(1f)
+            )
+
+            Column(
+                modifier = Modifier.padding(start = 12.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "오늘의 분위기",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DiaryMetaPill(
+                        label = moodLabel,
+                        selected = isMoodSelected,
+                        onClick = onMoodClick
+                    )
+                    DiaryMetaPill(
+                        label = weatherLabel,
+                        selected = isWeatherSelected,
+                        onClick = onWeatherClick
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun WriteDateCard(
     diaryDate: Long,
     onClick: () -> Unit,
@@ -657,28 +702,26 @@ private fun WriteDateCard(
 
     Surface(
         modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
-        tonalElevation = 0.5.dp
+        color = Color.Transparent
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 4.dp)
         ) {
-            Text(
-                text = calendar.get(Calendar.DAY_OF_MONTH).toString(),
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = "${calendar.get(Calendar.MONTH) + 1}월 ${calendar.get(Calendar.YEAR)}",
-                    style = MaterialTheme.typography.titleSmall,
+                    text = "기록 날짜",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = calendar.get(Calendar.DAY_OF_MONTH).toString(),
+                    style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = diaryDate.toDisplayDate(),
+                    text = "${calendar.get(Calendar.MONTH) + 1}월 ${calendar.get(Calendar.YEAR)}  ·  ${diaryDate.toDisplayDate()}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -696,21 +739,30 @@ private fun WriteDateCard(
 @Composable
 private fun DiaryMetaPill(
     label: String,
+    selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
         modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        shadowElevation = 1.dp
+        color = if (selected) {
+            MaterialTheme.colorScheme.surface
+        } else {
+            MaterialTheme.colorScheme.surface.copy(alpha = 0.84f)
+        },
+        tonalElevation = if (selected) 1.dp else 0.dp,
+        shadowElevation = if (selected) 1.dp else 0.dp
     ) {
         Text(
             text = label,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            color = if (selected) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
         )
     }
 }

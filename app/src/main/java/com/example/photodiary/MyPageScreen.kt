@@ -21,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.Card
@@ -106,18 +105,12 @@ fun MyPageScreen(
                 icon = Icons.Outlined.Storage,
                 title = "데이터",
                 lines = listOf(
-                    "저장된 diary 개수: ${diaryCount}개",
-                    "백업 / 복원 (추후 제공)",
-                    "전체 삭제 (추후 제공)"
-                )
-            )
-
-            SectionCard(
-                icon = Icons.Outlined.Lock,
-                title = "보안",
-                lines = listOf(
-                    "앱 잠금 기능 (추후 제공)",
-                    "생체 인증 잠금 (추후 제공)"
+                    "저장된 기록 ${diaryCount}개",
+                    if (diaryCount == 0) {
+                        "첫 기록을 남기면 이곳에서 기록 수를 함께 관리할 수 있어요."
+                    } else {
+                        "차곡차곡 쌓인 기록이 월간 회고와 아카이브를 더 풍성하게 만들어줍니다."
+                    }
                 )
             )
         }
