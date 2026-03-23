@@ -258,6 +258,21 @@ fun DiaryStickerWritingSurfaceEditor(
 }
 
 @Composable
+fun DiaryStickerWritingSurfaceReadOnly(
+    placements: List<DiaryStickerPlacement>,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    DiaryStickerWritingSurface(
+        placements = placements,
+        onMoveSticker = null,
+        onRemoveSticker = null,
+        modifier = modifier,
+        content = content
+    )
+}
+
+@Composable
 private fun DiaryStickerCanvas(
     placements: List<DiaryStickerPlacement>,
     titlePreview: String,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -176,41 +178,51 @@ fun DetailScreen(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    if (stickerPlacements.isNotEmpty()) {
-                        DiaryStickerCanvasReadOnly(
-                            placements = stickerPlacements,
-                            titlePreview = entry.title,
-                            contentPreview = entry.content,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    DiaryStickerWritingSurfaceReadOnly(
+                        placements = stickerPlacements,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 280.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Text(
+                                    text = entry.diaryDate.toDisplayDate(),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                                )
+
+                                Spacer(modifier = Modifier.weight(1f))
+
+                                val metaLine = entry.toMetaLine()
+                                if (metaLine.isNotBlank()) {
+                                    Text(
+                                        text = metaLine,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = entry.title,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+
+                            Text(
+                                text = entry.content,
+                                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
-
-                    Text(
-                        text = entry.diaryDate.toDisplayDate(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
-                    )
-
-                    val metaLine = entry.toMetaLine()
-                    if (metaLine.isNotBlank()) {
-                        Text(
-                            text = metaLine,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Text(
-                        text = entry.title,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-
-                    Text(
-                        text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
 
                     if (imagePaths.isNotEmpty()) {
                         Column(
