@@ -2,7 +2,7 @@
 
 ## Project Mission
 - This app is a Photo Diary based Android diary app.
-- The current phase is v1.5 polishing, stabilization, and emotional finish work rather than large feature expansion.
+- The current phase prioritizes v1.5 polishing, stabilization, and emotional finish work, while still allowing carefully scoped feature expansion when it meaningfully improves the product.
 - Core screens are `Main`, `Write`, `Detail`, `Calendar`, `MyPage`, and `Monthly Reflection`.
 
 ## Product Priorities
@@ -37,6 +37,7 @@
   - `product-planner`: goals, user flow, state, event, exception planning
   - `ux-designer`: usability, flow, cognitive load, action design
   - `visual-designer`: visual polish, hierarchy, spacing, emotional finish
+  - `design-critic`: obvious UI awkwardness detection, spacing rhythm, visual sanity check
   - `ui-system-designer`: reusable patterns, component consistency, structural polish
   - `user-advocate`: raw consumer perspective, emotional friction, delight gaps
   - `pm`: scope control, prioritization, sequencing
@@ -48,10 +49,11 @@
   - `copywriter`: product microcopy and tone polish
   - `data-observer`: retention and repeated-use perspective
   - `documentation-owner`: action-list documentation and rollout summary
+  - `release-gate`: final pass/fail decision for product polish before shipping a UI change
   - `kotlin-specialist`: use when Kotlin/state structure analysis is specifically needed
 - If possible, spawn real subagents for role work.
 - Current local role availability under `.codex/agents`:
-  - available: `orchestrator`, `idea-director`, `product-planner`, `ux-designer`, `visual-designer`, `ui-system-designer`, `user-advocate`, `pm`, `technical-architect`, `developer`, `mobile-developer`, `qa-reviewer`, `release-inspector`, `copywriter`, `data-observer`, `documentation-owner`, `kotlin-specialist`
+  - available: `orchestrator`, `idea-director`, `product-planner`, `ux-designer`, `visual-designer`, `design-critic`, `ui-system-designer`, `user-advocate`, `pm`, `technical-architect`, `developer`, `mobile-developer`, `qa-reviewer`, `release-inspector`, `copywriter`, `data-observer`, `documentation-owner`, `release-gate`, `kotlin-specialist`
 - Fallback rule:
   - when runtime subagent limits prevent spawning every desired role, prefer `orchestrator` first and then only the smallest necessary subset of specialist roles
 
@@ -62,6 +64,25 @@
   - minimal change plan
   - regression risks
   - manual QA checklist
+
+## Mandatory UI Review Rules
+- For UI/UX-facing changes, do not stop at implementation.
+- Always run a strict self-check for:
+  - awkward spacing jumps
+  - inconsistent information hierarchy
+  - mismatched component grammar at the same level
+  - overgrown labels or helper text
+  - box-inside-box layering without a strong reason
+  - elements that feel too large for their importance
+- For meaningful UI changes, prefer this review order:
+  - `ux-designer`
+  - `visual-designer`
+  - `design-critic`
+  - `mobile-developer`
+  - `qa-reviewer`
+  - `release-gate`
+- If `design-critic` or `release-gate` would likely reject the result, do not present it as finished.
+- Treat “looks weird”, “feels off”, “spacing is strange”, and similar feedback as correctness issues, not just taste issues.
 
 ## Required Reporting Pattern After Code Changes
 - Always summarize:
@@ -74,11 +95,12 @@
 ## Finalization Protocol For Completed Work
 - Only when the user's full requested scope is complete, finalize work in this order:
   1. self-check of the implemented changes
-  2. final review through the `reviewer` role when possible, or the closest available review procedure
-  3. summarize regression risks, missing tests, and manual QA checklist
-  4. create a GitHub branch when possible
-  5. create a PR when possible
-  6. if PR creation is not possible, clearly explain why and replace it with a local final review result
+  2. final review through the `qa-reviewer` role when possible, or the closest available review procedure
+  3. for UI/UX-facing changes, run a final `release-gate` style pass/fail check before reporting completion
+  4. summarize regression risks, missing tests, and manual QA checklist
+  5. create a GitHub branch when possible
+  6. create a PR when possible
+  7. if PR creation is not possible, clearly explain why and replace it with a local final review result
 - Do not create a branch or PR for partial progress or intermediate milestones.
 
 ## Branch And Delivery Policy
