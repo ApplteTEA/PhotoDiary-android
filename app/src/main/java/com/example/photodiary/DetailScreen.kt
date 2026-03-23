@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -166,28 +167,25 @@ fun DetailScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            DiaryStickerWritingSurfaceReadOnly(
+            DiaryStickerOverlayReadOnly(
                 placements = stickerPlacements,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 280.dp)
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Top
-                    ) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = entry.diaryDate.toDisplayDate(),
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                            modifier = Modifier.align(Alignment.TopStart)
                         )
-
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Spacer(modifier = Modifier.weight(1f))
 
                         val metaLine = entry.toMetaLine()
                         if (metaLine.isNotBlank()) {
@@ -198,7 +196,9 @@ fun DetailScreen(
                                 textAlign = TextAlign.End,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1.2f, fill = false)
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .widthIn(max = 190.dp)
                             )
                         }
                     }

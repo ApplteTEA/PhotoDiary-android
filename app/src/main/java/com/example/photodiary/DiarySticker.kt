@@ -273,6 +273,38 @@ fun DiaryStickerWritingSurfaceReadOnly(
 }
 
 @Composable
+fun DiaryStickerOverlayReadOnly(
+    placements: List<DiaryStickerPlacement>,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
+    val stickerWidthPx = 104f
+    val stickerHeightPx = 44f
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .onSizeChanged { canvasSize = it }
+    ) {
+        content()
+
+        placements.forEachIndexed { index, placement ->
+            DiaryStickerPlacementNode(
+                index = index,
+                placement = placement,
+                canvasSize = canvasSize,
+                stickerWidthPx = stickerWidthPx,
+                stickerHeightPx = stickerHeightPx,
+                editable = false,
+                onMoveSticker = null,
+                onRemoveSticker = null
+            )
+        }
+    }
+}
+
+@Composable
 private fun DiaryStickerCanvas(
     placements: List<DiaryStickerPlacement>,
     titlePreview: String,
