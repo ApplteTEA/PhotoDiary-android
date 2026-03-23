@@ -327,7 +327,7 @@ class MainActivity : ComponentActivity() {
                         AppScreen.MonthReflection -> {
                             val monthKey = selectedReflectionMonthKey
                             val currentMonthKey = System.currentTimeMillis().toYearMonthKey()
-                            if (monthKey.isNullOrBlank() || monthKey == currentMonthKey) {
+                            if (monthKey.isNullOrBlank() || monthKey >= currentMonthKey) {
                                 currentScreen = AppScreen.Main
                             } else {
                                 val monthEntries = diaryEntries.filter { it.diaryDate.toYearMonthKey() == monthKey }
@@ -551,7 +551,7 @@ private fun DiaryListSection(
                         }
                     }
 
-                    if (monthKey != currentMonthKey) {
+                    if (monthKey < currentMonthKey) {
                         item(key = "reflection-$monthKey") {
                             MonthlyReflectionPreviewCard(
                                 monthLabel = monthLabel,
