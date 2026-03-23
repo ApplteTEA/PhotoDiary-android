@@ -1,6 +1,7 @@
 package com.example.photodiary
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +48,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 private const val MAX_STICKER_COUNT = 8
+
+val DiaryPageCornerRadius = 28.dp
+val DiaryPageHorizontalPadding = 20.dp
+val DiaryPageVerticalPadding = 22.dp
+val DiaryPageMinHeight = 480.dp
+val DiaryPageBodyMinHeight = 220.dp
 
 data class DiaryStickerOption(
     val key: String,
@@ -370,18 +378,27 @@ private fun DiaryStickerWritingSurface(
     val editable = onMoveSticker != null
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = DiaryPageMinHeight),
+        shape = RoundedCornerShape(DiaryPageCornerRadius),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 0.8.dp,
-        shadowElevation = 3.dp
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+        ),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .onSizeChanged { canvasSize = it }
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = 20.dp, vertical = 18.dp)
+                .padding(
+                    horizontal = DiaryPageHorizontalPadding,
+                    vertical = DiaryPageVerticalPadding
+                )
         ) {
             content()
 

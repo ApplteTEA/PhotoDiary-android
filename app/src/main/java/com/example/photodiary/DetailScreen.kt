@@ -14,13 +14,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,13 +47,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,46 +180,41 @@ private fun ScrapbookPage(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ScrapbookMetaRow(entry = entry)
-
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 1.dp,
-            shadowElevation = 1.dp
+        DiaryStickerWritingSurfaceReadOnly(
+            placements = stickerPlacements,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            DiaryStickerOverlayReadOnly(
-                placements = stickerPlacements,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 20.dp, vertical = 22.dp)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = entry.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                ScrapbookMetaHeader(entry = entry)
 
+                Text(
+                    text = entry.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = DiaryPageBodyMinHeight),
+                    contentAlignment = Alignment.TopStart
+                ) {
                     Text(
                         text = entry.content,
                         style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
+                }
 
-                    if (imagePaths.isNotEmpty()) {
-                        PhotoSection(
-                            imagePaths = imagePaths.take(5),
-                            onPreviewImage = onPreviewImage,
-                            modifier = Modifier.padding(top = 6.dp)
-                        )
-                    }
+                if (imagePaths.isNotEmpty()) {
+                    PhotoSection(
+                        imagePaths = imagePaths.take(5),
+                        onPreviewImage = onPreviewImage,
+                        modifier = Modifier.padding(top = 6.dp)
+                    )
                 }
             }
         }
@@ -230,27 +222,71 @@ private fun ScrapbookPage(
 }
 
 @Composable
-private fun ScrapbookMetaRow(entry: DiaryEntry) {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = entry.diaryDate.toDisplayDate(),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f),
-            modifier = Modifier.align(Alignment.TopStart)
-        )
+private fun ScrapbookMetaHeader(entry: DiaryEntry) {
+    val calendar = remember(entry.diaryDate) {
+        Calendar.getInstance().apply { timeInMillis = entry.diaryDate }
+    }
+    val moodLabel = entry.mood.toMetaLabelOrNull(moodOptions)
+    val weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions)
+    val tagLabel = entry.tag
+        .trim()
+        .takeIf { it.isNotBlank() }
+        ?.split(Regex("\\s+"))
+        ?.joinToString(" ") { token -> "#${token.trimStart('#')}" }
 
-        val metaLine = entry.toMetaLine()
-        if (metaLine.isNotBlank()) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
             Text(
-                text = metaLine,
-                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f),
-                textAlign = TextAlign.End,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .widthIn(max = 196.dp)
+                text = "${calendar.get(Calendar.DAY_OF_MONTH)}일",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = entry.diaryDate.toDisplayDate(),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (moodLabel != null) {
+                DiaryMetaPill(
+                    label = moodLabel,
+                    selected = true,
+                    onClick = null
+                )
+            }
+
+            if (weatherLabel != null) {
+                DiaryMetaPill(
+                    label = weatherLabel,
+                    selected = true,
+                    onClick = null
+                )
+            }
+        }
+
+        if (tagLabel != null) {
+            Text(
+                text = tagLabel,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

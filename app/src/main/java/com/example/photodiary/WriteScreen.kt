@@ -33,7 +33,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ZoomIn
@@ -61,8 +60,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -539,107 +538,95 @@ fun WriteScreen(
                     )
                 },
                 onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 28.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(28.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 1.dp,
-                        shadowElevation = 1.dp
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            WriteInfoHeader(
-                                diaryDate = selectedDateMillis,
-                                moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
-                                weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
-                                isMoodSelected = selectedMood.isNotBlank(),
-                                isWeatherSelected = selectedWeather.isNotBlank(),
-                                onDateClick = {
-                                    val calendar = Calendar.getInstance().apply {
-                                        timeInMillis = selectedDateMillis
-                                    }
-                                    DatePickerDialog(
-                                        context,
-                                        { _, year, month, dayOfMonth ->
-                                            selectedDateMillis = Calendar.getInstance().apply {
-                                                set(Calendar.YEAR, year)
-                                                set(Calendar.MONTH, month)
-                                                set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                            }.timeInMillis.toDayStartMillis()
-                                        },
-                                        calendar.get(Calendar.YEAR),
-                                        calendar.get(Calendar.MONTH),
-                                        calendar.get(Calendar.DAY_OF_MONTH)
-                                    ).show()
+                    WriteInfoHeader(
+                        diaryDate = selectedDateMillis,
+                        moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
+                        weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
+                        isMoodSelected = selectedMood.isNotBlank(),
+                        isWeatherSelected = selectedWeather.isNotBlank(),
+                        onDateClick = {
+                            val calendar = Calendar.getInstance().apply {
+                                timeInMillis = selectedDateMillis
+                            }
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, dayOfMonth ->
+                                    selectedDateMillis = Calendar.getInstance().apply {
+                                        set(Calendar.YEAR, year)
+                                        set(Calendar.MONTH, month)
+                                        set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                    }.timeInMillis.toDayStartMillis()
                                 },
-                                onMoodClick = {
-                                    showMoodPicker = true
-                                    showWeatherPicker = false
-                                },
-                                onWeatherClick = {
-                                    showWeatherPicker = true
-                                    showMoodPicker = false
-                                }
-                            )
-
-                            OutlinedTextField(
-                                value = title,
-                                onValueChange = {
-                                    title = it
-                                    collapseToolPanels()
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .onFocusChanged { state ->
-                                        if (state.isFocused) collapseToolPanels()
-                                    },
-                                singleLine = true,
-                                placeholder = {
-                                    Text(
-                                        text = "제목",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                    )
-                                },
-                                textStyle = MaterialTheme.typography.headlineSmall,
-                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                colors = lowChromeTextFieldColors()
-                            )
-
-                            OutlinedTextField(
-                                value = content,
-                                onValueChange = {
-                                    content = it
-                                    collapseToolPanels()
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .onFocusChanged { state ->
-                                        if (state.isFocused) collapseToolPanels()
-                                    },
-                                placeholder = {
-                                    Text(
-                                        text = "오늘의 이야기를 천천히 적어보세요.",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                    )
-                                },
-                                textStyle = MaterialTheme.typography.bodyLarge,
-                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                colors = lowChromeTextFieldColors(),
-                                minLines = 8,
-                                maxLines = Int.MAX_VALUE
-                            )
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        },
+                        onMoodClick = {
+                            showMoodPicker = true
+                            showWeatherPicker = false
+                        },
+                        onWeatherClick = {
+                            showWeatherPicker = true
+                            showMoodPicker = false
                         }
-                    }
+                    )
+
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = {
+                            title = it
+                            collapseToolPanels()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { state ->
+                                if (state.isFocused) collapseToolPanels()
+                            },
+                        singleLine = true,
+                        placeholder = {
+                            Text(
+                                text = "제목",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                            )
+                        },
+                        textStyle = MaterialTheme.typography.headlineSmall,
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = lowChromeTextFieldColors()
+                    )
+
+                    OutlinedTextField(
+                        value = content,
+                        onValueChange = {
+                            content = it
+                            collapseToolPanels()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { state ->
+                                if (state.isFocused) collapseToolPanels()
+                            },
+                        placeholder = {
+                            Text(
+                                text = "오늘의 이야기를 천천히 적어보세요.",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                            )
+                        },
+                        textStyle = MaterialTheme.typography.bodyLarge,
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = lowChromeTextFieldColors(),
+                        minLines = 8,
+                        maxLines = Int.MAX_VALUE
+                    )
                 }
             }
         }
@@ -658,19 +645,18 @@ private fun WriteInfoHeader(
     onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         WriteDateCard(
             diaryDate = diaryDate,
             onClick = onDateClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.fillMaxWidth()
         )
 
         Row(
-            modifier = Modifier.padding(start = 12.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -702,47 +688,42 @@ private fun WriteDateCard(
         modifier = modifier.clickable(onClick = onClick),
         color = Color.Transparent
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(vertical = 2.dp)
+        Column(
+            modifier = Modifier.padding(vertical = 2.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
-                text = "${calendar.get(Calendar.DAY_OF_MONTH)}",
+                text = "${calendar.get(Calendar.DAY_OF_MONTH)}일",
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                Text(
-                    text = "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${calendar.get(Calendar.DAY_OF_MONTH)}일 ${diaryDate.toDisplayDate()}",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Icon(
-                imageVector = Icons.Filled.CalendarToday,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
+            Text(
+                text = "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = diaryDate.toDisplayDate(),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
 @Composable
-private fun DiaryMetaPill(
+fun DiaryMetaPill(
     label: String,
     selected: Boolean,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = if (onClick != null) {
+            modifier.clickable(onClick = onClick)
+        } else {
+            modifier
+        },
         shape = RoundedCornerShape(18.dp),
         color = if (selected) {
             MaterialTheme.colorScheme.surface
