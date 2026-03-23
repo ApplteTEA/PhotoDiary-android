@@ -79,4 +79,5 @@
   - push the branch
   - after push completes, merge it into `main`
   - delete the finished working branch after merge to avoid branch clutter
+- If a git write operation such as `commit`, `merge`, or branch deletion is blocked by sandbox permissions, immediately retry with the available escalation path instead of asking the user to do it manually.
 - If push, PR, or merge cannot be completed because of environment, auth, remote, or policy constraints, clearly explain the reason in the final report.
