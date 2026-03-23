@@ -2,12 +2,14 @@ package com.example.photodiary
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,10 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -30,6 +32,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -137,14 +140,19 @@ fun MonthlyReflectionScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "이달에 남긴 기록 ${entriesCount}개",
+                        text = "이번 달에 남긴 기록 ${entriesCount}개",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "이번 달을 대표하는 한 장을 고르고, 짧은 회고를 남겨보세요.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(190.dp)
+                            .height(224.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.26f))
                     ) {
@@ -155,17 +163,42 @@ fun MonthlyReflectionScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
+                            Surface(
+                                modifier = Modifier
+                                    .padding(12.dp),
+                                shape = RoundedCornerShape(999.dp),
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+                            ) {
+                                Text(
+                                    text = "이번 달을 대표하는 한 장",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                )
+                            }
                         } else {
-                            Text(
-                                text = if (hasSelectableImages) {
-                                    "이달을 대표할 사진을 골라주세요"
-                                } else {
-                                    "이번 달에는 고를 수 있는 사진이 아직 없습니다"
-                                },
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(12.dp)
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "이번 달을 대표하는 한 장",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = if (hasSelectableImages) {
+                                        "이번 달을 떠올리게 하는 사진을 골라보세요."
+                                    } else {
+                                        "아직 사진은 없지만, 한 줄 회고로 이번 달의 분위기를 남길 수 있어요."
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
@@ -200,6 +233,15 @@ fun MonthlyReflectionScreen(
                                         .size(70.dp)
                                         .clip(RoundedCornerShape(10.dp))
                                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+                                        .border(
+                                            width = if (isSelected) 1.5.dp else 0.dp,
+                                            color = if (isSelected) {
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
+                                            } else {
+                                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f)
+                                            },
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
                                         .clickable { selectedCoverImagePath = imagePath }
                                 ) {
                                     AsyncImage(
@@ -212,13 +254,20 @@ fun MonthlyReflectionScreen(
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxSize()
-                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.16f))
-                                                .padding(4.dp)
+                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                                        ) {
+                                        }
+                                        Surface(
+                                            modifier = Modifier
+                                                .padding(6.dp),
+                                            shape = RoundedCornerShape(999.dp),
+                                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)
                                         ) {
                                             Text(
-                                                text = "선택",
+                                                text = "대표 사진",
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onPrimary,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -236,14 +285,24 @@ fun MonthlyReflectionScreen(
                 onValueChange = { reflectionText = it.take(120) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 4,
+                label = {
+                    Text("이번 달의 짧은 회고")
+                },
                 placeholder = {
-                    Text("이달을 돌아보는 짧은 회고를 남겨보세요")
+                    Text("이번 달을 어떻게 기억하고 싶은지 짧게 적어보세요")
                 },
                 supportingText = {
                     if (!hasSelectedContent) {
                         Text("대표 사진이나 한 줄 회고 중 하나는 남겨주세요")
                     }
                 },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.08f)
+                ),
                 shape = RoundedCornerShape(12.dp)
             )
 
@@ -263,20 +322,20 @@ fun MonthlyReflectionScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "기록 ${entriesCount}개",
+                        text = "이번 달에 남긴 기록 ${entriesCount}개",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     if (moodSummary.isNotEmpty()) {
                         Text(
-                            text = "많이 남긴 감정: ${moodSummary.joinToString(", ")}",
+                            text = "이번 달의 분위기: ${moodSummary.joinToString(", ")}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     if (weatherSummary.isNotEmpty()) {
                         Text(
-                            text = "자주 기록한 날씨: ${weatherSummary.joinToString(", ")}",
+                            text = "자주 마주한 날씨: ${weatherSummary.joinToString(", ")}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
