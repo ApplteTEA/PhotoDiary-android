@@ -98,6 +98,7 @@ data class DiaryEntry(
     val mood: String = "",
     val weather: String = "",
     val tag: String = "",
+    val sticker: String = "",
     val createdAt: Long,
     val updatedAt: Long
 )
@@ -214,7 +215,8 @@ class MainActivity : ComponentActivity() {
                                 initialMood = editingEntry?.mood.orEmpty(),
                                 initialWeather = editingEntry?.weather.orEmpty(),
                                 initialTag = editingEntry?.tag.orEmpty(),
-                                onSaveClick = { diaryDate, title, content, imagePaths, mood, weather, tag ->
+                                initialSticker = editingEntry?.sticker.orEmpty(),
+                                onSaveClick = { diaryDate, title, content, imagePaths, mood, weather, tag, sticker ->
                                     val now = System.currentTimeMillis()
                                     scope.launch {
                                         withContext(Dispatchers.IO) {
@@ -228,6 +230,7 @@ class MainActivity : ComponentActivity() {
                                                         mood = mood,
                                                         weather = weather,
                                                         tag = tag,
+                                                        sticker = sticker,
                                                         createdAt = now,
                                                         updatedAt = now
                                                     )
@@ -245,6 +248,7 @@ class MainActivity : ComponentActivity() {
                                                         mood = mood,
                                                         weather = weather,
                                                         tag = tag,
+                                                        sticker = sticker,
                                                         updatedAt = now
                                                     ).toEntity()
                                                 )
@@ -547,6 +551,12 @@ private fun DiaryListSection(
                                         text = metaLine,
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                if (entry.sticker.isNotBlank()) {
+                                    DiaryStickerBadge(
+                                        stickerKey = entry.sticker,
+                                        modifier = Modifier.padding(top = 2.dp)
                                     )
                                 }
                                 Text(

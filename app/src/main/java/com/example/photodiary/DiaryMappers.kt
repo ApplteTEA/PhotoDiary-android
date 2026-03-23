@@ -9,6 +9,7 @@ fun DiaryEntity.toUiModel(): DiaryEntry = DiaryEntry(
     mood = mood,
     weather = weather,
     tag = tag,
+    sticker = sticker,
     createdAt = createdAt,
     updatedAt = updatedAt
 )
@@ -22,6 +23,7 @@ fun DiaryEntry.toEntity(): DiaryEntity = DiaryEntity(
     mood = mood,
     weather = weather,
     tag = tag,
+    sticker = sticker,
     createdAt = createdAt,
     updatedAt = updatedAt
 )

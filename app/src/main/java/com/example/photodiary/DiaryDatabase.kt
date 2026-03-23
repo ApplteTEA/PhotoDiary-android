@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [DiaryEntity::class, MonthlyReflectionEntity::class], version = 3, exportSchema = false)
+@Database(entities = [DiaryEntity::class, MonthlyReflectionEntity::class], version = 4, exportSchema = false)
 abstract class DiaryDatabase : RoomDatabase() {
     abstract fun diaryDao(): DiaryDao
     abstract fun monthlyReflectionDao(): MonthlyReflectionDao
@@ -45,13 +45,19 @@ abstract class DiaryDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE diaries ADD COLUMN sticker TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         fun getInstance(context: Context): DiaryDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     DiaryDatabase::class.java,
                     "photodiary.db"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build().also { INSTANCE = it }
             }
         }

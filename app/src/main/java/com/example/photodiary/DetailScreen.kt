@@ -190,6 +190,10 @@ fun DetailScreen(
                         )
                     }
 
+                    if (entry.sticker.isNotBlank()) {
+                        DiaryStickerBadge(stickerKey = entry.sticker)
+                    }
+
                     Text(
                         text = entry.title,
                         style = MaterialTheme.typography.titleLarge

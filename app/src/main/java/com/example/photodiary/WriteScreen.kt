@@ -84,6 +84,7 @@ fun WriteScreen(
     initialMood: String = "",
     initialWeather: String = "",
     initialTag: String = "",
+    initialSticker: String = "",
     onSaveClick: (
         diaryDate: Long,
         title: String,
@@ -91,7 +92,8 @@ fun WriteScreen(
         imagePaths: List<String>,
         mood: String,
         weather: String,
-        tag: String
+        tag: String,
+        sticker: String
     ) -> Unit
 ) {
 
@@ -117,6 +119,7 @@ fun WriteScreen(
     var selectedMood by remember(initialMood) { androidx.compose.runtime.mutableStateOf(initialMood) }
     var selectedWeather by remember(initialWeather) { androidx.compose.runtime.mutableStateOf(initialWeather) }
     var tag by remember(initialTag) { androidx.compose.runtime.mutableStateOf(initialTag) }
+    var selectedSticker by remember(initialSticker) { androidx.compose.runtime.mutableStateOf(initialSticker) }
     var showExitConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
 
     val hasChanges = remember(
@@ -127,13 +130,15 @@ fun WriteScreen(
         selectedMood,
         selectedWeather,
         tag,
+        selectedSticker,
         initialDateMillis,
         initialTitle,
         initialContent,
         initialImagePathsSnapshot,
         initialMood,
         initialWeather,
-        initialTag
+        initialTag,
+        initialSticker
     ) {
         selectedDateMillis.toDayStartMillis() != initialDateMillis.toDayStartMillis() ||
             title != initialTitle ||
@@ -141,7 +146,8 @@ fun WriteScreen(
             imagePaths.toList() != initialImagePathsSnapshot ||
             selectedMood != initialMood ||
             selectedWeather != initialWeather ||
-            tag != initialTag
+            tag != initialTag ||
+            selectedSticker != initialSticker
     }
 
     val canSave = remember(title, content, imagePaths.size) {
@@ -336,7 +342,8 @@ fun WriteScreen(
                                 imagePaths.toList(),
                                 selectedMood,
                                 selectedWeather,
-                                tag.trim()
+                                tag.trim(),
+                                selectedSticker
                             )
                         },
                         enabled = canSave
@@ -512,6 +519,41 @@ fun WriteScreen(
                             cursorColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
+                    Text(
+                        text = "오늘의 스티커",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Text(
+                        text = "기록을 해치지 않게, 오늘에 어울리는 한 조각만 붙여보세요.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        stickerOptions.forEach { option ->
+                            DiaryStickerChoiceChip(
+                                option = option,
+                                selected = selectedSticker == option.key,
+                                onClick = {
+                                    selectedSticker = if (selectedSticker == option.key) "" else option.key
+                                }
+                            )
+                        }
+                    }
+                    if (selectedSticker.isNotBlank()) {
+                        TextButton(
+                            onClick = { selectedSticker = "" },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("스티커 해제")
+                        }
+                    }
                 }
             }
 
