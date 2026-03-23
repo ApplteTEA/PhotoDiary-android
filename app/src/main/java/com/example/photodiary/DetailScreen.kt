@@ -59,6 +59,7 @@ fun DetailScreen(
     BackHandler(onBack = onBackClick)
 
     val imagePaths = entry.imagePath.toImagePathList()
+    val stickerPlacements = remember(entry.sticker) { entry.sticker.toStickerPlacements() }
     var previewImagePath by remember { mutableStateOf<String?>(null) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
@@ -175,6 +176,15 @@ fun DetailScreen(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
+                    if (stickerPlacements.isNotEmpty()) {
+                        DiaryStickerCanvasReadOnly(
+                            placements = stickerPlacements,
+                            titlePreview = entry.title,
+                            contentPreview = entry.content,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
                     Text(
                         text = entry.diaryDate.toDisplayDate(),
                         style = MaterialTheme.typography.labelSmall,
@@ -188,10 +198,6 @@ fun DetailScreen(
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    }
-
-                    if (entry.sticker.isNotBlank()) {
-                        DiaryStickerBadge(stickerKey = entry.sticker)
                     }
 
                     Text(

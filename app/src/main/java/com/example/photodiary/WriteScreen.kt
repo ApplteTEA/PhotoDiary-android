@@ -119,7 +119,14 @@ fun WriteScreen(
     var selectedMood by remember(initialMood) { androidx.compose.runtime.mutableStateOf(initialMood) }
     var selectedWeather by remember(initialWeather) { androidx.compose.runtime.mutableStateOf(initialWeather) }
     var tag by remember(initialTag) { androidx.compose.runtime.mutableStateOf(initialTag) }
-    var selectedSticker by remember(initialSticker) { androidx.compose.runtime.mutableStateOf(initialSticker) }
+    val initialStickerPlacements = remember(initialSticker) { initialSticker.toStickerPlacements() }
+    val stickerPlacements = remember(initialSticker) {
+        mutableStateListOf<DiaryStickerPlacement>().apply { addAll(initialStickerPlacements) }
+    }
+    val initialStickerPayload = remember(initialStickerPlacements) {
+        initialStickerPlacements.toStickerPayload()
+    }
+    val stickerPayload = stickerPlacements.toList().toStickerPayload()
     var showExitConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
 
     val hasChanges = remember(
@@ -130,7 +137,8 @@ fun WriteScreen(
         selectedMood,
         selectedWeather,
         tag,
-        selectedSticker,
+        stickerPlacements.size,
+        stickerPayload,
         initialDateMillis,
         initialTitle,
         initialContent,
@@ -138,7 +146,7 @@ fun WriteScreen(
         initialMood,
         initialWeather,
         initialTag,
-        initialSticker
+        initialStickerPayload
     ) {
         selectedDateMillis.toDayStartMillis() != initialDateMillis.toDayStartMillis() ||
             title != initialTitle ||
@@ -147,11 +155,11 @@ fun WriteScreen(
             selectedMood != initialMood ||
             selectedWeather != initialWeather ||
             tag != initialTag ||
-            selectedSticker != initialSticker
+            stickerPayload != initialStickerPayload
     }
 
-    val canSave = remember(title, content, imagePaths.size) {
-        !(title.isBlank() && content.isBlank() && imagePaths.isEmpty())
+    val canSave = remember(title, content, imagePaths.size, stickerPlacements.size) {
+        !(title.isBlank() && content.isBlank() && imagePaths.isEmpty() && stickerPlacements.isEmpty())
     }
 
     val attemptExit: () -> Unit = {
@@ -343,7 +351,7 @@ fun WriteScreen(
                                 selectedMood,
                                 selectedWeather,
                                 tag.trim(),
-                                selectedSticker
+                                stickerPayload
                             )
                         },
                         enabled = canSave
@@ -519,16 +527,49 @@ fun WriteScreen(
                             cursorColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
+                }
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.5.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
-                        text = "오늘의 스티커",
+                        text = "다이어리 꾸미기",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "기록을 해치지 않게, 오늘에 어울리는 한 조각만 붙여보세요.",
+                        text = "스티커를 덧붙여 오늘의 페이지를 조금 더 자유롭게 꾸며보세요. 리스트에는 보이지 않고, 수정과 상세에서 그대로 남아요.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
+                    )
+                    DiaryStickerCanvasEditor(
+                        placements = stickerPlacements,
+                        titlePreview = title,
+                        contentPreview = content,
+                        onMoveSticker = { index, xRatio, yRatio ->
+                            stickerPlacements[index] = stickerPlacements[index].copy(
+                                xRatio = xRatio,
+                                yRatio = yRatio
+                            )
+                        },
+                        onRemoveSticker = { index -> stickerPlacements.removeAt(index) }
+                    )
+                    Text(
+                        text = if (canAddMoreStickers(stickerPlacements)) {
+                            "스티커를 눌러 추가하고, 끌어서 원하는 곳에 붙여보세요. 최대 8개까지 가능해요."
+                        } else {
+                            "스티커는 최대 8개까지 붙일 수 있어요."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                     )
                     Row(
                         modifier = Modifier
@@ -536,23 +577,19 @@ fun WriteScreen(
                             .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        stickerOptions.forEach { option ->
-                            DiaryStickerChoiceChip(
-                                option = option,
-                                selected = selectedSticker == option.key,
-                                onClick = {
-                                    selectedSticker = if (selectedSticker == option.key) "" else option.key
+                        DiaryStickerPalette(
+                            onAddSticker = { key ->
+                                if (canAddMoreStickers(stickerPlacements)) {
+                                    stickerPlacements.add(
+                                        nextStickerPlacement(
+                                            key = key,
+                                            existingCount = stickerPlacements.size
+                                        )
+                                    )
                                 }
-                            )
-                        }
-                    }
-                    if (selectedSticker.isNotBlank()) {
-                        TextButton(
-                            onClick = { selectedSticker = "" },
-                            modifier = Modifier.align(Alignment.End)
-                        ) {
-                            Text("스티커 해제")
-                        }
+                            },
+                            canAddMore = canAddMoreStickers(stickerPlacements)
+                        )
                     }
                 }
             }

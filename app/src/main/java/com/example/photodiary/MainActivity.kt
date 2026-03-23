@@ -553,12 +553,6 @@ private fun DiaryListSection(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                if (entry.sticker.isNotBlank()) {
-                                    DiaryStickerBadge(
-                                        stickerKey = entry.sticker,
-                                        modifier = Modifier.padding(top = 2.dp)
-                                    )
-                                }
                                 Text(
                                     text = entry.title,
                                     style = MaterialTheme.typography.titleMedium,

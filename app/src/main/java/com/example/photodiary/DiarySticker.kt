@@ -1,113 +1,351 @@
 package com.example.photodiary
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.consume
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
+import org.json.JSONArray
+import org.json.JSONObject
+
+private const val MAX_STICKER_COUNT = 8
 
 data class DiaryStickerOption(
     val key: String,
     val emoji: String,
-    val label: String
+    val label: String,
+    val rotation: Float
+)
+
+data class DiaryStickerPlacement(
+    val key: String,
+    val xRatio: Float,
+    val yRatio: Float
 )
 
 val stickerOptions = listOf(
-    DiaryStickerOption("clover", "🍀", "작은 행운"),
-    DiaryStickerOption("heart", "🤍", "마음 보관"),
-    DiaryStickerOption("coffee", "☕", "커피 한 잔"),
-    DiaryStickerOption("music", "🎵", "오늘의 플레이리스트"),
-    DiaryStickerOption("star", "✨", "반짝 장면"),
-    DiaryStickerOption("moon", "🌙", "조용한 밤")
+    DiaryStickerOption("tape_heart", "🤍", "하트 테이프", -4f),
+    DiaryStickerOption("luck_clover", "🍀", "행운 클로버", 3f),
+    DiaryStickerOption("quiet_moon", "🌙", "조용한 밤", -6f),
+    DiaryStickerOption("spark_star", "✨", "반짝 장면", 4f),
+    DiaryStickerOption("coffee_break", "☕", "커피 메모", -2f),
+    DiaryStickerOption("music_note", "🎵", "오늘의 노래", 5f),
+    DiaryStickerOption("book_day", "📖", "책갈피 하루", -5f),
+    DiaryStickerOption("flower_memo", "🌼", "꽃 메모", 2f)
 )
+
+fun String.toStickerPlacements(): List<DiaryStickerPlacement> {
+    if (isBlank()) return emptyList()
+    return runCatching {
+        if (!trim().startsWith("[")) {
+            listOf(DiaryStickerPlacement(key = this, xRatio = 0.14f, yRatio = 0.16f))
+        } else {
+            val array = JSONArray(this)
+            buildList {
+                repeat(array.length()) { index ->
+                    val item = array.optJSONObject(index) ?: return@repeat
+                    add(
+                        DiaryStickerPlacement(
+                            key = item.optString("key"),
+                            xRatio = item.optDouble("x", 0.15).toFloat().coerceIn(0f, 1f),
+                            yRatio = item.optDouble("y", 0.16).toFloat().coerceIn(0f, 1f)
+                        )
+                    )
+                }
+            }.filter { it.key.toStickerOptionOrNull() != null }
+        }
+    }.getOrElse { emptyList() }
+}
+
+fun List<DiaryStickerPlacement>.toStickerPayload(): String {
+    if (isEmpty()) return ""
+    return JSONArray().apply {
+        forEach { placement ->
+            put(
+                JSONObject()
+                    .put("key", placement.key)
+                    .put("x", placement.xRatio.toDouble())
+                    .put("y", placement.yRatio.toDouble())
+            )
+        }
+    }.toString()
+}
 
 fun String.toStickerOptionOrNull(): DiaryStickerOption? {
     if (isBlank()) return null
     return stickerOptions.firstOrNull { it.key == this }
 }
 
+fun nextStickerPlacement(
+    key: String,
+    existingCount: Int
+): DiaryStickerPlacement {
+    val seeds = listOf(
+        Offset(0.12f, 0.16f),
+        Offset(0.64f, 0.12f),
+        Offset(0.22f, 0.62f),
+        Offset(0.68f, 0.54f),
+        Offset(0.42f, 0.28f),
+        Offset(0.52f, 0.72f)
+    )
+    val seed = seeds[existingCount % seeds.size]
+    return DiaryStickerPlacement(key = key, xRatio = seed.x, yRatio = seed.y)
+}
+
 @Composable
-fun DiaryStickerBadge(
-    stickerKey: String,
+fun DiaryStickerPalette(
+    onAddSticker: (String) -> Unit,
+    canAddMore: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val stickerOption = stickerKey.toStickerOptionOrNull() ?: return
-
-    Surface(
-        modifier = modifier.rotate(-3f),
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.82f),
-        tonalElevation = 0.5.dp
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = stickerOption.emoji,
-                style = MaterialTheme.typography.labelMedium
-            )
-            Text(
-                text = stickerOption.label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+        stickerOptions.forEach { option ->
+            Surface(
+                modifier = Modifier
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .clickable(enabled = canAddMore) { onAddSticker(option.key) },
+                shape = RoundedCornerShape(16.dp),
+                color = if (canAddMore) {
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
+                }
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(text = option.emoji, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = option.label,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun DiaryStickerChoiceChip(
-    option: DiaryStickerOption,
-    selected: Boolean,
-    onClick: () -> Unit,
+fun DiaryStickerCanvasEditor(
+    placements: List<DiaryStickerPlacement>,
+    titlePreview: String,
+    contentPreview: String,
+    onMoveSticker: (index: Int, xRatio: Float, yRatio: Float) -> Unit,
+    onRemoveSticker: (index: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    DiaryStickerCanvas(
+        placements = placements,
+        titlePreview = titlePreview,
+        contentPreview = contentPreview,
+        onMoveSticker = onMoveSticker,
+        onRemoveSticker = onRemoveSticker,
         modifier = modifier
-            .border(
-                width = if (selected) 1.2.dp else 0.dp,
-                color = if (selected) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
-                } else {
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                },
-                shape = RoundedCornerShape(16.dp)
-            )
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        color = if (selected) {
-            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.9f)
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
-        },
-        tonalElevation = if (selected) 1.dp else 0.dp
+    )
+}
+
+@Composable
+fun DiaryStickerCanvasReadOnly(
+    placements: List<DiaryStickerPlacement>,
+    titlePreview: String,
+    contentPreview: String,
+    modifier: Modifier = Modifier
+) {
+    DiaryStickerCanvas(
+        placements = placements,
+        titlePreview = titlePreview,
+        contentPreview = contentPreview,
+        onMoveSticker = null,
+        onRemoveSticker = null,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun DiaryStickerCanvas(
+    placements: List<DiaryStickerPlacement>,
+    titlePreview: String,
+    contentPreview: String,
+    onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
+    onRemoveSticker: ((index: Int) -> Unit)?,
+    modifier: Modifier = Modifier
+) {
+    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
+    val editable = onMoveSticker != null
+    val stickerWidthPx = 104f
+    val stickerHeightPx = 44f
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 0.8.dp
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(236.dp)
+                .onSizeChanged { canvasSize = it }
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
+                .padding(18.dp)
         ) {
-            Text(
-                text = option.emoji,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = option.label,
-                style = MaterialTheme.typography.labelMedium,
-                color = if (selected) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "나만의 다이어리 조각",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+                )
+                Text(
+                    text = titlePreview.ifBlank { "오늘의 제목을 적어보세요" },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = contentPreview.ifBlank { "스티커를 붙이며 오늘의 기록을 조금 더 다정하게 꾸며볼 수 있어요." },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = if (editable) {
+                        "스티커를 길게 끌어 원하는 위치로 옮겨보세요."
+                    } else {
+                        "남겨둔 스티커 위치를 그대로 보여주는 페이지예요."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f),
+                    fontStyle = FontStyle.Italic
+                )
+            }
+
+            placements.forEachIndexed { index, placement ->
+                val option = placement.key.toStickerOptionOrNull() ?: return@forEachIndexed
+                val horizontalRange = (canvasSize.width - stickerWidthPx).coerceAtLeast(1f)
+                val verticalRange = (canvasSize.height - stickerHeightPx).coerceAtLeast(1f)
+                val xOffset = (horizontalRange * placement.xRatio).roundToInt()
+                val yOffset = (verticalRange * placement.yRatio).roundToInt()
+
+                Surface(
+                    modifier = Modifier
+                        .offset { IntOffset(xOffset, yOffset) }
+                        .rotate(option.rotation)
+                        .then(
+                            if (editable) {
+                                Modifier.pointerInput(placement, canvasSize) {
+                                    detectDragGestures { change, dragAmount ->
+                                        change.consume()
+                                        val currentX = horizontalRange * placement.xRatio
+                                        val currentY = verticalRange * placement.yRatio
+                                        val nextX = (currentX + dragAmount.x).coerceIn(0f, horizontalRange)
+                                        val nextY = (currentY + dragAmount.y).coerceIn(0f, verticalRange)
+                                        onMoveSticker?.invoke(
+                                            index,
+                                            (nextX / horizontalRange).coerceIn(0f, 1f),
+                                            (nextY / verticalRange).coerceIn(0f, 1f)
+                                        )
+                                    }
+                                }
+                            } else {
+                                Modifier
+                            }
+                        ),
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.92f),
+                    tonalElevation = 1.dp,
+                    shadowElevation = 1.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = option.emoji, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = option.label,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
                 }
-            )
+
+                if (editable) {
+                    Surface(
+                        modifier = Modifier
+                            .offset { IntOffset(xOffset + 82, yOffset - 8) },
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                        tonalElevation = 0.5.dp,
+                        shadowElevation = 0.5.dp
+                    ) {
+                        IconButton(
+                            onClick = { onRemoveSticker?.invoke(index) },
+                            modifier = Modifier.size(22.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Close,
+                                contentDescription = "스티커 삭제",
+                                modifier = Modifier.size(12.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
+}
+
+fun canAddMoreStickers(placements: List<DiaryStickerPlacement>): Boolean {
+    return placements.size < MAX_STICKER_COUNT
 }
