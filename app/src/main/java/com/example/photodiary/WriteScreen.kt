@@ -616,36 +616,41 @@ fun WriteScreen(
                         colors = lowChromeTextFieldColors()
                     )
 
-                    Column(
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f, fill = true)
-                            .verticalScroll(contentScrollState)
-                            .padding(bottom = 28.dp)
                     ) {
-                        OutlinedTextField(
-                            value = content,
-                            onValueChange = {
-                                content = it
-                                collapseToolPanels()
-                            },
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .onFocusChanged { state ->
-                                    if (state.isFocused) collapseToolPanels()
+                                .fillMaxSize()
+                                .verticalScroll(contentScrollState)
+                                .padding(bottom = 28.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = content,
+                                onValueChange = {
+                                    content = it
+                                    collapseToolPanels()
                                 },
-                            placeholder = {
-                                Text(
-                                    text = "오늘의 이야기를 천천히 적어보세요.",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                )
-                            },
-                            textStyle = MaterialTheme.typography.bodyLarge,
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                            colors = lowChromeTextFieldColors(),
-                            minLines = 8,
-                            maxLines = Int.MAX_VALUE
-                        )
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .onFocusChanged { state ->
+                                        if (state.isFocused) collapseToolPanels()
+                                    },
+                                placeholder = {
+                                    Text(
+                                        text = "오늘의 이야기를 천천히 적어보세요.",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                    )
+                                },
+                                textStyle = MaterialTheme.typography.bodyLarge,
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                colors = lowChromeTextFieldColors(),
+                                minLines = 8,
+                                maxLines = Int.MAX_VALUE
+                            )
+                        }
                     }
                 }
             }
