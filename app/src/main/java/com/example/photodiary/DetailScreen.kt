@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -158,8 +159,8 @@ fun DetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(horizontal = 18.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             ScrapbookPage(
                 entry = entry,
@@ -180,25 +181,27 @@ private fun ScrapbookPage(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         ScrapbookMetaRow(entry = entry)
 
-        Box(
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
+            shadowElevation = 3.dp
         ) {
             DiaryStickerOverlayReadOnly(
                 placements = stickerPlacements,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
-                    .padding(horizontal = 18.dp, vertical = 20.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 20.dp, vertical = 22.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
                         text = entry.title,
@@ -227,16 +230,12 @@ private fun ScrapbookPage(
 
 @Composable
 private fun ScrapbookMetaRow(entry: DiaryEntry) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.Top
-    ) {
+    Box(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = entry.diaryDate.toDisplayDate(),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.align(Alignment.TopStart)
         )
 
         val metaLine = entry.toMetaLine()
@@ -249,6 +248,7 @@ private fun ScrapbookMetaRow(entry: DiaryEntry) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
+                    .align(Alignment.TopEnd)
                     .widthIn(max = 196.dp)
             )
         }
@@ -264,14 +264,16 @@ private fun PhotoSection(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(vertical = 2.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        imagePaths.forEach { imagePath ->
+        imagePaths.forEachIndexed { index, imagePath ->
             DetailThumbnailCard(
                 imagePath = imagePath,
                 onPreviewClick = { onPreviewImage(imagePath) },
-                modifier = Modifier.width(156.dp),
+                modifier = Modifier
+                    .width(164.dp)
+                    .rotate(if (index % 2 == 0) -2.5f else 2.5f),
                 shape = RoundedCornerShape(20.dp),
                 showZoomBadge = false
             )
