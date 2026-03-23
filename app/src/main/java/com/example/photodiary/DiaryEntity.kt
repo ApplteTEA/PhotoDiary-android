@@ -13,6 +13,7 @@ data class DiaryEntity(
     val mood: String = "",
     val weather: String = "",
     val tag: String = "",
+    val sticker: String = "",
     val createdAt: Long,
     val updatedAt: Long
 )
