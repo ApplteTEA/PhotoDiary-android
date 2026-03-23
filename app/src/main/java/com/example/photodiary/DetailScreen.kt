@@ -260,31 +260,23 @@ private fun PhotoSection(
     imagePaths: List<String>,
     onPreviewImage: (String) -> Unit
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        shadowElevation = 2.dp
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            imagePaths.forEachIndexed { index, imagePath ->
-                DetailThumbnailCard(
-                    imagePath = imagePath,
-                    onPreviewClick = { onPreviewImage(imagePath) },
-                    modifier = Modifier
-                        .width(164.dp)
-                        .rotate(if (index % 2 == 0) -2.5f else 2.5f),
-                    shape = RoundedCornerShape(20.dp),
-                    showZoomBadge = false
-                )
-            }
+        imagePaths.forEachIndexed { index, imagePath ->
+            DetailThumbnailCard(
+                imagePath = imagePath,
+                onPreviewClick = { onPreviewImage(imagePath) },
+                modifier = Modifier
+                    .width(164.dp)
+                    .rotate(if (index % 2 == 0) -2.5f else 2.5f),
+                shape = RoundedCornerShape(20.dp),
+                showZoomBadge = false
+            )
         }
     }
 }
