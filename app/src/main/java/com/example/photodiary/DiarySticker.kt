@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +52,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 private const val MAX_STICKER_COUNT = 8
+private const val STICKER_NODE_HEIGHT_PX = 44f
 
 val DiaryPageCornerRadius = 28.dp
 val DiaryPageHorizontalPadding = 20.dp
@@ -146,7 +147,10 @@ fun String.toStickerOptionOrNull(): DiaryStickerOption? {
 
 fun nextStickerPlacement(
     key: String,
-    existingCount: Int
+    existingCount: Int,
+    scrollOffsetPx: Int = 0,
+    viewportHeightPx: Int = 0,
+    canvasHeightPx: Int = 0
 ): DiaryStickerPlacement {
     val seeds = listOf(
         Offset(0.12f, 0.16f),
@@ -157,7 +161,21 @@ fun nextStickerPlacement(
         Offset(0.52f, 0.72f)
     )
     val seed = seeds[existingCount % seeds.size]
-    return DiaryStickerPlacement(key = key, xRatio = seed.x, yRatio = seed.y)
+    if (canvasHeightPx <= STICKER_NODE_HEIGHT_PX || viewportHeightPx <= 0) {
+        return DiaryStickerPlacement(key = key, xRatio = seed.x, yRatio = seed.y)
+    }
+
+    val verticalRange = (canvasHeightPx - STICKER_NODE_HEIGHT_PX).coerceAtLeast(1f)
+    val visibleHeight = (viewportHeightPx.toFloat() - STICKER_NODE_HEIGHT_PX)
+        .coerceAtLeast(0f)
+        .coerceAtMost(verticalRange)
+    val anchoredY = (scrollOffsetPx.toFloat() + visibleHeight * seed.y).coerceIn(0f, verticalRange)
+
+    return DiaryStickerPlacement(
+        key = key,
+        xRatio = seed.x,
+        yRatio = (anchoredY / verticalRange).coerceIn(0f, 1f)
+    )
 }
 
 @Composable
@@ -257,6 +275,7 @@ fun DiaryStickerWritingSurfaceEditor(
     placements: List<DiaryStickerPlacement>,
     onMoveSticker: (index: Int, xRatio: Float, yRatio: Float) -> Unit,
     onRemoveSticker: (index: Int) -> Unit,
+    onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -264,6 +283,7 @@ fun DiaryStickerWritingSurfaceEditor(
         placements = placements,
         onMoveSticker = onMoveSticker,
         onRemoveSticker = onRemoveSticker,
+        onCanvasSizeChanged = onCanvasSizeChanged,
         modifier = modifier,
         content = content
     )
@@ -373,6 +393,7 @@ private fun DiaryStickerWritingSurface(
     placements: List<DiaryStickerPlacement>,
     onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
     onRemoveSticker: ((index: Int) -> Unit)?,
+    onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -386,6 +407,12 @@ private fun DiaryStickerWritingSurface(
             width = max(contentSize.width, containerSize.width),
             height = max(contentSize.height, containerSize.height)
         )
+    }
+
+    LaunchedEffect(canvasSize) {
+        if (canvasSize != IntSize.Zero) {
+            onCanvasSizeChanged?.invoke(canvasSize)
+        }
     }
 
     Surface(
