@@ -25,8 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,6 +43,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -166,101 +166,94 @@ fun DetailScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            DiaryStickerWritingSurfaceReadOnly(
+                placements = stickerPlacements,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 280.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    DiaryStickerWritingSurfaceReadOnly(
-                        placements = stickerPlacements,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 280.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(14.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.Top
-                            ) {
-                                Text(
-                                    text = entry.diaryDate.toDisplayDate(),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
-                                )
+                        Text(
+                            text = entry.diaryDate.toDisplayDate(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                        )
 
-                                Spacer(modifier = Modifier.weight(1f))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.weight(1f))
 
-                                val metaLine = entry.toMetaLine()
-                                if (metaLine.isNotBlank()) {
-                                    Text(
-                                        text = metaLine,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
+                        val metaLine = entry.toMetaLine()
+                        if (metaLine.isNotBlank()) {
                             Text(
-                                text = entry.title,
-                                style = MaterialTheme.typography.titleLarge
-                            )
-
-                            Text(
-                                text = entry.content,
-                                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(top = 4.dp)
+                                text = metaLine,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.End,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1.2f, fill = false)
                             )
                         }
                     }
 
-                    if (imagePaths.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier.padding(top = 4.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "사진 ${imagePaths.size}장",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                    Text(
+                        text = entry.title,
+                        style = MaterialTheme.typography.titleLarge
+                    )
 
-                            imagePaths.forEachIndexed { index, _ ->
-                                if (index % 2 == 0) {
-                                    val leftImage = imagePaths.getOrNull(index)
-                                    val rightImage = imagePaths.getOrNull(index + 1)
+                    Text(
+                        text = entry.content,
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
 
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                    ) {
-                                        if (leftImage != null) {
-                                            DetailThumbnailCard(
-                                                imagePath = leftImage,
-                                                onPreviewClick = { previewImagePath = leftImage },
-                                                modifier = Modifier.weight(1f)
-                                            )
-                                        }
-                                        if (rightImage != null) {
-                                            DetailThumbnailCard(
-                                                imagePath = rightImage,
-                                                onPreviewClick = { previewImagePath = rightImage },
-                                                modifier = Modifier.weight(1f)
-                                            )
-                                        } else {
-                                            Box(modifier = Modifier.weight(1f))
-                                        }
-                                    }
+            if (imagePaths.isNotEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "첨부한 사진",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    imagePaths.forEachIndexed { index, _ ->
+                        if (index % 2 == 0) {
+                            val leftImage = imagePaths.getOrNull(index)
+                            val rightImage = imagePaths.getOrNull(index + 1)
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (leftImage != null) {
+                                    DetailThumbnailCard(
+                                        imagePath = leftImage,
+                                        onPreviewClick = { previewImagePath = leftImage },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                if (rightImage != null) {
+                                    DetailThumbnailCard(
+                                        imagePath = rightImage,
+                                        onPreviewClick = { previewImagePath = rightImage },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                } else {
+                                    Box(modifier = Modifier.weight(1f))
                                 }
                             }
                         }
