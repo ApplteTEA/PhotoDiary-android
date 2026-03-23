@@ -15,4 +15,7 @@ interface MonthlyReflectionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: MonthlyReflectionEntity)
+
+    @Query("UPDATE monthly_reflections SET coverImagePath = '' WHERE coverImagePath = :path")
+    suspend fun clearCoverImagePath(path: String)
 }

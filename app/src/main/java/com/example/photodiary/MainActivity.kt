@@ -32,7 +32,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -133,6 +135,10 @@ class MainActivity : ComponentActivity() {
                     var calendarSelectedDateMillis by remember {
                         mutableLongStateOf(System.currentTimeMillis().toDayStartMillis())
                     }
+                    val initCal = remember { Calendar.getInstance() }
+                    var calendarViewYear by remember { mutableStateOf(initCal.get(Calendar.YEAR)) }
+                    var calendarViewMonth by remember { mutableStateOf(initCal.get(Calendar.MONTH)) }
+                    val mainListState = rememberLazyListState()
                     var calendarWriteDateMillis by remember { mutableStateOf<Long?>(null) }
                     var selectedReflectionMonthKey by remember { mutableStateOf<String?>(null) }
                     val diaryEntries = remember { mutableStateListOf<DiaryEntry>() }
@@ -145,6 +151,9 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(Unit) {
                         diaryEntries.replaceFromDatabase(dao)
                         monthlyReflections.replaceFromDatabase(monthlyReflectionDao)
+                        scope.launch(Dispatchers.IO) {
+                            cleanupOrphanedImages(applicationContext, dao, monthlyReflectionDao)
+                        }
                     }
 
                     when (currentScreen) {
@@ -153,6 +162,9 @@ class MainActivity : ComponentActivity() {
                             monthlyReflections = monthlyReflections,
                             onCalendarClick = {
                                 calendarSelectedDateMillis = System.currentTimeMillis().toDayStartMillis()
+                                val now = Calendar.getInstance()
+                                calendarViewYear = now.get(Calendar.YEAR)
+                                calendarViewMonth = now.get(Calendar.MONTH)
                                 calendarWriteDateMillis = null
                                 currentScreen = AppScreen.Calendar
                             },
@@ -170,13 +182,20 @@ class MainActivity : ComponentActivity() {
                             onMonthlyReflectionClick = { monthKey ->
                                 selectedReflectionMonthKey = monthKey
                                 currentScreen = AppScreen.MonthReflection
-                            }
+                            },
+                            listState = mainListState
                         )
 
                         AppScreen.Calendar -> CalendarScreen(
                             entries = diaryEntries.toList(),
                             initialSelectedDateMillis = calendarSelectedDateMillis,
+                            initialViewYear = calendarViewYear,
+                            initialViewMonth = calendarViewMonth,
                             onSelectedDateChange = { calendarSelectedDateMillis = it },
+                            onViewMonthChange = { year, month ->
+                                calendarViewYear = year
+                                calendarViewMonth = month
+                            },
                             onBackClick = { currentScreen = AppScreen.Main },
                             onAddClick = { selectedDateMillis ->
                                 selectedEntryId = null
@@ -253,6 +272,9 @@ class MainActivity : ComponentActivity() {
                                                     ).toEntity()
                                                 )
 
+                                                removedImagePaths.forEach { path ->
+                                                    monthlyReflectionDao.clearCoverImagePath(path)
+                                                }
                                                 removedImagePaths.deleteInternalImageCopies(applicationContext)
                                             }
                                         }
@@ -286,10 +308,12 @@ class MainActivity : ComponentActivity() {
                                     onDeleteClick = {
                                         scope.launch {
                                             withContext(Dispatchers.IO) {
+                                                val imagePaths = selectedEntry.imagePath.toImagePathList()
+                                                imagePaths.forEach { path ->
+                                                    monthlyReflectionDao.clearCoverImagePath(path)
+                                                }
                                                 dao.delete(selectedEntry.toEntity())
-                                                selectedEntry.imagePath
-                                                    .toImagePathList()
-                                                    .deleteInternalImageCopies(applicationContext)
+                                                imagePaths.deleteInternalImageCopies(applicationContext)
                                             }
                                             diaryEntries.replaceFromDatabase(dao)
                                             selectedEntryId = null
@@ -395,7 +419,8 @@ fun MainScreen(
     onMyPageClick: () -> Unit,
     onWriteClick: () -> Unit,
     onEntryClick: (Long) -> Unit,
-    onMonthlyReflectionClick: (String) -> Unit
+    onMonthlyReflectionClick: (String) -> Unit,
+    listState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
     var lastBackPressedAt by remember { mutableLongStateOf(0L) }
@@ -441,6 +466,7 @@ fun MainScreen(
                 monthlyReflections = monthlyReflections,
                 onEntryClick = onEntryClick,
                 onMonthlyReflectionClick = onMonthlyReflectionClick,
+                listState = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 12.dp, top = 8.dp, end = 12.dp)
@@ -455,6 +481,7 @@ private fun DiaryListSection(
     monthlyReflections: Map<String, MonthlyReflectionEntity>,
     onEntryClick: (Long) -> Unit,
     onMonthlyReflectionClick: (String) -> Unit,
+    listState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -501,6 +528,7 @@ private fun DiaryListSection(
             }
 
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(top = 4.dp, bottom = 12.dp)
@@ -886,5 +914,42 @@ private suspend fun MutableMap<String, MonthlyReflectionEntity>.replaceFromDatab
     clear()
     loaded.forEach { item ->
         this[item.yearMonth] = item
+    }
+}
+
+private suspend fun cleanupOrphanedImages(
+    context: Context,
+    dao: DiaryDao,
+    reflectionDao: MonthlyReflectionDao
+) {
+    val imageDir = File(context.filesDir, "images")
+    if (!imageDir.exists() || !imageDir.isDirectory) return
+
+    val allFiles = imageDir.listFiles() ?: return
+    if (allFiles.isEmpty()) return
+
+    val entries = dao.getAllOrdered()
+    val reflections = reflectionDao.getAll()
+
+    val referencedPaths = mutableSetOf<String>()
+    entries.forEach { entry ->
+        referencedPaths.addAll(entry.imagePath.toImagePathList())
+    }
+    reflections.forEach { reflection ->
+        if (reflection.coverImagePath.isNotBlank()) {
+            referencedPaths.add(reflection.coverImagePath)
+        }
+    }
+
+    allFiles.forEach { file ->
+        val uriString = Uri.fromFile(file).toString()
+        val absolutePath = file.absolutePath
+        
+        // Both Uri format and absolute path check for safety
+        val isReferenced = referencedPaths.any { it == uriString || it == absolutePath }
+        
+        if (!isReferenced) {
+            file.delete()
+        }
     }
 }

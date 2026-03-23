@@ -67,7 +67,10 @@ import java.util.Locale
 fun CalendarScreen(
     entries: List<DiaryEntry>,
     initialSelectedDateMillis: Long,
+    initialViewYear: Int,
+    initialViewMonth: Int,
     onSelectedDateChange: (Long) -> Unit,
+    onViewMonthChange: (year: Int, month: Int) -> Unit,
     onBackClick: () -> Unit,
     onAddClick: (Long) -> Unit,
     onEntryClick: (Long) -> Unit
@@ -86,8 +89,8 @@ fun CalendarScreen(
     val selectedCalendar = remember(selectedDateMillis) {
         Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
     }
-    var currentYear by remember(selectedDateMillis) { mutableIntStateOf(selectedCalendar.get(Calendar.YEAR)) }
-    var currentMonth by remember(selectedDateMillis) { mutableIntStateOf(selectedCalendar.get(Calendar.MONTH)) }
+    var currentYear by remember { mutableIntStateOf(initialViewYear) }
+    var currentMonth by remember { mutableIntStateOf(initialViewMonth) }
 
     val monthTitle = remember(currentYear, currentMonth) {
         Calendar.getInstance().apply {
@@ -184,6 +187,7 @@ fun CalendarScreen(
                                     }
                                     currentYear = cal.get(Calendar.YEAR)
                                     currentMonth = cal.get(Calendar.MONTH)
+                                    onViewMonthChange(currentYear, currentMonth)
                                     selectedDateMillis = Calendar.getInstance().apply {
                                         set(Calendar.YEAR, currentYear)
                                         set(Calendar.MONTH, currentMonth)
@@ -201,6 +205,7 @@ fun CalendarScreen(
                                         { _, year, month, dayOfMonth ->
                                             currentYear = year
                                             currentMonth = month
+                                            onViewMonthChange(currentYear, currentMonth)
                                             selectedDateMillis = Calendar.getInstance().apply {
                                                 set(Calendar.YEAR, year)
                                                 set(Calendar.MONTH, month)
@@ -230,6 +235,7 @@ fun CalendarScreen(
                                     }
                                     currentYear = cal.get(Calendar.YEAR)
                                     currentMonth = cal.get(Calendar.MONTH)
+                                    onViewMonthChange(currentYear, currentMonth)
                                     selectedDateMillis = Calendar.getInstance().apply {
                                         set(Calendar.YEAR, currentYear)
                                         set(Calendar.MONTH, currentMonth)
@@ -253,6 +259,7 @@ fun CalendarScreen(
                                 val cal = Calendar.getInstance().apply { timeInMillis = clicked }
                                 currentYear = cal.get(Calendar.YEAR)
                                 currentMonth = cal.get(Calendar.MONTH)
+                                onViewMonthChange(currentYear, currentMonth)
                             }
                         )
                     }
