@@ -62,9 +62,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.platform.LocalFocusManager
@@ -142,6 +144,8 @@ fun WriteScreen(
     val initialStickerPayload = remember(initialStickerPlacements) {
         initialStickerPlacements.toStickerPayload()
     }
+    var stickerCanvasSize by remember { androidx.compose.runtime.mutableStateOf(IntSize.Zero) }
+    var editorViewportSize by remember { androidx.compose.runtime.mutableStateOf(IntSize.Zero) }
     val stickerPayload = stickerPlacements.toList().toStickerPayload()
 
     val hasChanges = remember(
@@ -488,7 +492,10 @@ fun WriteScreen(
                                 stickerPlacements.add(
                                     nextStickerPlacement(
                                         key = key,
-                                        existingCount = stickerPlacements.size
+                                        existingCount = stickerPlacements.size,
+                                        scrollOffsetPx = contentScrollState.value,
+                                        viewportHeightPx = editorViewportSize.height,
+                                        canvasHeightPx = stickerCanvasSize.height
                                     )
                                 )
                             }
@@ -541,6 +548,7 @@ fun WriteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .onSizeChanged { editorViewportSize = it }
                 .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
             Column(
@@ -557,6 +565,7 @@ fun WriteScreen(
                         )
                     },
                     onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
+                    onCanvasSizeChanged = { stickerCanvasSize = it },
                     modifier = Modifier.fillMaxWidth()
                 ) { contentSizeModifier ->
                     Column(
