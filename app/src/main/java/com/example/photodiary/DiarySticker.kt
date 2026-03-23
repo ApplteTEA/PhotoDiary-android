@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -155,35 +156,49 @@ fun DiaryStickerPalette(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         stickerOptions.forEach { option ->
-            Surface(
-                modifier = Modifier
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .clickable(enabled = canAddMore) { onAddSticker(option.key) },
-                shape = RoundedCornerShape(16.dp),
-                color = if (canAddMore) {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
-                }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                Surface(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .clickable(enabled = canAddMore) { onAddSticker(option.key) },
+                    shape = RoundedCornerShape(20.dp),
+                    color = if (canAddMore) {
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.98f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f)
+                    },
+                    tonalElevation = 1.dp,
+                    shadowElevation = 2.dp
                 ) {
-                    Text(text = option.emoji, style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = option.label,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(58.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(20.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = option.emoji, style = MaterialTheme.typography.headlineSmall)
+                    }
                 }
+                Text(
+                    text = option.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
@@ -226,6 +241,23 @@ fun DiaryStickerCanvasReadOnly(
 }
 
 @Composable
+fun DiaryStickerWritingSurfaceEditor(
+    placements: List<DiaryStickerPlacement>,
+    onMoveSticker: (index: Int, xRatio: Float, yRatio: Float) -> Unit,
+    onRemoveSticker: (index: Int) -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    DiaryStickerWritingSurface(
+        placements = placements,
+        onMoveSticker = onMoveSticker,
+        onRemoveSticker = onRemoveSticker,
+        modifier = modifier,
+        content = content
+    )
+}
+
+@Composable
 private fun DiaryStickerCanvas(
     placements: List<DiaryStickerPlacement>,
     titlePreview: String,
@@ -234,139 +266,183 @@ private fun DiaryStickerCanvas(
     onRemoveSticker: ((index: Int) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
+    DiaryStickerWritingSurface(
+        placements = placements,
+        onMoveSticker = onMoveSticker,
+        onRemoveSticker = onRemoveSticker,
+        modifier = modifier.height(236.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "나만의 다이어리 조각",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+            )
+            Text(
+                text = titlePreview.ifBlank { "오늘의 제목을 적어보세요" },
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = contentPreview.ifBlank { "스티커를 붙이며 오늘의 기록을 조금 더 다정하게 꾸며볼 수 있어요." },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = if (onMoveSticker != null) {
+                    "스티커를 길게 끌어 원하는 위치로 옮겨보세요."
+                } else {
+                    "남겨둔 스티커 위치를 그대로 보여주는 페이지예요."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f),
+                fontStyle = FontStyle.Italic
+            )
+        }
+    }
+}
+
+@Composable
+private fun DiaryStickerWritingSurface(
+    placements: List<DiaryStickerPlacement>,
+    onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
+    onRemoveSticker: ((index: Int) -> Unit)?,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    val editable = onMoveSticker != null
     val stickerWidthPx = 104f
     val stickerHeightPx = 44f
+    val editable = onMoveSticker != null
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 0.8.dp
+        tonalElevation = 0.8.dp,
+        shadowElevation = 3.dp
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(236.dp)
+                .fillMaxSize()
                 .onSizeChanged { canvasSize = it }
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
-                .padding(18.dp)
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(horizontal = 20.dp, vertical = 18.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "나만의 다이어리 조각",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                )
-                Text(
-                    text = titlePreview.ifBlank { "오늘의 제목을 적어보세요" },
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = contentPreview.ifBlank { "스티커를 붙이며 오늘의 기록을 조금 더 다정하게 꾸며볼 수 있어요." },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 4,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = if (editable) {
-                        "스티커를 길게 끌어 원하는 위치로 옮겨보세요."
-                    } else {
-                        "남겨둔 스티커 위치를 그대로 보여주는 페이지예요."
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f),
-                    fontStyle = FontStyle.Italic
-                )
-            }
+            content()
 
             placements.forEachIndexed { index, placement ->
-                val option = placement.key.toStickerOptionOrNull() ?: return@forEachIndexed
-                val horizontalRange = (canvasSize.width - stickerWidthPx).coerceAtLeast(1f)
-                val verticalRange = (canvasSize.height - stickerHeightPx).coerceAtLeast(1f)
-                val xOffset = (horizontalRange * placement.xRatio).roundToInt()
-                val yOffset = (verticalRange * placement.yRatio).roundToInt()
-                val latestPlacement by rememberUpdatedState(placement)
+                DiaryStickerPlacementNode(
+                    index = index,
+                    placement = placement,
+                    canvasSize = canvasSize,
+                    stickerWidthPx = stickerWidthPx,
+                    stickerHeightPx = stickerHeightPx,
+                    editable = editable,
+                    onMoveSticker = onMoveSticker,
+                    onRemoveSticker = onRemoveSticker
+                )
+            }
+        }
+    }
+}
 
-                Surface(
-                    modifier = Modifier
-                        .offset { IntOffset(xOffset, yOffset) }
-                        .rotate(option.rotation)
-                        .then(
-                            if (editable) {
-                                Modifier.pointerInput(index, canvasSize) {
-                                    var dragX = 0f
-                                    var dragY = 0f
+@Composable
+private fun DiaryStickerPlacementNode(
+    index: Int,
+    placement: DiaryStickerPlacement,
+    canvasSize: IntSize,
+    stickerWidthPx: Float,
+    stickerHeightPx: Float,
+    editable: Boolean,
+    onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
+    onRemoveSticker: ((index: Int) -> Unit)?
+) {
+    val option = placement.key.toStickerOptionOrNull() ?: return
+    val horizontalRange = (canvasSize.width - stickerWidthPx).coerceAtLeast(1f)
+    val verticalRange = (canvasSize.height - stickerHeightPx).coerceAtLeast(1f)
+    val xOffset = (horizontalRange * placement.xRatio).roundToInt()
+    val yOffset = (verticalRange * placement.yRatio).roundToInt()
+    val latestPlacement by rememberUpdatedState(placement)
 
-                                    detectDragGestures(
-                                        onDragStart = {
-                                            dragX = horizontalRange * latestPlacement.xRatio
-                                            dragY = verticalRange * latestPlacement.yRatio
-                                        }
-                                    ) { change, dragAmount ->
-                                        change.consume()
-                                        dragX = (dragX + dragAmount.x).coerceIn(0f, horizontalRange)
-                                        dragY = (dragY + dragAmount.y).coerceIn(0f, verticalRange)
-                                        onMoveSticker?.invoke(
-                                            index,
-                                            (dragX / horizontalRange).coerceIn(0f, 1f),
-                                            (dragY / verticalRange).coerceIn(0f, 1f)
-                                        )
-                                    }
-                                }
-                            } else {
-                                Modifier
-                            }
-                        ),
-                    shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.92f),
-                    tonalElevation = 1.dp,
-                    shadowElevation = 1.dp
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = option.emoji, style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            text = option.label,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                }
-
+    Surface(
+        modifier = Modifier
+            .offset { IntOffset(xOffset, yOffset) }
+            .rotate(option.rotation)
+            .then(
                 if (editable) {
-                    Surface(
-                        modifier = Modifier
-                            .offset { IntOffset(xOffset + 82, yOffset - 8) },
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
-                        tonalElevation = 0.5.dp,
-                        shadowElevation = 0.5.dp
-                    ) {
-                        IconButton(
-                            onClick = { onRemoveSticker?.invoke(index) },
-                            modifier = Modifier.size(22.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Close,
-                                contentDescription = "스티커 삭제",
-                                modifier = Modifier.size(12.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    Modifier.pointerInput(index, canvasSize) {
+                        var dragX = 0f
+                        var dragY = 0f
+
+                        detectDragGestures(
+                            onDragStart = {
+                                dragX = horizontalRange * latestPlacement.xRatio
+                                dragY = verticalRange * latestPlacement.yRatio
+                            }
+                        ) { change, dragAmount ->
+                            change.consume()
+                            dragX = (dragX + dragAmount.x).coerceIn(0f, horizontalRange)
+                            dragY = (dragY + dragAmount.y).coerceIn(0f, verticalRange)
+                            onMoveSticker?.invoke(
+                                index,
+                                (dragX / horizontalRange).coerceIn(0f, 1f),
+                                (dragY / verticalRange).coerceIn(0f, 1f)
                             )
                         }
                     }
+                } else {
+                    Modifier
                 }
+            ),
+        shape = RoundedCornerShape(22.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        shadowElevation = 2.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
+                    shape = RoundedCornerShape(18.dp)
+                )
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(18.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = option.emoji, style = MaterialTheme.typography.titleLarge)
+        }
+    }
+
+    if (editable) {
+        Surface(
+            modifier = Modifier.offset { IntOffset(xOffset + 28, yOffset - 6) },
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+            tonalElevation = 0.5.dp,
+            shadowElevation = 0.5.dp
+        ) {
+            IconButton(
+                onClick = { onRemoveSticker?.invoke(index) },
+                modifier = Modifier.size(22.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = "스티커 삭제",
+                    modifier = Modifier.size(12.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

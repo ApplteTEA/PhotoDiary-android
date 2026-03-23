@@ -8,6 +8,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,16 +19,17 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
@@ -36,16 +39,15 @@ import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -57,19 +59,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import java.io.File
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val MAX_IMAGE_COUNT = 5
 
@@ -96,7 +100,6 @@ fun WriteScreen(
         sticker: String
     ) -> Unit
 ) {
-
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -110,6 +113,13 @@ fun WriteScreen(
     var showAttachPicker by remember { androidx.compose.runtime.mutableStateOf(false) }
     var pendingCameraImageUri by remember { androidx.compose.runtime.mutableStateOf<Uri?>(null) }
     var previewImagePath by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
+    var showExitConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showMoodPicker by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showWeatherPicker by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showStickerTray by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showPhotoTray by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showTagDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+
     val imagePaths = remember(initialImagePaths) {
         mutableStateListOf<String>().apply {
             addAll(initialImagePaths.take(MAX_IMAGE_COUNT))
@@ -127,7 +137,6 @@ fun WriteScreen(
         initialStickerPlacements.toStickerPayload()
     }
     val stickerPayload = stickerPlacements.toList().toStickerPayload()
-    var showExitConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
 
     val hasChanges = remember(
         selectedDateMillis,
@@ -178,6 +187,7 @@ fun WriteScreen(
             Toast.makeText(context, "사진은 최대 5장까지 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show()
         } else {
             imagePaths.addAll(newPaths.take(remaining))
+            showPhotoTray = true
             if (newPaths.size > remaining) {
                 Toast.makeText(
                     context,
@@ -317,6 +327,59 @@ fun WriteScreen(
         )
     }
 
+    if (showMoodPicker) {
+        DiaryOptionPickerDialog(
+            title = "오늘은 어때?",
+            options = moodOptions,
+            selectedKey = selectedMood,
+            onDismiss = { showMoodPicker = false },
+            onSelect = { key ->
+                selectedMood = if (selectedMood == key) "" else key
+                showMoodPicker = false
+            }
+        )
+    }
+
+    if (showWeatherPicker) {
+        DiaryOptionPickerDialog(
+            title = "오늘 날씨는?",
+            options = weatherOptions,
+            selectedKey = selectedWeather,
+            onDismiss = { showWeatherPicker = false },
+            onSelect = { key ->
+                selectedWeather = if (selectedWeather == key) "" else key
+                showWeatherPicker = false
+            }
+        )
+    }
+
+    if (showTagDialog) {
+        AlertDialog(
+            onDismissRequest = { showTagDialog = false },
+            title = { Text("태그 메모") },
+            text = {
+                OutlinedTextField(
+                    value = tag,
+                    onValueChange = { value -> tag = value.take(16) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("예: 가족, 여행, 카페") },
+                    shape = RoundedCornerShape(16.dp)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showTagDialog = false }) {
+                    Text("완료")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTagDialog = false }) {
+                    Text("닫기")
+                }
+            }
+        )
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         containerColor = MaterialTheme.colorScheme.background,
@@ -361,320 +424,488 @@ fun WriteScreen(
                 },
                 windowInsets = WindowInsets.statusBars
             )
+        },
+        bottomBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (showStickerTray) {
+                    FloatingStickerTray(
+                        placements = stickerPlacements,
+                        onAddSticker = { key ->
+                            if (canAddMoreStickers(stickerPlacements)) {
+                                stickerPlacements.add(
+                                    nextStickerPlacement(
+                                        key = key,
+                                        existingCount = stickerPlacements.size
+                                    )
+                                )
+                            }
+                        }
+                    )
+                }
+
+                if (showPhotoTray) {
+                    FloatingPhotoTray(
+                        imagePaths = imagePaths,
+                        onAddPhoto = {
+                            if (imagePaths.size >= MAX_IMAGE_COUNT) {
+                                Toast.makeText(
+                                    context,
+                                    "사진은 최대 5장까지 첨부할 수 있습니다.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                showAttachPicker = true
+                            }
+                        },
+                        onDeletePhoto = { imagePath ->
+                            deleteInternalImageIfExists(context, imagePath)
+                            imagePaths.remove(imagePath)
+                        },
+                        onPreviewPhoto = { imagePath ->
+                            previewImagePath = imagePath
+                        }
+                    )
+                }
+
+                FloatingToolBar(
+                    imageCount = imagePaths.size,
+                    stickerCount = stickerPlacements.size,
+                    tag = tag,
+                    onPhotoClick = {
+                        showPhotoTray = !showPhotoTray
+                        if (showPhotoTray) showStickerTray = false
+                    },
+                    onStickerClick = {
+                        showStickerTray = !showStickerTray
+                        if (showStickerTray) showPhotoTray = false
+                    },
+                    onTagClick = {
+                        showTagDialog = true
+                    }
+                )
+            }
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp)
-                .padding(top = 3.dp, bottom = 8.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.5.dp
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val calendar = Calendar.getInstance().apply {
-                                timeInMillis = selectedDateMillis
-                            }
-                            DatePickerDialog(
-                                context,
-                                { _, year, month, dayOfMonth ->
-                                    selectedDateMillis = Calendar.getInstance().apply {
-                                        set(Calendar.YEAR, year)
-                                        set(Calendar.MONTH, month)
-                                        set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                    }.timeInMillis.toDayStartMillis()
-                                },
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH),
-                                calendar.get(Calendar.DAY_OF_MONTH)
-                            ).show()
-                        }
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarToday,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Text(
-                        text = selectedDateMillis.toDisplayDate(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                placeholder = {
-                    Text(
-                        text = "제목",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            DiaryStickerWritingSurfaceEditor(
+                placements = stickerPlacements,
+                onMoveSticker = { index, xRatio, yRatio ->
+                    stickerPlacements[index] = stickerPlacements[index].copy(
+                        xRatio = xRatio,
+                        yRatio = yRatio
                     )
                 },
-                textStyle = MaterialTheme.typography.titleMedium,
-                shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
-                    cursorColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-
-            OutlinedTextField(
-                value = content,
-                onValueChange = { content = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 190.dp),
-                placeholder = {
-                    Text(
-                        text = "내용을 입력해주세요",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                textStyle = MaterialTheme.typography.bodyLarge,
-                shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
-                    cursorColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.5.dp
+                onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
+                modifier = Modifier.fillMaxSize()
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "오늘의 분위기",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        moodOptions.forEach { option ->
-                            FilterChip(
-                                selected = selectedMood == option.key,
-                                onClick = {
-                                    selectedMood = if (selectedMood == option.key) "" else option.key
-                                },
-                                label = { Text(option.label) }
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        weatherOptions.forEach { option ->
-                            FilterChip(
-                                selected = selectedWeather == option.key,
-                                onClick = {
-                                    selectedWeather = if (selectedWeather == option.key) "" else option.key
-                                },
-                                label = { Text(option.label) }
-                            )
-                        }
-                    }
-                    OutlinedTextField(
-                        value = tag,
-                        onValueChange = { value -> tag = value.take(16) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        placeholder = { Text("태그 (예: 가족, 여행, 카페)") },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        shape = RoundedCornerShape(10.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                            focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
-                            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.07f),
-                            cursorColor = MaterialTheme.colorScheme.onSurface
-                        )
-                    )
-                }
-            }
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.5.dp
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "다이어리 꾸미기",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "스티커를 덧붙여 오늘의 페이지를 조금 더 자유롭게 꾸며보세요. 리스트에는 보이지 않고, 수정과 상세에서 그대로 남아요.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
-                    )
-                    DiaryStickerCanvasEditor(
-                        placements = stickerPlacements,
-                        titlePreview = title,
-                        contentPreview = content,
-                        onMoveSticker = { index, xRatio, yRatio ->
-                            stickerPlacements[index] = stickerPlacements[index].copy(
-                                xRatio = xRatio,
-                                yRatio = yRatio
-                            )
-                        },
-                        onRemoveSticker = { index -> stickerPlacements.removeAt(index) }
-                    )
-                    Text(
-                        text = if (canAddMoreStickers(stickerPlacements)) {
-                            "스티커를 눌러 추가하고, 끌어서 원하는 곳에 붙여보세요. 최대 8개까지 가능해요."
-                        } else {
-                            "스티커는 최대 8개까지 붙일 수 있어요."
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        DiaryStickerPalette(
-                            onAddSticker = { key ->
-                                if (canAddMoreStickers(stickerPlacements)) {
-                                    stickerPlacements.add(
-                                        nextStickerPlacement(
-                                            key = key,
-                                            existingCount = stickerPlacements.size
-                                        )
-                                    )
-                                }
-                            },
-                            canAddMore = canAddMoreStickers(stickerPlacements)
-                        )
-                    }
-                }
-            }
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.5.dp
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Text(
-                            text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        TextButton(
+                        WriteDateCard(
+                            diaryDate = selectedDateMillis,
                             onClick = {
-                                if (imagePaths.size >= MAX_IMAGE_COUNT) {
-                                    Toast.makeText(
-                                        context,
-                                        "사진은 최대 5장까지 첨부할 수 있습니다.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    showAttachPicker = true
+                                val calendar = Calendar.getInstance().apply {
+                                    timeInMillis = selectedDateMillis
                                 }
+                                DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        selectedDateMillis = Calendar.getInstance().apply {
+                                            set(Calendar.YEAR, year)
+                                            set(Calendar.MONTH, month)
+                                            set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                        }.timeInMillis.toDayStartMillis()
+                                    },
+                                    calendar.get(Calendar.YEAR),
+                                    calendar.get(Calendar.MONTH),
+                                    calendar.get(Calendar.DAY_OF_MONTH)
+                                ).show()
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.PhotoLibrary,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(end = 4.dp)
-                                    .size(16.dp)
+                        )
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            DiaryMetaPill(
+                                label = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분",
+                                onClick = {
+                                    showMoodPicker = true
+                                    showWeatherPicker = false
+                                }
                             )
-                            Text(text = "사진 추가")
+                            DiaryMetaPill(
+                                label = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨",
+                                onClick = {
+                                    showWeatherPicker = true
+                                    showMoodPicker = false
+                                }
+                            )
                         }
                     }
 
-                    imagePaths.forEachIndexed { index, _ ->
-                        if (index % 2 == 0) {
-                            val leftImage = imagePaths.getOrNull(index)
-                            val rightImage = imagePaths.getOrNull(index + 1)
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = {
+                            Text(
+                                text = "제목",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                            )
+                        },
+                        textStyle = MaterialTheme.typography.headlineSmall,
+                        shape = RoundedCornerShape(18.dp),
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = lowChromeTextFieldColors()
+                    )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                if (leftImage != null) {
-                                    ThumbnailCard(
-                                        imagePath = leftImage,
-                                        onDeleteClick = {
-                                            deleteInternalImageIfExists(context, leftImage)
-                                            imagePaths.remove(leftImage)
-                                        },
-                                        onPreviewClick = { previewImagePath = leftImage },
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                }
-                                if (rightImage != null) {
-                                    ThumbnailCard(
-                                        imagePath = rightImage,
-                                        onDeleteClick = {
-                                            deleteInternalImageIfExists(context, rightImage)
-                                            imagePaths.remove(rightImage)
-                                        },
-                                        onPreviewClick = { previewImagePath = rightImage },
-                                        modifier = Modifier.weight(1f)
-                                    )
+                    OutlinedTextField(
+                        value = content,
+                        onValueChange = { content = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        placeholder = {
+                            Text(
+                                text = "오늘의 이야기를 천천히 적어보세요.",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                            )
+                        },
+                        textStyle = MaterialTheme.typography.bodyLarge,
+                        shape = RoundedCornerShape(22.dp),
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = lowChromeTextFieldColors(),
+                        minLines = 10,
+                        maxLines = Int.MAX_VALUE
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WriteDateCard(
+    diaryDate: Long,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val calendar = remember(diaryDate) {
+        Calendar.getInstance().apply { timeInMillis = diaryDate }
+    }
+
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(22.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
+        tonalElevation = 0.5.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = calendar.get(Calendar.DAY_OF_MONTH).toString(),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = "${calendar.get(Calendar.MONTH) + 1}월 ${calendar.get(Calendar.YEAR)}",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = diaryDate.toDisplayDate(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                imageVector = Icons.Filled.CalendarToday,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun DiaryMetaPill(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        shadowElevation = 1.dp
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun DiaryOptionPickerDialog(
+    title: String,
+    options: List<DiaryOption>,
+    selectedKey: String,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("닫기")
+            }
+        },
+        title = { Text(title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                options.chunked(4).forEach { rowOptions ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        rowOptions.forEach { option ->
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { onSelect(option.key) },
+                                shape = RoundedCornerShape(20.dp),
+                                color = if (selectedKey == option.key) {
+                                    MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.9f)
                                 } else {
-                                    Box(modifier = Modifier.weight(1f))
+                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f)
+                                },
+                                tonalElevation = if (selectedKey == option.key) 1.dp else 0.dp
+                            ) {
+                                Box(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 14.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = option.label,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
                             }
                         }
+                        repeat(4 - rowOptions.size) {
+                            Box(modifier = Modifier.weight(1f))
+                        }
                     }
+                }
+            }
+        }
+    )
+}
 
+@Composable
+private fun FloatingToolBar(
+    imageCount: Int,
+    stickerCount: Int,
+    tag: String,
+    onPhotoClick: () -> Unit,
+    onStickerClick: () -> Unit,
+    onTagClick: () -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
+        shadowElevation = 6.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FloatingToolButton(
+                label = if (imageCount > 0) "사진 $imageCount" else "사진",
+                onClick = onPhotoClick,
+                leading = {
+                    Icon(
+                        imageVector = Icons.Filled.PhotoLibrary,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            )
+            FloatingToolButton(
+                label = if (stickerCount > 0) "스티커 $stickerCount" else "스티커",
+                onClick = onStickerClick,
+                leading = {
+                    Text(
+                        text = "✦",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            )
+            FloatingToolButton(
+                label = if (tag.isBlank()) "태그" else "#${tag.take(6)}",
+                onClick = onTagClick,
+                leading = {
+                    Text(
+                        text = "#",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun FloatingToolButton(
+    label: String,
+    onClick: () -> Unit,
+    leading: @Composable () -> Unit
+) {
+    Surface(
+        modifier = Modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.44f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            leading()
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+private fun FloatingStickerTray(
+    placements: List<DiaryStickerPlacement>,
+    onAddSticker: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = if (canAddMoreStickers(placements)) {
+                    "붙이고 싶은 스티커를 골라보세요"
+                } else {
+                    "스티커는 최대 8개까지 붙일 수 있어요"
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                DiaryStickerPalette(
+                    onAddSticker = onAddSticker,
+                    canAddMore = canAddMoreStickers(placements)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FloatingPhotoTray(
+    imagePaths: List<String>,
+    onAddPhoto: () -> Unit,
+    onDeletePhoto: (String) -> Unit,
+    onPreviewPhoto: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                TextButton(onClick = onAddPhoto) {
+                    Text("사진 추가")
+                }
+            }
+
+            if (imagePaths.isEmpty()) {
+                Text(
+                    text = "사진은 하단 도구 바에서 불러와 기록과 함께 남길 수 있어요.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    imagePaths.forEach { imagePath ->
+                        ThumbnailCard(
+                            imagePath = imagePath,
+                            onDeleteClick = { onDeletePhoto(imagePath) },
+                            onPreviewClick = { onPreviewPhoto(imagePath) },
+                            modifier = Modifier.width(92.dp)
+                        )
+                    }
                 }
             }
         }
@@ -689,9 +920,8 @@ private fun ThumbnailCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .aspectRatio(1f),
-        shape = RoundedCornerShape(10.dp)
+        modifier = modifier.aspectRatio(1f),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
@@ -742,6 +972,16 @@ private fun ThumbnailCard(
     }
 }
 
+@Composable
+private fun lowChromeTextFieldColors() = TextFieldDefaults.colors(
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
+    focusedIndicatorColor = Color.Transparent,
+    unfocusedIndicatorColor = Color.Transparent,
+    disabledIndicatorColor = Color.Transparent,
+    cursorColor = MaterialTheme.colorScheme.onSurface
+)
 
 private fun copyImageToInternalStorage(context: android.content.Context, sourceUri: Uri): String? {
     return runCatching {
