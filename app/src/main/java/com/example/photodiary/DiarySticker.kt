@@ -1,6 +1,7 @@
 package com.example.photodiary
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,18 +35,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.annotation.DrawableRes
 import kotlin.math.max
 import kotlin.math.roundToInt
 import org.json.JSONArray
@@ -62,7 +66,7 @@ val DiaryPageBodyMinHeight = 220.dp
 
 data class DiaryStickerOption(
     val key: String,
-    val emoji: String,
+    @DrawableRes val imageResId: Int,
     val label: String,
     val rotation: Float
 )
@@ -74,14 +78,29 @@ data class DiaryStickerPlacement(
 )
 
 val stickerOptions = listOf(
-    DiaryStickerOption("tape_heart", "🤍", "하트 테이프", -4f),
-    DiaryStickerOption("luck_clover", "🍀", "행운 클로버", 3f),
-    DiaryStickerOption("quiet_moon", "🌙", "조용한 밤", -6f),
-    DiaryStickerOption("spark_star", "✨", "반짝 장면", 4f),
-    DiaryStickerOption("coffee_break", "☕", "커피 메모", -2f),
-    DiaryStickerOption("music_note", "🎵", "오늘의 노래", 5f),
-    DiaryStickerOption("book_day", "📖", "책갈피 하루", -5f),
-    DiaryStickerOption("flower_memo", "🌼", "꽃 메모", 2f)
+    DiaryStickerOption("tape_heart", R.drawable.sticker_heart, "하트", -4f),
+    DiaryStickerOption("luck_clover", R.drawable.sticker_clover, "클로버", 3f),
+    DiaryStickerOption("quiet_moon", R.drawable.sticker_moon, "달", -6f),
+    DiaryStickerOption("spark_star", R.drawable.sticker_sparkles, "반짝", 4f),
+    DiaryStickerOption("coffee_break", R.drawable.sticker_coffee, "커피", -2f),
+    DiaryStickerOption("music_note", R.drawable.sticker_music, "음표", 5f),
+    DiaryStickerOption("book_day", R.drawable.sticker_book, "책", -5f),
+    DiaryStickerOption("flower_memo", R.drawable.sticker_flower, "꽃", 2f),
+    DiaryStickerOption("soft_bear", R.drawable.sticker_bear, "곰", -3f),
+    DiaryStickerOption("pink_pig", R.drawable.sticker_pig, "돼지", 3f),
+    DiaryStickerOption("white_cat", R.drawable.sticker_cat, "고양이", -2f),
+    DiaryStickerOption("blue_whale", R.drawable.sticker_whale, "고래", 4f),
+    DiaryStickerOption("tulip_bloom", R.drawable.sticker_tulip, "튤립", -2f),
+    DiaryStickerOption("watermelon_slice", R.drawable.sticker_watermelon, "수박", 2f),
+    DiaryStickerOption("red_apple", R.drawable.sticker_apple, "사과", -3f),
+    DiaryStickerOption("sweet_cherries", R.drawable.sticker_cherries, "체리", 3f),
+    DiaryStickerOption("tomato_pop", R.drawable.sticker_tomato, "토마토", -2f),
+    DiaryStickerOption("sushi_bite", R.drawable.sticker_sushi, "초밥", 2f),
+    DiaryStickerOption("beer_cheers", R.drawable.sticker_beer, "맥주", -3f),
+    DiaryStickerOption("milk_pudding", R.drawable.sticker_pudding, "푸딩", 3f),
+    DiaryStickerOption("soft_icecream", R.drawable.sticker_icecream, "아이스크림", -4f),
+    DiaryStickerOption("party_cake", R.drawable.sticker_cake, "케이크", 2f),
+    DiaryStickerOption("pink_donut", R.drawable.sticker_donut, "도넛", -3f)
 )
 
 private val legacyStickerKeyMap = mapOf(
@@ -219,7 +238,10 @@ fun DiaryStickerPalette(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = option.emoji, style = MaterialTheme.typography.headlineSmall)
+                        StickerImage(
+                            option = option,
+                            modifier = Modifier.size(36.dp)
+                        )
                     }
                 }
                 Text(
@@ -495,6 +517,7 @@ private fun DiaryStickerPlacementNode(
     onRemoveSticker: ((index: Int) -> Unit)?
 ) {
     val option = placement.key.toStickerOptionOrNull() ?: return
+    val stickerVisualSize = 44.dp
     val horizontalRange = (canvasSize.width - stickerWidthPx).coerceAtLeast(1f)
     val verticalRange = (canvasSize.height - stickerHeightPx).coerceAtLeast(1f)
     val xOffset = (horizontalRange * placement.xRatio).roundToInt()
@@ -538,7 +561,7 @@ private fun DiaryStickerPlacementNode(
     ) {
         Box(
             modifier = Modifier
-                .size(44.dp)
+                .size(stickerVisualSize)
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
@@ -550,7 +573,10 @@ private fun DiaryStickerPlacementNode(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = option.emoji, style = MaterialTheme.typography.titleLarge)
+            StickerImage(
+                option = option,
+                modifier = Modifier.size(30.dp)
+            )
         }
     }
 
@@ -575,6 +601,19 @@ private fun DiaryStickerPlacementNode(
             }
         }
     }
+}
+
+@Composable
+private fun StickerImage(
+    option: DiaryStickerOption,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        painter = painterResource(id = option.imageResId),
+        contentDescription = option.label,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
+    )
 }
 
 fun canAddMoreStickers(placements: List<DiaryStickerPlacement>): Boolean {
