@@ -9,8 +9,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +38,6 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -466,7 +463,7 @@ fun WriteScreen(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .imePadding()
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -531,7 +528,7 @@ fun WriteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
             DiaryStickerWritingSurfaceEditor(
                 placements = stickerPlacements,
@@ -550,90 +547,99 @@ fun WriteScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    WriteInfoHeader(
-                        diaryDate = selectedDateMillis,
-                        moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
-                        weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
-                        isMoodSelected = selectedMood.isNotBlank(),
-                        isWeatherSelected = selectedWeather.isNotBlank(),
-                        onDateClick = {
-                            val calendar = Calendar.getInstance().apply {
-                                timeInMillis = selectedDateMillis
-                            }
-                            DatePickerDialog(
-                                context,
-                                { _, year, month, dayOfMonth ->
-                                    selectedDateMillis = Calendar.getInstance().apply {
-                                        set(Calendar.YEAR, year)
-                                        set(Calendar.MONTH, month)
-                                        set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                    }.timeInMillis.toDayStartMillis()
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(28.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 1.dp,
+                        shadowElevation = 1.dp
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            WriteInfoHeader(
+                                diaryDate = selectedDateMillis,
+                                moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
+                                weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
+                                isMoodSelected = selectedMood.isNotBlank(),
+                                isWeatherSelected = selectedWeather.isNotBlank(),
+                                onDateClick = {
+                                    val calendar = Calendar.getInstance().apply {
+                                        timeInMillis = selectedDateMillis
+                                    }
+                                    DatePickerDialog(
+                                        context,
+                                        { _, year, month, dayOfMonth ->
+                                            selectedDateMillis = Calendar.getInstance().apply {
+                                                set(Calendar.YEAR, year)
+                                                set(Calendar.MONTH, month)
+                                                set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                            }.timeInMillis.toDayStartMillis()
+                                        },
+                                        calendar.get(Calendar.YEAR),
+                                        calendar.get(Calendar.MONTH),
+                                        calendar.get(Calendar.DAY_OF_MONTH)
+                                    ).show()
                                 },
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH),
-                                calendar.get(Calendar.DAY_OF_MONTH)
-                            ).show()
-                        },
-                        onMoodClick = {
-                            showMoodPicker = true
-                            showWeatherPicker = false
-                        },
-                        onWeatherClick = {
-                            showWeatherPicker = true
-                            showMoodPicker = false
+                                onMoodClick = {
+                                    showMoodPicker = true
+                                    showWeatherPicker = false
+                                },
+                                onWeatherClick = {
+                                    showWeatherPicker = true
+                                    showMoodPicker = false
+                                }
+                            )
+
+                            OutlinedTextField(
+                                value = title,
+                                onValueChange = {
+                                    title = it
+                                    collapseToolPanels()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .onFocusChanged { state ->
+                                        if (state.isFocused) collapseToolPanels()
+                                    },
+                                singleLine = true,
+                                placeholder = {
+                                    Text(
+                                        text = "제목",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                    )
+                                },
+                                textStyle = MaterialTheme.typography.headlineSmall,
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                colors = lowChromeTextFieldColors()
+                            )
+
+                            OutlinedTextField(
+                                value = content,
+                                onValueChange = {
+                                    content = it
+                                    collapseToolPanels()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .onFocusChanged { state ->
+                                        if (state.isFocused) collapseToolPanels()
+                                    },
+                                placeholder = {
+                                    Text(
+                                        text = "오늘의 이야기를 천천히 적어보세요.",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                    )
+                                },
+                                textStyle = MaterialTheme.typography.bodyLarge,
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                colors = lowChromeTextFieldColors(),
+                                minLines = 8,
+                                maxLines = Int.MAX_VALUE
+                            )
                         }
-                    )
-
-                    OutlinedTextField(
-                        value = title,
-                        onValueChange = {
-                            title = it
-                            collapseToolPanels()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .journalTextFieldSurface(RoundedCornerShape(18.dp))
-                            .onFocusChanged { state ->
-                                if (state.isFocused) collapseToolPanels()
-                            },
-                        singleLine = true,
-                        placeholder = {
-                            Text(
-                                text = "제목",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.headlineSmall,
-                        shape = RoundedCornerShape(18.dp),
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = lowChromeTextFieldColors()
-                    )
-
-                    OutlinedTextField(
-                        value = content,
-                        onValueChange = {
-                            content = it
-                            collapseToolPanels()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .journalTextFieldSurface(RoundedCornerShape(22.dp))
-                            .onFocusChanged { state ->
-                                if (state.isFocused) collapseToolPanels()
-                            },
-                        placeholder = {
-                            Text(
-                                text = "오늘의 이야기를 천천히 적어보세요.",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        shape = RoundedCornerShape(22.dp),
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = lowChromeTextFieldColors(),
-                        minLines = 8,
-                        maxLines = Int.MAX_VALUE
-                    )
+                    }
                 }
             }
         }
@@ -829,9 +835,9 @@ private fun FloatingToolBar(
 ) {
     Surface(
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
-        shadowElevation = 6.dp
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+        tonalElevation = 0.dp,
+        shadowElevation = 1.dp
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -882,7 +888,9 @@ private fun FloatingToolButton(
     Surface(
         modifier = Modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.44f)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f),
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        tonalElevation = 0.dp
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -893,7 +901,7 @@ private fun FloatingToolButton(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -907,9 +915,9 @@ private fun FloatingStickerTray(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(26.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
-        shadowElevation = 4.dp
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        tonalElevation = 0.dp,
+        shadowElevation = 1.dp
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
@@ -949,9 +957,9 @@ private fun FloatingPhotoTray(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(26.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
-        shadowElevation = 4.dp
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        tonalElevation = 0.dp,
+        shadowElevation = 1.dp
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
@@ -1006,9 +1014,10 @@ private fun ThumbnailCard(
     onPreviewClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Surface(
         modifier = modifier.aspectRatio(1f),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.16f)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
@@ -1067,22 +1076,10 @@ private fun lowChromeTextFieldColors() = TextFieldDefaults.colors(
     focusedIndicatorColor = Color.Transparent,
     unfocusedIndicatorColor = Color.Transparent,
     disabledIndicatorColor = Color.Transparent,
-    cursorColor = MaterialTheme.colorScheme.onSurface
+    cursorColor = MaterialTheme.colorScheme.onSurface,
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
 )
-
-@Composable
-private fun Modifier.journalTextFieldSurface(shape: RoundedCornerShape): Modifier {
-    val paperTone = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)
-    val edgeTone = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f)
-    return background(
-        color = paperTone,
-        shape = shape
-    ).border(
-        width = 1.dp,
-        color = edgeTone,
-        shape = shape
-    )
-}
 
 private fun String.toStoredTagText(): String {
     return trim()
