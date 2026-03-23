@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import kotlin.math.max
 import kotlin.math.roundToInt
 import org.json.JSONArray
 import org.json.JSONObject
@@ -255,7 +256,7 @@ fun DiaryStickerWritingSurfaceEditor(
     onMoveSticker: (index: Int, xRatio: Float, yRatio: Float) -> Unit,
     onRemoveSticker: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.(Modifier) -> Unit
 ) {
     DiaryStickerWritingSurface(
         placements = placements,
@@ -270,7 +271,7 @@ fun DiaryStickerWritingSurfaceEditor(
 fun DiaryStickerWritingSurfaceReadOnly(
     placements: List<DiaryStickerPlacement>,
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.(Modifier) -> Unit
 ) {
     DiaryStickerWritingSurface(
         placements = placements,
@@ -327,9 +328,9 @@ private fun DiaryStickerCanvas(
         onMoveSticker = onMoveSticker,
         onRemoveSticker = onRemoveSticker,
         modifier = modifier.height(236.dp)
-    ) {
+    ) { contentModifier ->
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = contentModifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
@@ -371,12 +372,19 @@ private fun DiaryStickerWritingSurface(
     onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
     onRemoveSticker: ((index: Int) -> Unit)?,
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.(Modifier) -> Unit
 ) {
-    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
+    var contentSize by remember { mutableStateOf(IntSize.Zero) }
+    var viewportSize by remember { mutableStateOf(IntSize.Zero) }
     val stickerWidthPx = 104f
     val stickerHeightPx = 44f
     val editable = onMoveSticker != null
+    val canvasSize = remember(contentSize, viewportSize) {
+        IntSize(
+            width = max(contentSize.width, viewportSize.width),
+            height = max(contentSize.height, viewportSize.height)
+        )
+    }
 
     Surface(
         modifier = modifier
@@ -404,7 +412,15 @@ private fun DiaryStickerWritingSurface(
                         vertical = DiaryPageVerticalPadding
                     )
             ) {
-                content()
+                content(
+                    Modifier.onSizeChanged { measuredSize ->
+                        if (measuredSize.width == 0 || measuredSize.height == 0) return@onSizeChanged
+                        contentSize = IntSize(
+                            width = measuredSize.width,
+                            height = max(contentSize.height, measuredSize.height)
+                        )
+                    }
+                )
             }
 
             Box(
@@ -414,7 +430,7 @@ private fun DiaryStickerWritingSurface(
                         horizontal = DiaryPageHorizontalPadding,
                         vertical = DiaryPageVerticalPadding
                     )
-                    .onSizeChanged { canvasSize = it }
+                    .onSizeChanged { viewportSize = it }
                     .zIndex(1f)
             ) {
                 placements.forEachIndexed { index, placement ->

@@ -176,46 +176,41 @@ private fun ScrapbookPage(
     imagePaths: List<String>,
     onPreviewImage: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        DiaryStickerWritingSurfaceReadOnly(
-            placements = stickerPlacements,
-            modifier = Modifier.fillMaxWidth()
+    DiaryStickerWritingSurfaceReadOnly(
+        placements = stickerPlacements,
+        modifier = Modifier.fillMaxWidth()
+    ) { contentSizeModifier ->
+        Column(
+            modifier = contentSizeModifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ScrapbookMetaHeader(entry = entry)
+            ScrapbookMetaHeader(entry = entry)
 
+            Text(
+                text = entry.title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = DiaryPageBodyMinHeight),
+                contentAlignment = Alignment.TopStart
+            ) {
                 Text(
-                    text = entry.title,
-                    style = MaterialTheme.typography.headlineSmall,
+                    text = entry.content,
+                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
                     color = MaterialTheme.colorScheme.onSurface
                 )
+            }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = DiaryPageBodyMinHeight),
-                    contentAlignment = Alignment.TopStart
-                ) {
-                    Text(
-                        text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                if (imagePaths.isNotEmpty()) {
-                    PhotoSection(
-                        imagePaths = imagePaths.take(5),
-                        onPreviewImage = onPreviewImage,
-                        modifier = Modifier.padding(top = 6.dp)
-                    )
-                }
+            if (imagePaths.isNotEmpty()) {
+                PhotoSection(
+                    imagePaths = imagePaths.take(5),
+                    onPreviewImage = onPreviewImage,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
             }
         }
     }
