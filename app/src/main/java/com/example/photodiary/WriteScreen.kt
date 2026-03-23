@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
@@ -542,7 +543,9 @@ fun WriteScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     WriteInfoHeader(
@@ -611,7 +614,6 @@ fun WriteScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f)
                             .onFocusChanged { state ->
                                 if (state.isFocused) collapseToolPanels()
                             },
@@ -625,7 +627,7 @@ fun WriteScreen(
                         shape = RoundedCornerShape(22.dp),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                         colors = lowChromeTextFieldColors(),
-                        minLines = 10,
+                        minLines = 8,
                         maxLines = Int.MAX_VALUE
                     )
                 }

@@ -531,7 +531,7 @@ private fun DiaryListSection(
                         }
                     }
 
-                    if (monthKey != currentMonthKey && monthlyReflection != null) {
+                    if (monthKey != currentMonthKey) {
                         item(key = "reflection-$monthKey") {
                             MonthlyReflectionPreviewCard(
                                 monthLabel = monthLabel,
@@ -621,7 +621,7 @@ private fun DiaryListSection(
 @Composable
 private fun MonthlyReflectionPreviewCard(
     monthLabel: String,
-    reflection: MonthlyReflectionEntity,
+    reflection: MonthlyReflectionEntity?,
     entryCount: Int,
     onClick: () -> Unit
 ) {
@@ -647,16 +647,16 @@ private fun MonthlyReflectionPreviewCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.24f)),
                 contentAlignment = Alignment.Center
             ) {
-                if (reflection.coverImagePath.isNotBlank()) {
+                if (!reflection?.coverImagePath.isNullOrBlank()) {
                     AsyncImage(
-                        model = reflection.coverImagePath,
+                        model = reflection?.coverImagePath,
                         contentDescription = "월간 회고 대표 사진",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 } else {
                     Text(
-                        text = "회고",
+                        text = "기록",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -668,13 +668,17 @@ private fun MonthlyReflectionPreviewCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "$monthLabel 회고",
+                    text = if (reflection == null) "$monthLabel 회고 작성" else "$monthLabel 회고",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = reflection.reflectionText.ifBlank {
-                        "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
+                    text = if (reflection == null) {
+                        "${entryCount}개의 기록을 돌아보며 이번 달을 한 장과 한 줄로 남겨보세요."
+                    } else {
+                        reflection.reflectionText.ifBlank {
+                            "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
+                        }
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -689,7 +693,7 @@ private fun MonthlyReflectionPreviewCard(
             }
 
             Text(
-                text = "보기",
+                text = if (reflection == null) "작성" else "보기",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
