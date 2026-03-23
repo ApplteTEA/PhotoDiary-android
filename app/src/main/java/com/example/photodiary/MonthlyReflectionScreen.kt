@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -63,24 +64,82 @@ fun MonthlyReflectionScreen(
     onBackClick: () -> Unit,
     onSaveClick: (coverImagePath: String, reflectionText: String) -> Unit
 ) {
-    BackHandler(onBack = onBackClick)
+    val initialSelectedCoverImagePath = remember(initialCoverImagePath, imagePaths) {
+        when {
+            initialCoverImagePath.isNotBlank() -> initialCoverImagePath
+            imagePaths.size == 1 -> imagePaths.first()
+            else -> ""
+        }
+    }
 
-    var selectedCoverImagePath by remember(initialCoverImagePath, imagePaths) {
-        mutableStateOf(
-            when {
-                initialCoverImagePath.isNotBlank() -> initialCoverImagePath
-                imagePaths.size == 1 -> imagePaths.first()
-                else -> ""
-            }
-        )
+    var selectedCoverImagePath by remember(initialSelectedCoverImagePath) {
+        mutableStateOf(initialSelectedCoverImagePath)
     }
     var reflectionText by remember(initialReflectionText) {
         mutableStateOf(initialReflectionText)
     }
-    val hasSelectedContent = remember(selectedCoverImagePath, reflectionText) {
-        selectedCoverImagePath.isNotBlank() || reflectionText.isNotBlank()
+    var isSaving by remember { mutableStateOf(false) }
+    var showExitConfirmDialog by remember { mutableStateOf(false) }
+    val normalizedReflectionText = remember(reflectionText) {
+        reflectionText.trim()
+    }
+    val hasChanges = remember(
+        selectedCoverImagePath,
+        normalizedReflectionText,
+        initialSelectedCoverImagePath,
+        initialReflectionText
+    ) {
+        selectedCoverImagePath != initialSelectedCoverImagePath ||
+            normalizedReflectionText != initialReflectionText
+    }
+    val hasSelectedContent = remember(selectedCoverImagePath, normalizedReflectionText) {
+        selectedCoverImagePath.isNotBlank() || normalizedReflectionText.isNotBlank()
     }
     val hasSelectableImages = imagePaths.isNotEmpty()
+    val attemptExit = {
+        if (isSaving) {
+            Unit
+        } else if (hasChanges) {
+            showExitConfirmDialog = true
+        } else {
+            onBackClick()
+        }
+    }
+
+    BackHandler(onBack = attemptExit)
+
+    if (showExitConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            title = { Text("작성 중인 회고를 나갈까요?") },
+            text = { Text("저장하지 않으면 선택한 대표 사진과 회고 내용이 사라집니다.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitConfirmDialog = false
+                        onBackClick()
+                    }
+                ) {
+                    Text(
+                        text = "나가기",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text(
+                        text = "계속 작성",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        )
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -97,7 +156,7 @@ fun MonthlyReflectionScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = attemptExit) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "뒤로가기"
@@ -107,12 +166,15 @@ fun MonthlyReflectionScreen(
                 actions = {
                     TextButton(
                         onClick = {
+                            if (isSaving) return@TextButton
+                            isSaving = true
+                            showExitConfirmDialog = false
                             onSaveClick(
                                 selectedCoverImagePath,
-                                reflectionText.trim()
+                                normalizedReflectionText
                             )
                         },
-                        enabled = hasSelectedContent
+                        enabled = hasSelectedContent && !isSaving
                     ) {
                         Text("저장")
                     }
