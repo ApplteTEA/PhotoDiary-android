@@ -512,7 +512,7 @@ private fun DiaryListSection(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(start = 4.dp, top = 8.dp, end = 2.dp, bottom = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -520,14 +520,6 @@ private fun DiaryListSection(
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                             )
-                            if (monthKey != currentMonthKey && monthlyReflection == null) {
-                                TextButton(onClick = { onMonthlyReflectionClick(monthKey) }) {
-                                    Text(
-                                        text = "회고 작성",
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                }
-                            }
                         }
                     }
 

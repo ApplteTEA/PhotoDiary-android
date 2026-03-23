@@ -96,6 +96,9 @@ fun MonthlyReflectionScreen(
         selectedCoverImagePath.isNotBlank() || normalizedReflectionText.isNotBlank()
     }
     val hasSelectableImages = imagePaths.isNotEmpty()
+    val hasExistingReflection = remember(initialSelectedCoverImagePath, initialReflectionText) {
+        initialSelectedCoverImagePath.isNotBlank() || initialReflectionText.isNotBlank()
+    }
     val attemptExit = {
         if (isSaving) {
             Unit
@@ -176,7 +179,7 @@ fun MonthlyReflectionScreen(
                         },
                         enabled = hasSelectedContent && !isSaving
                     ) {
-                        Text("저장")
+                        Text(if (hasExistingReflection) "수정" else "저장")
                     }
                 },
                 windowInsets = WindowInsets.statusBars

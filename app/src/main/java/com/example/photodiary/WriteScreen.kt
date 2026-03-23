@@ -670,11 +670,6 @@ private fun WriteInfoHeader(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "오늘의 분위기",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     DiaryMetaPill(
                         label = moodLabel,
