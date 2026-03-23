@@ -9,6 +9,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -590,6 +592,7 @@ fun WriteScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .journalTextFieldSurface(RoundedCornerShape(18.dp))
                             .onFocusChanged { state ->
                                 if (state.isFocused) collapseToolPanels()
                             },
@@ -614,6 +617,7 @@ fun WriteScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .journalTextFieldSurface(RoundedCornerShape(22.dp))
                             .onFocusChanged { state ->
                                 if (state.isFocused) collapseToolPanels()
                             },
@@ -1060,11 +1064,29 @@ private fun lowChromeTextFieldColors() = TextFieldDefaults.colors(
     focusedContainerColor = Color.Transparent,
     unfocusedContainerColor = Color.Transparent,
     disabledContainerColor = Color.Transparent,
+    focusedBorderColor = Color.Transparent,
+    unfocusedBorderColor = Color.Transparent,
+    disabledBorderColor = Color.Transparent,
+    errorBorderColor = Color.Transparent,
     focusedIndicatorColor = Color.Transparent,
     unfocusedIndicatorColor = Color.Transparent,
     disabledIndicatorColor = Color.Transparent,
     cursorColor = MaterialTheme.colorScheme.onSurface
 )
+
+@Composable
+private fun Modifier.journalTextFieldSurface(shape: RoundedCornerShape): Modifier {
+    val paperTone = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)
+    val edgeTone = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f)
+    return background(
+        color = paperTone,
+        shape = shape
+    ).border(
+        width = 1.dp,
+        color = edgeTone,
+        shape = shape
+    )
+}
 
 private fun String.toStoredTagText(): String {
     return trim()
