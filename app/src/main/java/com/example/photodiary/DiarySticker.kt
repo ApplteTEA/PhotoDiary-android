@@ -70,11 +70,30 @@ val stickerOptions = listOf(
     DiaryStickerOption("flower_memo", "🌼", "꽃 메모", 2f)
 )
 
+private val legacyStickerKeyMap = mapOf(
+    "clover" to "luck_clover",
+    "heart" to "tape_heart",
+    "coffee" to "coffee_break",
+    "music" to "music_note",
+    "star" to "spark_star",
+    "moon" to "quiet_moon"
+)
+
+private fun String.normalizeStickerKey(): String {
+    return legacyStickerKeyMap[this] ?: this
+}
+
 fun String.toStickerPlacements(): List<DiaryStickerPlacement> {
     if (isBlank()) return emptyList()
     return runCatching {
         if (!trim().startsWith("[")) {
-            listOf(DiaryStickerPlacement(key = this, xRatio = 0.14f, yRatio = 0.16f))
+            listOf(
+                DiaryStickerPlacement(
+                    key = normalizeStickerKey(),
+                    xRatio = 0.14f,
+                    yRatio = 0.16f
+                )
+            )
         } else {
             val array = JSONArray(this)
             buildList {
@@ -82,7 +101,7 @@ fun String.toStickerPlacements(): List<DiaryStickerPlacement> {
                     val item = array.optJSONObject(index) ?: return@repeat
                     add(
                         DiaryStickerPlacement(
-                            key = item.optString("key"),
+                            key = item.optString("key").normalizeStickerKey(),
                             xRatio = item.optDouble("x", 0.15).toFloat().coerceIn(0f, 1f),
                             yRatio = item.optDouble("y", 0.16).toFloat().coerceIn(0f, 1f)
                         )
