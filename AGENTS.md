@@ -39,11 +39,11 @@
   - `kotlin-specialist`: use only when Kotlin/state structure analysis is specifically needed
 - If possible, spawn real subagents for role work.
 - Current local role availability under `.codex/agents`:
-  - available: `mobile-developer`, `reviewer`, `kotlin-specialist`
-  - not present as dedicated local agent files: `planner`, `product-designer`
+  - available: `product-designer`, `mobile-developer`, `reviewer`, `kotlin-specialist`
+  - not present as dedicated local agent files: `planner`
 - Fallback rule:
-  - use `default` subagents for `planner` and `product-designer` when dedicated local files are unavailable
-  - use the local `.codex/agents` roles directly for `mobile-developer`, `reviewer`, and `kotlin-specialist`
+  - use a `default` subagent for `planner` when a dedicated local file is unavailable
+  - use the local `.codex/agents` roles directly for `product-designer`, `mobile-developer`, `reviewer`, and `kotlin-specialist`
 
 ## Required Operating Pattern Before Non-Trivial Changes
 - First present:
@@ -74,7 +74,7 @@
 ## Branch And Delivery Policy
 - Start each new non-trivial task on a new branch.
 - After the full requested scope is complete:
-  - write a commit message
+  - write a commit message in Korean by default unless the user asks otherwise
   - commit the changes
   - push the branch
   - after push completes, merge it into `main`
