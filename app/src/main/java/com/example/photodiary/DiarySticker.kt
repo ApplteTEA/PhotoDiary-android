@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -293,6 +294,7 @@ private fun DiaryStickerCanvas(
                 val verticalRange = (canvasSize.height - stickerHeightPx).coerceAtLeast(1f)
                 val xOffset = (horizontalRange * placement.xRatio).roundToInt()
                 val yOffset = (verticalRange * placement.yRatio).roundToInt()
+                val latestPlacement by rememberUpdatedState(placement)
 
                 Surface(
                     modifier = Modifier
@@ -300,17 +302,23 @@ private fun DiaryStickerCanvas(
                         .rotate(option.rotation)
                         .then(
                             if (editable) {
-                                Modifier.pointerInput(placement, canvasSize) {
-                                    detectDragGestures { change, dragAmount ->
+                                Modifier.pointerInput(index, canvasSize) {
+                                    var dragX = 0f
+                                    var dragY = 0f
+
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            dragX = horizontalRange * latestPlacement.xRatio
+                                            dragY = verticalRange * latestPlacement.yRatio
+                                        }
+                                    ) { change, dragAmount ->
                                         change.consume()
-                                        val currentX = horizontalRange * placement.xRatio
-                                        val currentY = verticalRange * placement.yRatio
-                                        val nextX = (currentX + dragAmount.x).coerceIn(0f, horizontalRange)
-                                        val nextY = (currentY + dragAmount.y).coerceIn(0f, verticalRange)
+                                        dragX = (dragX + dragAmount.x).coerceIn(0f, horizontalRange)
+                                        dragY = (dragY + dragAmount.y).coerceIn(0f, verticalRange)
                                         onMoveSticker?.invoke(
                                             index,
-                                            (nextX / horizontalRange).coerceIn(0f, 1f),
-                                            (nextY / verticalRange).coerceIn(0f, 1f)
+                                            (dragX / horizontalRange).coerceIn(0f, 1f),
+                                            (dragY / verticalRange).coerceIn(0f, 1f)
                                         )
                                     }
                                 }
