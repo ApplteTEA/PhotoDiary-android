@@ -151,20 +151,24 @@ fun DetailScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+                .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
-            ScrapbookPage(
-                entry = entry,
-                stickerPlacements = stickerPlacements,
-                imagePaths = imagePaths,
-                onPreviewImage = { previewImagePath = it }
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                ScrapbookPage(
+                    entry = entry,
+                    stickerPlacements = stickerPlacements,
+                    imagePaths = imagePaths,
+                    onPreviewImage = { previewImagePath = it }
+                )
+            }
         }
     }
 }

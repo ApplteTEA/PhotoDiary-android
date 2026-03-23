@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -375,14 +377,14 @@ private fun DiaryStickerWritingSurface(
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
-    var viewportSize by remember { mutableStateOf(IntSize.Zero) }
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
     val stickerWidthPx = 104f
     val stickerHeightPx = 44f
     val editable = onMoveSticker != null
-    val canvasSize = remember(contentSize, viewportSize) {
+    val canvasSize = remember(contentSize, containerSize) {
         IntSize(
-            width = max(contentSize.width, viewportSize.width),
-            height = max(contentSize.height, viewportSize.height)
+            width = max(contentSize.width, containerSize.width),
+            height = max(contentSize.height, containerSize.height)
         )
     }
 
@@ -401,36 +403,40 @@ private fun DiaryStickerWritingSurface(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .wrapContentHeight()
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .wrapContentHeight()
                     .padding(
                         horizontal = DiaryPageHorizontalPadding,
                         vertical = DiaryPageVerticalPadding
                     )
             ) {
                 content(
-                    Modifier.onSizeChanged { measuredSize ->
-                        if (measuredSize.width == 0 || measuredSize.height == 0) return@onSizeChanged
-                        contentSize = IntSize(
-                            width = measuredSize.width,
-                            height = max(contentSize.height, measuredSize.height)
-                        )
-                    }
+                    Modifier
+                        .fillMaxWidth()
+                        .onSizeChanged { measuredSize ->
+                            if (measuredSize.width == 0 || measuredSize.height == 0) return@onSizeChanged
+                            contentSize = IntSize(
+                                width = measuredSize.width,
+                                height = max(contentSize.height, measuredSize.height)
+                            )
+                        }
                 )
             }
 
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .matchParentSize()
                     .padding(
                         horizontal = DiaryPageHorizontalPadding,
                         vertical = DiaryPageVerticalPadding
                     )
-                    .onSizeChanged { viewportSize = it }
+                    .onSizeChanged { containerSize = it }
                     .zIndex(1f)
             ) {
                 placements.forEachIndexed { index, placement ->

@@ -543,22 +543,22 @@ fun WriteScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
-            DiaryStickerWritingSurfaceEditor(
-                placements = stickerPlacements,
-                onMoveSticker = { index, xRatio, yRatio ->
-                    stickerPlacements[index] = stickerPlacements[index].copy(
-                        xRatio = xRatio,
-                        yRatio = yRatio
-                    )
-                },
-                onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
-                modifier = Modifier.fillMaxSize()
-            ) { contentSizeModifier ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(contentScrollState)
-                ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(contentScrollState)
+            ) {
+                DiaryStickerWritingSurfaceEditor(
+                    placements = stickerPlacements,
+                    onMoveSticker = { index, xRatio, yRatio ->
+                        stickerPlacements[index] = stickerPlacements[index].copy(
+                            xRatio = xRatio,
+                            yRatio = yRatio
+                        )
+                    },
+                    onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
+                    modifier = Modifier.fillMaxWidth()
+                ) { contentSizeModifier ->
                     Column(
                         modifier = contentSizeModifier
                             .fillMaxWidth()
