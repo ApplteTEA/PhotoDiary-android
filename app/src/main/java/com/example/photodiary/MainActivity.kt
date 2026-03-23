@@ -329,7 +329,13 @@ class MainActivity : ComponentActivity() {
                                         .topCountKeys()
                                         .mapNotNull { it.toMetaLabelOrNull(weatherOptions) }
                                     val tagSummary = monthEntries
-                                        .map { it.tag.trim() }
+                                        .flatMap { entry ->
+                                            entry.tag.trim()
+                                                .replace("#", " ")
+                                                .split(Regex("\\s+"))
+                                                .map { it.trim().trim(',') }
+                                                .filter { it.isNotBlank() }
+                                        }
                                         .topCountKeys()
                                         .map { "#$it" }
                                     MonthlyReflectionScreen(

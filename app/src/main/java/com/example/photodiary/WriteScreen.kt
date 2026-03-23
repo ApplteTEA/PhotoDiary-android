@@ -62,6 +62,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -177,6 +178,11 @@ fun WriteScreen(
         } else {
             onBackClick()
         }
+    }
+
+    val collapseToolPanels: () -> Unit = {
+        showPhotoTray = false
+        showStickerTray = false
     }
 
     BackHandler(onBack = attemptExit)
@@ -359,11 +365,11 @@ fun WriteScreen(
             title = { Text("태그 메모") },
             text = {
                 OutlinedTextField(
-                    value = tag,
-                    onValueChange = { value -> tag = value.take(16) },
+                    value = tag.toEditableTagText(),
+                    onValueChange = { value -> tag = value.toStoredTagText() },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("예: 가족, 여행, 카페") },
+                    placeholder = { Text("#가족 #여행 #카페") },
                     shape = RoundedCornerShape(16.dp)
                 )
             },
@@ -562,8 +568,15 @@ fun WriteScreen(
 
                     OutlinedTextField(
                         value = title,
-                        onValueChange = { title = it },
-                        modifier = Modifier.fillMaxWidth(),
+                        onValueChange = {
+                            title = it
+                            collapseToolPanels()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { state ->
+                                if (state.isFocused) collapseToolPanels()
+                            },
                         singleLine = true,
                         placeholder = {
                             Text(
@@ -579,10 +592,16 @@ fun WriteScreen(
 
                     OutlinedTextField(
                         value = content,
-                        onValueChange = { content = it },
+                        onValueChange = {
+                            content = it
+                            collapseToolPanels()
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f),
+                            .weight(1f)
+                            .onFocusChanged { state ->
+                                if (state.isFocused) collapseToolPanels()
+                            },
                         placeholder = {
                             Text(
                                 text = "오늘의 이야기를 천천히 적어보세요.",
@@ -773,7 +792,7 @@ private fun FloatingToolBar(
                 }
             )
             FloatingToolButton(
-                label = if (tag.isBlank()) "태그" else "#${tag.take(6)}",
+                label = if (tag.isBlank()) "태그" else tag.toDisplayHashtags().take(8),
                 onClick = onTagClick,
                 leading = {
                     Text(
@@ -982,6 +1001,30 @@ private fun lowChromeTextFieldColors() = TextFieldDefaults.colors(
     disabledIndicatorColor = Color.Transparent,
     cursorColor = MaterialTheme.colorScheme.onSurface
 )
+
+private fun String.toStoredTagText(): String {
+    return trim()
+        .replace("#", " ")
+        .split(Regex("\\s+"))
+        .map { it.trim().trim(',') }
+        .filter { it.isNotBlank() }
+        .joinToString(" ")
+        .take(32)
+}
+
+private fun String.toEditableTagText(): String {
+    return toDisplayHashtags()
+}
+
+private fun String.toDisplayHashtags(): String {
+    if (isBlank()) return ""
+    return trim()
+        .replace("#", " ")
+        .split(Regex("\\s+"))
+        .map { it.trim().trim(',') }
+        .filter { it.isNotBlank() }
+        .joinToString(" ") { "#$it" }
+}
 
 private fun copyImageToInternalStorage(context: android.content.Context, sourceUri: Uri): String? {
     return runCatching {

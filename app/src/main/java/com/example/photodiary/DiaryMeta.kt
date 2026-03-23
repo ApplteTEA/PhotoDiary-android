@@ -28,10 +28,19 @@ val weatherOptions = listOf(
 fun DiaryEntry.toMetaLine(): String = listOfNotNull(
     mood.toMetaLabelOrNull(moodOptions),
     weather.toMetaLabelOrNull(weatherOptions),
-    tag.takeIf { it.isNotBlank() }?.trim()?.let { "#$it" }
+    tag.takeIf { it.isNotBlank() }?.toMetaTagDisplay()
 ).joinToString(" · ")
 
 fun String.toMetaLabelOrNull(options: List<DiaryOption>): String? {
     if (isBlank()) return null
     return options.firstOrNull { it.key == this }?.label
+}
+
+private fun String.toMetaTagDisplay(): String {
+    return trim()
+        .replace("#", " ")
+        .split(Regex("\\s+"))
+        .map { it.trim().trim(',') }
+        .filter { it.isNotBlank() }
+        .joinToString(" ") { "#$it" }
 }
