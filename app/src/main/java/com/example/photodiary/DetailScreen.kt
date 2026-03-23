@@ -159,7 +159,7 @@ fun DetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp, vertical = 12.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             ScrapbookPage(
@@ -190,7 +190,7 @@ private fun ScrapbookPage(
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 1.dp,
-            shadowElevation = 3.dp
+            shadowElevation = 1.dp
         ) {
             DiaryStickerOverlayReadOnly(
                 placements = stickerPlacements,
@@ -215,15 +215,16 @@ private fun ScrapbookPage(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
+
+                    if (imagePaths.isNotEmpty()) {
+                        PhotoSection(
+                            imagePaths = imagePaths.take(5),
+                            onPreviewImage = onPreviewImage,
+                            modifier = Modifier.padding(top = 6.dp)
+                        )
+                    }
                 }
             }
-        }
-
-        if (imagePaths.isNotEmpty()) {
-            PhotoSection(
-                imagePaths = imagePaths.take(5),
-                onPreviewImage = onPreviewImage
-            )
         }
     }
 }
@@ -258,13 +259,15 @@ private fun ScrapbookMetaRow(entry: DiaryEntry) {
 @Composable
 private fun PhotoSection(
     imagePaths: List<String>,
-    onPreviewImage: (String) -> Unit
+    onPreviewImage: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = Modifier
+            .then(modifier)
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 4.dp, vertical = 4.dp),
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         imagePaths.forEachIndexed { index, imagePath ->
