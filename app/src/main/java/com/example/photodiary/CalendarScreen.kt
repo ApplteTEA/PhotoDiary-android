@@ -258,66 +258,54 @@ fun CalendarScreen(
                     }
                 }
 
-                SelectedDateSummaryCard(
-                    selectedDateMillis = selectedDay,
-                    entryCount = filteredEntries.size,
-                    hasAnyPhoto = filteredEntries.any { it.imagePath.toImagePathList().isNotEmpty() },
-                    onAddClick = {
-                        val selectedDayMillis = selectedDateMillis.toDayStartMillis()
-                        onSelectedDateChange(selectedDayMillis)
-                        onAddClick(selectedDayMillis)
-                    }
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 2.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (filteredEntries.isEmpty()) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 28.dp),
-                            shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                if (filteredEntries.isEmpty()) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 2.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.EventNote,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "선택한 날짜의 기록이 아직 없어요",
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                                Text(
-                                    text = "오늘의 장면이나 기분을 이 날짜에 바로 남겨보세요.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                                TextButton(
-                                    onClick = {
-                                        val selectedDayMillis = selectedDateMillis.toDayStartMillis()
-                                        onSelectedDateChange(selectedDayMillis)
-                                        onAddClick(selectedDayMillis)
-                                    }
-                                ) {
-                                    Text("이 날짜에 기록 추가")
+                            Icon(
+                                imageVector = Icons.Filled.EventNote,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "선택한 날짜의 기록이 아직 없어요",
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            Text(
+                                text = "오늘의 장면이나 기분을 이 날짜에 바로 남겨보세요.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                            TextButton(
+                                onClick = {
+                                    val selectedDayMillis = selectedDateMillis.toDayStartMillis()
+                                    onSelectedDateChange(selectedDayMillis)
+                                    onAddClick(selectedDayMillis)
                                 }
+                            ) {
+                                Text("이 날짜에 기록 추가")
                             }
                         }
-                    } else {
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 2.dp)
+                    ) {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -396,48 +384,6 @@ fun CalendarScreen(
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SelectedDateSummaryCard(
-    selectedDateMillis: Long,
-    entryCount: Int,
-    hasAnyPhoto: Boolean,
-    onAddClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(
-                    text = selectedDateMillis.toDisplayDate(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = if (entryCount == 0) {
-                        "아직 남겨둔 기록이 없어요"
-                    } else {
-                        "기록 ${entryCount}개${if (hasAnyPhoto) " · 사진 포함" else ""}"
-                    },
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            TextButton(onClick = onAddClick) {
-                Text(if (entryCount == 0) "기록 추가" else "새 기록")
             }
         }
     }
