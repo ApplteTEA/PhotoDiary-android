@@ -66,6 +66,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import java.io.File
@@ -103,6 +105,8 @@ fun WriteScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val initialDateMillis = remember(initialDiaryDate) {
         (initialDiaryDate ?: System.currentTimeMillis()).toDayStartMillis()
@@ -183,6 +187,18 @@ fun WriteScreen(
     val collapseToolPanels: () -> Unit = {
         showPhotoTray = false
         showStickerTray = false
+    }
+
+    val dismissKeyboardAndToggleTools: (showPhoto: Boolean) -> Unit = { showPhoto ->
+        focusManager.clearFocus(force = true)
+        keyboardController?.hide()
+        if (showPhoto) {
+            showPhotoTray = !showPhotoTray
+            if (showPhotoTray) showStickerTray = false
+        } else {
+            showStickerTray = !showStickerTray
+            if (showStickerTray) showPhotoTray = false
+        }
     }
 
     BackHandler(onBack = attemptExit)
@@ -365,21 +381,31 @@ fun WriteScreen(
             title = { Text("태그 메모") },
             text = {
                 OutlinedTextField(
-                    value = tag.toEditableTagText(),
-                    onValueChange = { value -> tag = value.toStoredTagText() },
+                    value = tag,
+                    onValueChange = { value -> tag = value.take(32) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("#가족 #여행 #카페") },
+                    placeholder = { Text("가족 여행 카페") },
                     shape = RoundedCornerShape(16.dp)
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showTagDialog = false }) {
+                TextButton(
+                    onClick = {
+                        tag = tag.toStoredTagText()
+                        showTagDialog = false
+                    }
+                ) {
                     Text("완료")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showTagDialog = false }) {
+                TextButton(
+                    onClick = {
+                        tag = tag.toStoredTagText()
+                        showTagDialog = false
+                    }
+                ) {
                     Text("닫기")
                 }
             }
@@ -486,12 +512,10 @@ fun WriteScreen(
                     stickerCount = stickerPlacements.size,
                     tag = tag,
                     onPhotoClick = {
-                        showPhotoTray = !showPhotoTray
-                        if (showPhotoTray) showStickerTray = false
+                        dismissKeyboardAndToggleTools(true)
                     },
                     onStickerClick = {
-                        showStickerTray = !showStickerTray
-                        if (showStickerTray) showPhotoTray = false
+                        dismissKeyboardAndToggleTools(false)
                     },
                     onTagClick = {
                         showTagDialog = true
@@ -1013,7 +1037,7 @@ private fun String.toStoredTagText(): String {
 }
 
 private fun String.toEditableTagText(): String {
-    return toDisplayHashtags()
+    return trim()
 }
 
 private fun String.toDisplayHashtags(): String {
