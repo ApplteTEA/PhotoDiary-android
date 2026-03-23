@@ -32,18 +32,28 @@
 
 ## Team Workflow
 - For non-trivial work, operate as a role-based team:
-  - `planner`: requirements, scope control, prioritization, sequencing
-  - `product-designer`: UX structure, hierarchy, emotional tone, microcopy, polish
+  - `orchestrator`: request classification, role selection, sequencing, result integration
+  - `idea-director`: idea discovery, differentiation, opportunity finding
+  - `product-planner`: goals, user flow, state, event, exception planning
+  - `ux-designer`: usability, flow, cognitive load, action design
+  - `visual-designer`: visual polish, hierarchy, spacing, emotional finish
+  - `ui-system-designer`: reusable patterns, component consistency, structural polish
+  - `user-advocate`: raw consumer perspective, emotional friction, delight gaps
+  - `pm`: scope control, prioritization, sequencing
+  - `technical-architect`: structure, state ownership, long-term stability
+  - `developer`: implementation planning anchored to existing project structure
   - `mobile-developer`: Android/Compose implementation, state handling, smallest safe change
-  - `reviewer`: regression risk, missing validation, QA review
-  - `kotlin-specialist`: use only when Kotlin/state structure analysis is specifically needed
+  - `qa-reviewer`: regression risk, missing validation, QA review
+  - `release-inspector`: pre-release UX and edge-case checks
+  - `copywriter`: product microcopy and tone polish
+  - `data-observer`: retention and repeated-use perspective
+  - `documentation-owner`: action-list documentation and rollout summary
+  - `kotlin-specialist`: use when Kotlin/state structure analysis is specifically needed
 - If possible, spawn real subagents for role work.
 - Current local role availability under `.codex/agents`:
-  - available: `product-designer`, `mobile-developer`, `reviewer`, `kotlin-specialist`
-  - not present as dedicated local agent files: `planner`
+  - available: `orchestrator`, `idea-director`, `product-planner`, `ux-designer`, `visual-designer`, `ui-system-designer`, `user-advocate`, `pm`, `technical-architect`, `developer`, `mobile-developer`, `qa-reviewer`, `release-inspector`, `copywriter`, `data-observer`, `documentation-owner`, `kotlin-specialist`
 - Fallback rule:
-  - use a `default` subagent for `planner` when a dedicated local file is unavailable
-  - use the local `.codex/agents` roles directly for `product-designer`, `mobile-developer`, `reviewer`, and `kotlin-specialist`
+  - when runtime subagent limits prevent spawning every desired role, prefer `orchestrator` first and then only the smallest necessary subset of specialist roles
 
 ## Required Operating Pattern Before Non-Trivial Changes
 - First present:
