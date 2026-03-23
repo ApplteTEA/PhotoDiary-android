@@ -70,3 +70,12 @@
   5. create a PR when possible
   6. if PR creation is not possible, clearly explain why and replace it with a local final review result
 - Do not create a branch or PR for partial progress or intermediate milestones.
+
+## Branch And Delivery Policy
+- Start each new non-trivial task on a new branch.
+- After the full requested scope is complete:
+  - write a commit message
+  - commit the changes
+  - push the branch
+  - after push completes, merge it into `main`
+- If push, PR, or merge cannot be completed because of environment, auth, remote, or policy constraints, clearly explain the reason in the final report.
