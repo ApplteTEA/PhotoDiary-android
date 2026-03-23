@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -179,59 +180,51 @@ private fun ScrapbookPage(
     imagePaths: List<String>,
     onPreviewImage: (String) -> Unit
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(30.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
-        tonalElevation = 1.dp,
-        shadowElevation = 4.dp
+    DiaryStickerOverlayReadOnly(
+        placements = stickerPlacements,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.12f)
+                    )
+                )
+            )
+            .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
-        DiaryStickerOverlayReadOnly(
-            placements = stickerPlacements,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f)
-                        )
-                    )
-                )
-                .padding(horizontal = 18.dp, vertical = 18.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                ScrapbookMetaRow(entry = entry)
+            ScrapbookMetaRow(entry = entry)
 
-                Text(
-                    text = entry.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+            Text(
+                text = entry.title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            if (imagePaths.isNotEmpty()) {
+                ScrapbookPhotoStrip(
+                    imagePaths = imagePaths,
+                    onPreviewImage = onPreviewImage
                 )
+            }
 
-                if (imagePaths.isNotEmpty()) {
-                    ScrapbookPhotoStrip(
-                        imagePaths = imagePaths,
-                        onPreviewImage = onPreviewImage
-                    )
-                }
+            Text(
+                text = entry.content,
+                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
+            )
 
-                Text(
-                    text = entry.content,
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
+            if (imagePaths.size > 2) {
+                QuietAttachmentGrid(
+                    imagePaths = imagePaths.drop(2),
+                    onPreviewImage = onPreviewImage
                 )
-
-                if (imagePaths.size > 2) {
-                    QuietAttachmentGrid(
-                        imagePaths = imagePaths.drop(2),
-                        onPreviewImage = onPreviewImage
-                    )
-                }
             }
         }
     }
@@ -275,32 +268,18 @@ private fun ScrapbookPhotoStrip(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         topImages.forEachIndexed { index, imagePath ->
-            Surface(
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .rotate(if (index % 2 == 0) -2.5f else 2.5f),
-                shape = RoundedCornerShape(22.dp),
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 3.dp,
-                tonalElevation = 0.5.dp
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    DetailThumbnailCard(
-                        imagePath = imagePath,
-                        onPreviewClick = { onPreviewImage(imagePath) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        showZoomBadge = false
-                    )
-                    Text(
-                        text = if (index == 0) "붙여둔 장면" else "남겨둔 한 컷",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                DetailThumbnailCard(
+                    imagePath = imagePath,
+                    onPreviewClick = { onPreviewImage(imagePath) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp),
+                    showZoomBadge = false
+                )
             }
         }
     }
@@ -312,12 +291,6 @@ private fun QuietAttachmentGrid(
     onPreviewImage: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(
-            text = "더 남겨둔 사진",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-        )
-
         imagePaths.forEachIndexed { index, _ ->
             if (index % 2 == 0) {
                 val leftImage = imagePaths.getOrNull(index)
@@ -358,45 +331,35 @@ private fun DetailThumbnailCard(
     shape: RoundedCornerShape = RoundedCornerShape(18.dp),
     showZoomBadge: Boolean = true
 ) {
-    Surface(
-        modifier = modifier.aspectRatio(1f),
-        shape = shape,
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 2.dp,
-        tonalElevation = 0.5.dp
+    Box(
+        modifier = modifier
+            .aspectRatio(1f)
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.16f))
+            .clickable(onClick = onPreviewClick)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(
-                model = Uri.parse(imagePath),
-                contentDescription = "저장된 사진",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+        AsyncImage(
+            model = Uri.parse(imagePath),
+            contentDescription = "저장된 사진",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
 
-            if (showZoomBadge) {
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(6.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.84f)
-                ) {
-                    IconButton(
-                        onClick = onPreviewClick,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.ZoomIn,
-                            contentDescription = "이미지 확대",
-                            modifier = Modifier.size(12.dp)
-                        )
-                    }
-                }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable(onClick = onPreviewClick)
+        if (showZoomBadge) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ZoomIn,
+                    contentDescription = "이미지 확대",
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
