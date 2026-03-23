@@ -259,18 +259,14 @@ fun CalendarScreen(
                 }
 
                 if (filteredEntries.isEmpty()) {
-                    Card(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 2.dp, vertical = 4.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                            .fillMaxSize()
+                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         Column(
-                            modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
+                            modifier = Modifier.padding(bottom = 20.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
