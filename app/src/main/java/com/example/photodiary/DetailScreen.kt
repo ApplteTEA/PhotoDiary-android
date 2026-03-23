@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -266,30 +267,23 @@ private fun PhotoSection(
         tonalElevation = 1.dp,
         shadowElevation = 2.dp
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Text(
-                text = "사진",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                imagePaths.forEach { imagePath ->
-                    DetailThumbnailCard(
-                        imagePath = imagePath,
-                        onPreviewClick = { onPreviewImage(imagePath) },
-                        modifier = Modifier.width(172.dp),
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                }
+            imagePaths.forEachIndexed { index, imagePath ->
+                DetailThumbnailCard(
+                    imagePath = imagePath,
+                    onPreviewClick = { onPreviewImage(imagePath) },
+                    modifier = Modifier
+                        .width(164.dp)
+                        .rotate(if (index % 2 == 0) -2.5f else 2.5f),
+                    shape = RoundedCornerShape(20.dp),
+                    showZoomBadge = false
+                )
             }
         }
     }
