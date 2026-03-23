@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,9 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -180,52 +178,51 @@ private fun ScrapbookPage(
     imagePaths: List<String>,
     onPreviewImage: (String) -> Unit
 ) {
-    DiaryStickerOverlayReadOnly(
-        placements = stickerPlacements,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.12f)
-                    )
-                )
-            )
-            .padding(horizontal = 6.dp, vertical = 8.dp)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
+        ScrapbookMetaRow(entry = entry)
+
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
+            shadowElevation = 3.dp
         ) {
-            ScrapbookMetaRow(entry = entry)
+            DiaryStickerOverlayReadOnly(
+                placements = stickerPlacements,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 20.dp, vertical = 22.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = entry.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-            Text(
-                text = entry.title,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            if (imagePaths.isNotEmpty()) {
-                ScrapbookPhotoStrip(
-                    imagePaths = imagePaths,
-                    onPreviewImage = onPreviewImage
-                )
+                    Text(
+                        text = entry.content,
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                }
             }
+        }
 
-            Text(
-                text = entry.content,
-                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
+        if (imagePaths.isNotEmpty()) {
+            PhotoSection(
+                imagePaths = imagePaths.take(5),
+                onPreviewImage = onPreviewImage
             )
-
-            if (imagePaths.size > 2) {
-                QuietAttachmentGrid(
-                    imagePaths = imagePaths.drop(2),
-                    onPreviewImage = onPreviewImage
-                )
-            }
         }
     }
 }
@@ -258,65 +255,40 @@ private fun ScrapbookMetaRow(entry: DiaryEntry) {
 }
 
 @Composable
-private fun ScrapbookPhotoStrip(
+private fun PhotoSection(
     imagePaths: List<String>,
     onPreviewImage: (String) -> Unit
 ) {
-    val topImages = imagePaths.take(2)
-    Row(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        shadowElevation = 2.dp
     ) {
-        topImages.forEachIndexed { index, imagePath ->
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .rotate(if (index % 2 == 0) -2.5f else 2.5f),
-            ) {
-                DetailThumbnailCard(
-                    imagePath = imagePath,
-                    onPreviewClick = { onPreviewImage(imagePath) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(22.dp),
-                    showZoomBadge = false
-                )
-            }
-        }
-    }
-}
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "사진",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
-@Composable
-private fun QuietAttachmentGrid(
-    imagePaths: List<String>,
-    onPreviewImage: (String) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        imagePaths.forEachIndexed { index, _ ->
-            if (index % 2 == 0) {
-                val leftImage = imagePaths.getOrNull(index)
-                val rightImage = imagePaths.getOrNull(index + 1)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    if (leftImage != null) {
-                        DetailThumbnailCard(
-                            imagePath = leftImage,
-                            onPreviewClick = { onPreviewImage(leftImage) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(18.dp)
-                        )
-                    }
-                    if (rightImage != null) {
-                        DetailThumbnailCard(
-                            imagePath = rightImage,
-                            onPreviewClick = { onPreviewImage(rightImage) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(18.dp)
-                        )
-                    } else {
-                        Box(modifier = Modifier.weight(1f))
-                    }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                imagePaths.forEach { imagePath ->
+                    DetailThumbnailCard(
+                        imagePath = imagePath,
+                        onPreviewClick = { onPreviewImage(imagePath) },
+                        modifier = Modifier.width(172.dp),
+                        shape = RoundedCornerShape(20.dp)
+                    )
                 }
             }
         }
