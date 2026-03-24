@@ -617,7 +617,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = 4.dp, vertical = 2.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -644,8 +644,8 @@ fun WriteScreen(
                         },
                         onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                         onCanvasSizeChanged = { stickerCanvasSize = it },
-                        contentHorizontalPadding = 10.dp,
-                        contentVerticalPadding = 18.dp,
+                        contentHorizontalPadding = 6.dp,
+                        contentVerticalPadding = 10.dp,
                         surfaceMinHeight = editorMinHeight,
                         surfaceColor = MaterialTheme.colorScheme.background,
                         flat = true,
@@ -1002,7 +1002,7 @@ fun MetaHeaderSlot(
         verticalArrangement = Arrangement.Center
     ) {
         Box(
-            modifier = Modifier.height(34.dp),
+            modifier = Modifier.height(40.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -1029,6 +1029,12 @@ fun MetaHeaderSlot(
                         },
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                } else {
+                    Text(
+                        text = " ",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Transparent
                     )
                 }
             }

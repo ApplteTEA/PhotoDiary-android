@@ -253,11 +253,11 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
         ) {
             MetaHeaderSlot(
                 label = entry.diaryDate.toDisplayDate(),
-                caption = "날짜",
+                caption = null,
                 selected = true,
                 onClick = null,
                 modifier = Modifier.weight(1f)
