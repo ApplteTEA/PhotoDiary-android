@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -837,10 +838,10 @@ private fun InlineDiaryDocumentEditor(
                         onValueChange = { updated -> block.value = updated },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(
-                                min = when {
-                                    isOnlyTextBlock || isLastTextBlock -> bodyMinHeight
-                                    else -> 72.dp
+                            .then(
+                                when {
+                                    isOnlyTextBlock || isLastTextBlock -> Modifier.height(bodyMinHeight)
+                                    else -> Modifier.heightIn(max = 72.dp)
                                 }
                             )
                             .onFocusChanged { state ->
