@@ -209,14 +209,14 @@ private fun ScrapbookPage(
         ) { contentModifier ->
             Column(
                 modifier = contentModifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                ScrapbookMetaHeader(entry = entry)
+                DetailInfoHeader(entry = entry)
 
                 if (entry.title.isNotBlank()) {
                     Text(
                         text = entry.title,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -225,7 +225,7 @@ private fun ScrapbookPage(
                     Text(
                         text = entry.content,
                         style = MaterialTheme.typography.bodyLarge.copy(
-                            lineHeight = 31.sp
+                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                     )
@@ -242,7 +242,7 @@ private fun ScrapbookPage(
 }
 
 @Composable
-private fun ScrapbookMetaHeader(entry: DiaryEntry) {
+private fun DetailInfoHeader(entry: DiaryEntry) {
     val moodLabel = entry.mood.toMetaLabelOrNull(moodOptions)
     val weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions)
     val tagLabel = entry.tag
@@ -257,34 +257,32 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = entry.diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface
+            MetaFieldCard(
+                label = entry.diaryDate.toDisplayDate(),
+                selected = true,
+                onClick = null,
+                modifier = Modifier.weight(if (weatherLabel != null || moodLabel != null) 1.2f else 1f)
             )
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (weatherLabel != null) {
-                    CompactMetaPill(
-                        label = weatherLabel,
-                        selected = true,
-                        onClick = null
-                    )
-                }
+            if (weatherLabel != null) {
+                MetaFieldCard(
+                    label = weatherLabel,
+                    selected = true,
+                    onClick = null,
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
-                if (moodLabel != null) {
-                    CompactMetaPill(
-                        label = moodLabel,
-                        selected = true,
-                        onClick = null
-                    )
-                }
+            if (moodLabel != null) {
+                MetaFieldCard(
+                    label = moodLabel,
+                    selected = true,
+                    onClick = null,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
@@ -308,26 +306,20 @@ private fun AttachedPhotoStrip(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = "사진 ${imagePaths.size}",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-        )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             imagePaths.forEach { imagePath ->
                 DetailThumbnailCard(
                     imagePath = imagePath,
                     onPreviewClick = { onPreviewImage(imagePath) },
-                    modifier = Modifier.width(122.dp),
-                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier.width(92.dp),
+                    shape = RoundedCornerShape(16.dp),
                     showZoomBadge = false
                 )
             }
