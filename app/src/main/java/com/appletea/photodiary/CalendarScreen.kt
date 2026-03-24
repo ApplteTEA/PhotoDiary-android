@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -316,6 +317,8 @@ fun CalendarScreen(
                         ) {
                             items(filteredEntries, key = { it.id }) { entry ->
                                 val imagePaths = entry.imagePath.toImagePathList().take(5)
+                                val moodLabel = entry.mood.toMetaLabelOrNull(moodOptions)
+                                val weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions)
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -330,31 +333,56 @@ fun CalendarScreen(
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Text(
-                                            text = entry.diaryDate.toDisplayDate(),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                                        )
-                                        val metaLine = entry.toMetaLine()
-                                        if (metaLine.isNotBlank()) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
                                             Text(
-                                                text = metaLine,
+                                                text = entry.diaryDate.toDisplayDate(),
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                                             )
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                if (weatherLabel != null) {
+                                                    CompactMetaPill(
+                                                        label = weatherLabel,
+                                                        selected = true,
+                                                        onClick = null
+                                                    )
+                                                }
+                                                if (moodLabel != null) {
+                                                    CompactMetaPill(
+                                                        label = moodLabel,
+                                                        selected = true,
+                                                        onClick = null
+                                                    )
+                                                }
+                                            }
                                         }
                                         Text(
-                                            text = entry.title,
+                                            text = entry.title.ifBlank { "제목 없는 기록" },
                                             style = MaterialTheme.typography.titleSmall,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                        Text(
-                                            text = entry.content,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
+                                        if (entry.content.isNotBlank()) {
+                                            HorizontalDivider(
+                                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+                                                thickness = 0.8.dp
+                                            )
+                                            Text(
+                                                text = entry.content,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
 
                                         if (imagePaths.isNotEmpty()) {
                                             Row(

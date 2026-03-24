@@ -650,13 +650,19 @@ private fun DiaryArchiveCard(
             Text(
                 text = entry.title.ifBlank { "제목 없는 기록" },
                 style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             if (entry.content.isNotBlank()) {
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+                    thickness = 0.8.dp
+                )
                 Text(
                     text = entry.content,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
