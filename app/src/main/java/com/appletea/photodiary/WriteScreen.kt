@@ -549,7 +549,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = 8.dp, vertical = 12.dp)
+                .padding(horizontal = 6.dp, vertical = 10.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -567,13 +567,15 @@ fun WriteScreen(
                     onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                     onCanvasSizeChanged = { stickerCanvasSize = it },
                     contentHorizontalPadding = 8.dp,
+                    contentVerticalPadding = 14.dp,
+                    surfaceMinHeight = 360.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) { contentSizeModifier ->
                     Column(
                         modifier = contentSizeModifier
                             .fillMaxWidth()
                             .padding(bottom = 28.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         WriteInfoHeader(
                             diaryDate = selectedDateMillis,
@@ -627,7 +629,7 @@ fun WriteScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
                                 )
                             },
-                            textStyle = MaterialTheme.typography.headlineSmall,
+                            textStyle = MaterialTheme.typography.titleLarge,
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             colors = lowChromeTextFieldColors()
                         )
@@ -640,7 +642,7 @@ fun WriteScreen(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(min = DiaryPageBodyMinHeight)
+                                .heightIn(min = 180.dp)
                                 .onFocusChanged { state ->
                                     if (state.isFocused) collapseToolPanels()
                                 },
@@ -650,7 +652,7 @@ fun WriteScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
                                 )
                             },
-                            textStyle = MaterialTheme.typography.bodyLarge,
+                            textStyle = MaterialTheme.typography.bodyMedium,
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             colors = lowChromeTextFieldColors(),
                             minLines = 8,
@@ -678,7 +680,7 @@ private fun WriteInfoHeader(
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         WriteDateCard(
             diaryDate = diaryDate,
@@ -717,7 +719,7 @@ fun CompactMetaPill(
         } else {
             modifier
         },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(14.dp),
         color = if (selected) {
             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f)
         } else {
@@ -728,8 +730,8 @@ fun CompactMetaPill(
     ) {
         Text(
             text = label,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
-            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelSmall,
             color = if (selected) {
                 MaterialTheme.colorScheme.onSurface
             } else {
@@ -752,7 +754,7 @@ private fun WriteDateCard(
         Box(modifier = Modifier.padding(vertical = 4.dp)) {
             Text(
                 text = diaryDate.toKoreanDisplayDate(),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
