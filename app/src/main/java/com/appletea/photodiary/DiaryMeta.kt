@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 data class DiaryOption(
     val key: String,

@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme

@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 import androidx.room.Entity
 import androidx.room.Index

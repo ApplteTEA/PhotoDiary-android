@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 import android.app.DatePickerDialog
 import androidx.activity.compose.BackHandler

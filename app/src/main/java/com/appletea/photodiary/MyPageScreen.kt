@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background

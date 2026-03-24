@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 fun DiaryEntity.toUiModel(): DiaryEntry = DiaryEntry(
     id = id,
