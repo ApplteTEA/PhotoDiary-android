@@ -991,23 +991,20 @@ fun MetaHeaderSlot(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = if (onClick != null) {
             modifier
+                .height(28.dp)
                 .clickable(onClick = onClick)
         } else {
-            modifier
+            modifier.height(28.dp)
         },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier.height(40.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+        if (!caption.isNullOrBlank()) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = label,
@@ -1018,26 +1015,28 @@ fun MetaHeaderSlot(
                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f)
                     }
                 )
-                if (!caption.isNullOrBlank()) {
-                    Text(
-                        text = caption,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (selected) {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
-                        },
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
-                } else {
-                    Text(
-                        text = " ",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Transparent
-                    )
-                }
+                Text(
+                    text = caption,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
+                    },
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
             }
+        } else {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (selected) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f)
+                }
+            )
         }
     }
 }
