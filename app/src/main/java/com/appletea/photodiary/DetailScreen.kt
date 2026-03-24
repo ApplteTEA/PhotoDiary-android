@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -48,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -155,17 +157,28 @@ fun DetailScreen(
                 .padding(innerPadding)
                 .padding(vertical = 6.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxSize()
             ) {
-                ScrapbookPage(
-                    entry = entry,
-                    stickerPlacements = stickerPlacements,
-                    imagePaths = imagePaths,
-                    onPreviewImage = { previewImagePath = it }
-                )
+                val contentMinHeight = if (imagePaths.isNotEmpty()) {
+                    (maxHeight - 176.dp).coerceAtLeast(320.dp)
+                } else {
+                    maxHeight
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    ScrapbookPage(
+                        entry = entry,
+                        stickerPlacements = stickerPlacements,
+                        imagePaths = imagePaths,
+                        contentMinHeight = contentMinHeight,
+                        onPreviewImage = { previewImagePath = it }
+                    )
+                }
             }
         }
     }
@@ -176,6 +189,7 @@ private fun ScrapbookPage(
     entry: DiaryEntry,
     stickerPlacements: List<DiaryStickerPlacement>,
     imagePaths: List<String>,
+    contentMinHeight: Dp,
     onPreviewImage: (String) -> Unit
 ) {
     Column(
@@ -183,7 +197,9 @@ private fun ScrapbookPage(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = contentMinHeight),
             shape = RoundedCornerShape(0.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,

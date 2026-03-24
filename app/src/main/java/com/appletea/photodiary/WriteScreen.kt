@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -556,108 +557,114 @@ fun WriteScreen(
                     .fillMaxSize()
                     .verticalScroll(contentScrollState)
             ) {
-                DiaryStickerWritingSurfaceEditor(
-                    placements = stickerPlacements,
-                    onMoveSticker = { index, xRatio, yRatio ->
-                        stickerPlacements[index] = stickerPlacements[index].copy(
-                            xRatio = xRatio,
-                            yRatio = yRatio
-                        )
-                    },
-                    onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
-                    onCanvasSizeChanged = { stickerCanvasSize = it },
-                    contentHorizontalPadding = 0.dp,
-                    contentVerticalPadding = 16.dp,
-                    surfaceMinHeight = 360.dp,
+                BoxWithConstraints(
                     modifier = Modifier.fillMaxWidth()
-                ) { contentSizeModifier ->
-                    Column(
-                        modifier = contentSizeModifier
-                            .fillMaxWidth()
-                            .padding(bottom = 28.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        WriteInfoHeader(
-                            diaryDate = selectedDateMillis,
-                            moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
-                            weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
-                            isMoodSelected = selectedMood.isNotBlank(),
-                            isWeatherSelected = selectedWeather.isNotBlank(),
-                            onDateClick = {
-                                val calendar = Calendar.getInstance().apply {
-                                    timeInMillis = selectedDateMillis
+                ) {
+                    val editorMinHeight = (maxHeight - 12.dp).coerceAtLeast(420.dp)
+
+                    DiaryStickerWritingSurfaceEditor(
+                        placements = stickerPlacements,
+                        onMoveSticker = { index, xRatio, yRatio ->
+                            stickerPlacements[index] = stickerPlacements[index].copy(
+                                xRatio = xRatio,
+                                yRatio = yRatio
+                            )
+                        },
+                        onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
+                        onCanvasSizeChanged = { stickerCanvasSize = it },
+                        contentHorizontalPadding = 0.dp,
+                        contentVerticalPadding = 16.dp,
+                        surfaceMinHeight = editorMinHeight,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { contentSizeModifier ->
+                        Column(
+                            modifier = contentSizeModifier
+                                .fillMaxWidth()
+                                .padding(bottom = 28.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            WriteInfoHeader(
+                                diaryDate = selectedDateMillis,
+                                moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
+                                weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
+                                isMoodSelected = selectedMood.isNotBlank(),
+                                isWeatherSelected = selectedWeather.isNotBlank(),
+                                onDateClick = {
+                                    val calendar = Calendar.getInstance().apply {
+                                        timeInMillis = selectedDateMillis
+                                    }
+                                    DatePickerDialog(
+                                        context,
+                                        { _, year, month, dayOfMonth ->
+                                            selectedDateMillis = Calendar.getInstance().apply {
+                                                set(Calendar.YEAR, year)
+                                                set(Calendar.MONTH, month)
+                                                set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                                            }.timeInMillis.toDayStartMillis()
+                                        },
+                                        calendar.get(Calendar.YEAR),
+                                        calendar.get(Calendar.MONTH),
+                                        calendar.get(Calendar.DAY_OF_MONTH)
+                                    ).show()
+                                },
+                                onMoodClick = {
+                                    showMoodPicker = true
+                                    showWeatherPicker = false
+                                },
+                                onWeatherClick = {
+                                    showWeatherPicker = true
+                                    showMoodPicker = false
                                 }
-                                DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
-                                        selectedDateMillis = Calendar.getInstance().apply {
-                                            set(Calendar.YEAR, year)
-                                            set(Calendar.MONTH, month)
-                                            set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                                        }.timeInMillis.toDayStartMillis()
+                            )
+
+                            OutlinedTextField(
+                                value = title,
+                                onValueChange = {
+                                    title = it
+                                    collapseToolPanels()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .onFocusChanged { state ->
+                                        if (state.isFocused) collapseToolPanels()
                                     },
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH)
-                                ).show()
-                            },
-                            onMoodClick = {
-                                showMoodPicker = true
-                                showWeatherPicker = false
-                            },
-                            onWeatherClick = {
-                                showWeatherPicker = true
-                                showMoodPicker = false
-                            }
-                        )
-
-                        OutlinedTextField(
-                            value = title,
-                            onValueChange = {
-                                title = it
-                                collapseToolPanels()
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onFocusChanged { state ->
-                                    if (state.isFocused) collapseToolPanels()
+                                singleLine = true,
+                                placeholder = {
+                                    Text(
+                                        text = "제목",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                    )
                                 },
-                            singleLine = true,
-                            placeholder = {
-                                Text(
-                                    text = "제목",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                )
-                            },
-                            textStyle = MaterialTheme.typography.titleMedium,
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                            colors = lowChromeTextFieldColors()
-                        )
+                                textStyle = MaterialTheme.typography.titleMedium,
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                colors = lowChromeTextFieldColors()
+                            )
 
-                        OutlinedTextField(
-                            value = content,
-                            onValueChange = {
-                                content = it
-                                collapseToolPanels()
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 180.dp)
-                                .onFocusChanged { state ->
-                                    if (state.isFocused) collapseToolPanels()
+                            OutlinedTextField(
+                                value = content,
+                                onValueChange = {
+                                    content = it
+                                    collapseToolPanels()
                                 },
-                            placeholder = {
-                                Text(
-                                    text = "오늘의 이야기를 천천히 적어보세요.",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                )
-                            },
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                            colors = lowChromeTextFieldColors(),
-                            minLines = 8,
-                            maxLines = Int.MAX_VALUE
-                        )
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 180.dp)
+                                    .onFocusChanged { state ->
+                                        if (state.isFocused) collapseToolPanels()
+                                    },
+                                placeholder = {
+                                    Text(
+                                        text = "오늘의 이야기를 천천히 적어보세요.",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                    )
+                                },
+                                textStyle = MaterialTheme.typography.bodyMedium,
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                colors = lowChromeTextFieldColors(),
+                                minLines = 8,
+                                maxLines = Int.MAX_VALUE
+                            )
+                        }
                     }
                 }
             }
