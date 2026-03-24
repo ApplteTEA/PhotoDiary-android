@@ -657,8 +657,8 @@ fun WriteScreen(
                         ) {
                             WriteInfoHeader(
                                 diaryDate = selectedDateMillis,
-                                moodLabel = selectedMood.toMetaLabelOrNull(moodOptions) ?: "기분 선택",
-                                weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions) ?: "날씨 선택",
+                                moodLabel = selectedMood.toMetaLabelOrNull(moodOptions),
+                                weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions),
                                 isMoodSelected = selectedMood.isNotBlank(),
                                 isWeatherSelected = selectedWeather.isNotBlank(),
                                 onDateClick = {
@@ -929,8 +929,8 @@ private fun InlineImageBlock(
 @Composable
 private fun WriteInfoHeader(
     diaryDate: Long,
-    moodLabel: String,
-    weatherLabel: String,
+    moodLabel: String?,
+    weatherLabel: String?,
     isMoodSelected: Boolean,
     isWeatherSelected: Boolean,
     onDateClick: () -> Unit,
@@ -938,32 +938,92 @@ private fun WriteInfoHeader(
     onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val weatherMeta = weatherLabel.toMetaHeaderParts()
+    val moodMeta = moodLabel.toMetaHeaderParts()
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 2.dp, vertical = 2.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
-        MetaFieldCard(
-            label = diaryDate.toDisplayDate(),
-            selected = true,
-            onClick = onDateClick,
-            modifier = Modifier.weight(1.2f)
+        Text(
+            text = diaryDate.toDisplayDate(),
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onDateClick)
+                .padding(top = 2.dp),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
-        MetaFieldCard(
-            label = weatherLabel,
-            selected = isWeatherSelected,
-            onClick = onWeatherClick,
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            MetaHeaderSlot(
+                label = weatherMeta?.second ?: "날씨",
+                icon = weatherMeta?.first,
+                selected = isWeatherSelected,
+                onClick = onWeatherClick
+            )
+            MetaHeaderSlot(
+                label = moodMeta?.second ?: "기분",
+                icon = moodMeta?.first,
+                selected = isMoodSelected,
+                onClick = onMoodClick
+            )
+        }
+    }
+}
 
-        MetaFieldCard(
-            label = moodLabel,
-            selected = isMoodSelected,
-            onClick = onMoodClick,
-            modifier = Modifier.weight(1f)
+fun String?.toMetaHeaderParts(): Pair<String?, String>? {
+    if (this.isNullOrBlank()) return null
+    val parts = trim().split(Regex("\\s+"), limit = 2)
+    return when (parts.size) {
+        1 -> null to parts[0]
+        else -> parts[0] to parts[1]
+    }
+}
+
+@Composable
+fun MetaHeaderSlot(
+    label: String,
+    icon: String?,
+    selected: Boolean,
+    onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = if (onClick != null) {
+            modifier
+                .width(54.dp)
+                .clickable(onClick = onClick)
+        } else {
+            modifier.width(54.dp)
+        },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Text(
+            text = icon ?: "",
+            style = MaterialTheme.typography.titleMedium,
+            color = if (selected) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.44f)
+            }
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
+            },
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
     }
 }

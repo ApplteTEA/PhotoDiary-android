@@ -715,8 +715,8 @@ private fun MonthlyReflectionPreviewCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -729,27 +729,27 @@ private fun MonthlyReflectionPreviewCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                 )
                 Text(
-                    text = "회고",
+                    text = "월간 회고",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
                 )
             }
             Text(
                 text = if (reflection == null) {
-                    "${entryCount}개의 기록을 월간 회고로 남겨보세요."
+                    "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
                 } else {
                     reflection.reflectionText.ifBlank {
                         "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
                     }
                 },
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.bodyLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = if (reflection == null) "회고 작성하기" else "회고 보기",
+                text = if (reflection == null) "회고 쓰기" else "회고 보기",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         }
     }

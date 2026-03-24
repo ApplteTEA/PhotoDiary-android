@@ -236,6 +236,8 @@ private fun ScrapbookPage(
 private fun DetailInfoHeader(entry: DiaryEntry) {
     val moodLabel = entry.mood.toMetaLabelOrNull(moodOptions)
     val weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions)
+    val weatherMeta = weatherLabel.toMetaHeaderParts()
+    val moodMeta = moodLabel.toMetaHeaderParts()
     val tagLabel = entry.tag
         .trim()
         .takeIf { it.isNotBlank() }
@@ -248,31 +250,32 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
-            MetaFieldCard(
-                label = entry.diaryDate.toDisplayDate(),
-                selected = true,
-                onClick = null,
-                modifier = Modifier.weight(if (weatherLabel != null || moodLabel != null) 1.2f else 1f)
+            Text(
+                text = entry.diaryDate.toDisplayDate(),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 2.dp),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
-            if (weatherLabel != null) {
-                MetaFieldCard(
-                    label = weatherLabel,
-                    selected = true,
-                    onClick = null,
-                    modifier = Modifier.weight(1f)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                MetaHeaderSlot(
+                    label = weatherMeta?.second ?: "",
+                    icon = weatherMeta?.first,
+                    selected = weatherMeta != null,
+                    onClick = null
                 )
-            }
-
-            if (moodLabel != null) {
-                MetaFieldCard(
-                    label = moodLabel,
-                    selected = true,
-                    onClick = null,
-                    modifier = Modifier.weight(1f)
+                MetaHeaderSlot(
+                    label = moodMeta?.second ?: "",
+                    icon = moodMeta?.first,
+                    selected = moodMeta != null,
+                    onClick = null
                 )
             }
         }
