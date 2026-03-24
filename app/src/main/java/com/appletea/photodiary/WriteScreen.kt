@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -607,77 +608,6 @@ fun WriteScreen(
                 },
                 windowInsets = WindowInsets.statusBars
             )
-        },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .imePadding()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                if (showStickerTray) {
-                    FloatingStickerTray(
-                        placements = stickerPlacements,
-                        onAddSticker = { key ->
-                            if (canAddMoreStickers(stickerPlacements)) {
-                                stickerPlacements.add(
-                                    nextStickerPlacement(
-                                        key = key,
-                                        existingCount = stickerPlacements.size,
-                                        scrollOffsetPx = contentScrollState.value,
-                                        viewportHeightPx = editorViewportSize.height,
-                                        canvasHeightPx = stickerCanvasSize.height
-                                    )
-                                )
-                            }
-                        }
-                    )
-                }
-
-                if (showPhotoTray) {
-                    FloatingPhotoTray(
-                        imagePaths = imagePaths,
-                        onAddPhoto = { showAttachPicker = true },
-                        onDeletePhoto = { imagePath ->
-                            deleteInternalImageIfExists(context, imagePath)
-                            val imageIndex = documentBlocks.indexOfFirst {
-                                it is ImageEditorBlockState && it.path == imagePath
-                            }
-                            if (imageIndex >= 0) {
-                                val normalized = documentBlocks.replaceWithNormalized(
-                                    documentBlocks.toMutableList().apply { removeAt(imageIndex) }
-                                )
-                                activeTextBlockId = normalized
-                                    .filterIsInstance<TextEditorBlockState>()
-                                    .lastOrNull()
-                                    ?.id
-                            }
-                        },
-                        onPreviewPhoto = { imagePath ->
-                            previewImagePath = imagePath
-                        }
-                    )
-                }
-
-                FloatingToolBar(
-                    imageCount = imagePaths.size,
-                    stickerCount = stickerPlacements.size,
-                    tag = tag,
-                    photoSelected = showPhotoTray,
-                    stickerSelected = showStickerTray,
-                    onPhotoClick = {
-                        dismissKeyboardAndToggleTools(true)
-                    },
-                    onStickerClick = {
-                        dismissKeyboardAndToggleTools(false)
-                    },
-                    onTagClick = {
-                        showTagDialog = true
-                    }
-                )
-            }
         }
     ) { innerPadding ->
         Box(
@@ -691,6 +621,7 @@ fun WriteScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(contentScrollState)
+                    .padding(bottom = 112.dp)
             ) {
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxWidth()
@@ -808,6 +739,78 @@ fun WriteScreen(
                         }
                     }
                 }
+            }
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                if (showStickerTray) {
+                    FloatingStickerTray(
+                        placements = stickerPlacements,
+                        onAddSticker = { key ->
+                            if (canAddMoreStickers(stickerPlacements)) {
+                                stickerPlacements.add(
+                                    nextStickerPlacement(
+                                        key = key,
+                                        existingCount = stickerPlacements.size,
+                                        scrollOffsetPx = contentScrollState.value,
+                                        viewportHeightPx = editorViewportSize.height,
+                                        canvasHeightPx = stickerCanvasSize.height
+                                    )
+                                )
+                            }
+                        }
+                    )
+                }
+
+                if (showPhotoTray) {
+                    FloatingPhotoTray(
+                        imagePaths = imagePaths,
+                        onAddPhoto = { showAttachPicker = true },
+                        onDeletePhoto = { imagePath ->
+                            deleteInternalImageIfExists(context, imagePath)
+                            val imageIndex = documentBlocks.indexOfFirst {
+                                it is ImageEditorBlockState && it.path == imagePath
+                            }
+                            if (imageIndex >= 0) {
+                                val normalized = documentBlocks.replaceWithNormalized(
+                                    documentBlocks.toMutableList().apply { removeAt(imageIndex) }
+                                )
+                                activeTextBlockId = normalized
+                                    .filterIsInstance<TextEditorBlockState>()
+                                    .lastOrNull()
+                                    ?.id
+                            }
+                        },
+                        onPreviewPhoto = { imagePath ->
+                            previewImagePath = imagePath
+                        }
+                    )
+                }
+
+                FloatingToolBar(
+                    imageCount = imagePaths.size,
+                    stickerCount = stickerPlacements.size,
+                    tag = tag,
+                    photoSelected = showPhotoTray,
+                    stickerSelected = showStickerTray,
+                    onPhotoClick = {
+                        dismissKeyboardAndToggleTools(true)
+                    },
+                    onStickerClick = {
+                        dismissKeyboardAndToggleTools(false)
+                    },
+                    onTagClick = {
+                        showTagDialog = true
+                    }
+                )
             }
         }
     }
