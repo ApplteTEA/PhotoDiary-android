@@ -437,7 +437,7 @@ fun WriteScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "일기 작성",
+                        text = "기록 쓰기",
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
@@ -550,7 +550,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(vertical = 6.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -560,7 +560,8 @@ fun WriteScreen(
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val editorMinHeight = (maxHeight - 12.dp).coerceAtLeast(420.dp)
+                    val editorMinHeight = (maxHeight - 8.dp).coerceAtLeast(500.dp)
+                    val bodyMinHeight = (editorMinHeight - 156.dp).coerceAtLeast(280.dp)
 
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,
@@ -572,8 +573,8 @@ fun WriteScreen(
                         },
                         onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                         onCanvasSizeChanged = { stickerCanvasSize = it },
-                        contentHorizontalPadding = 0.dp,
-                        contentVerticalPadding = 16.dp,
+                        contentHorizontalPadding = 18.dp,
+                        contentVerticalPadding = 20.dp,
                         surfaceMinHeight = editorMinHeight,
                         modifier = Modifier.fillMaxWidth()
                     ) { contentSizeModifier ->
@@ -617,53 +618,57 @@ fun WriteScreen(
                                 }
                             )
 
-                            OutlinedTextField(
-                                value = title,
-                                onValueChange = {
-                                    title = it
-                                    collapseToolPanels()
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .onFocusChanged { state ->
-                                        if (state.isFocused) collapseToolPanels()
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(14.dp)
+                            ) {
+                                OutlinedTextField(
+                                    value = title,
+                                    onValueChange = {
+                                        title = it
+                                        collapseToolPanels()
                                     },
-                                singleLine = true,
-                                placeholder = {
-                                    Text(
-                                        text = "제목",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                    )
-                                },
-                                textStyle = MaterialTheme.typography.titleMedium,
-                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                colors = lowChromeTextFieldColors()
-                            )
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .onFocusChanged { state ->
+                                            if (state.isFocused) collapseToolPanels()
+                                        },
+                                    singleLine = true,
+                                    placeholder = {
+                                        Text(
+                                            text = "제목",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+                                        )
+                                    },
+                                    textStyle = MaterialTheme.typography.titleSmall,
+                                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                    colors = lowChromeTextFieldColors()
+                                )
 
-                            OutlinedTextField(
-                                value = content,
-                                onValueChange = {
-                                    content = it
-                                    collapseToolPanels()
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = 180.dp)
-                                    .onFocusChanged { state ->
-                                        if (state.isFocused) collapseToolPanels()
+                                OutlinedTextField(
+                                    value = content,
+                                    onValueChange = {
+                                        content = it
+                                        collapseToolPanels()
                                     },
-                                placeholder = {
-                                    Text(
-                                        text = "오늘의 이야기를 천천히 적어보세요.",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                    )
-                                },
-                                textStyle = MaterialTheme.typography.bodyMedium,
-                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                colors = lowChromeTextFieldColors(),
-                                minLines = 8,
-                                maxLines = Int.MAX_VALUE
-                            )
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = bodyMinHeight)
+                                        .onFocusChanged { state ->
+                                            if (state.isFocused) collapseToolPanels()
+                                        },
+                                    placeholder = {
+                                        Text(
+                                            text = "오늘 남기고 싶은 이야기를 천천히 적어보세요.",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                        )
+                                    },
+                                    textStyle = MaterialTheme.typography.bodyLarge,
+                                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                    colors = lowChromeTextFieldColors(),
+                                    minLines = 10,
+                                    maxLines = Int.MAX_VALUE
+                                )
+                            }
                         }
                     }
                 }
@@ -687,7 +692,7 @@ private fun WriteInfoHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

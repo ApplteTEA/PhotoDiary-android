@@ -157,14 +157,8 @@ fun DetailScreen(
                 .padding(innerPadding)
                 .padding(vertical = 6.dp)
         ) {
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val contentMinHeight = if (imagePaths.isNotEmpty()) {
-                    (maxHeight - 176.dp).coerceAtLeast(320.dp)
-                } else {
-                    maxHeight
-                }
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                val contentMinHeight = maxHeight.coerceAtLeast(480.dp)
 
                 Column(
                     modifier = Modifier
@@ -194,55 +188,49 @@ private fun ScrapbookPage(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = contentMinHeight),
-            shape = RoundedCornerShape(0.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 0.dp,
-            shadowElevation = 0.dp
-        ) {
-            DiaryStickerOverlayReadOnly(
-                placements = stickerPlacements,
-                stickerWidthPx = 92f,
-                stickerHeightPx = 38f,
-                stickerVisualSize = 38.dp,
-                stickerImageSize = 24.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+        DiaryStickerWritingSurfaceReadOnly(
+            placements = stickerPlacements,
+            contentHorizontalPadding = 18.dp,
+            contentVerticalPadding = 20.dp,
+            surfaceMinHeight = contentMinHeight,
+            modifier = Modifier.fillMaxWidth()
+        ) { contentModifier ->
+            Column(
+                modifier = contentModifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    ScrapbookMetaHeader(entry = entry)
+                ScrapbookMetaHeader(entry = entry)
 
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
-                        text = entry.title,
+                        text = entry.title.ifBlank { "제목 없는 기록" },
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
-                        text = entry.content,
-                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 28.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                        modifier = Modifier.padding(top = 2.dp)
+                        text = entry.content.ifBlank { "남겨둔 이야기가 없습니다." },
+                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 29.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                     )
                 }
-            }
-        }
 
-        if (imagePaths.isNotEmpty()) {
-            PhotoSection(
-                imagePaths = imagePaths.take(5),
-                onPreviewImage = onPreviewImage
-            )
+                if (imagePaths.isNotEmpty()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text(
+                            text = "사진",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                        )
+                        PhotoSection(
+                            imagePaths = imagePaths.take(5),
+                            onPreviewImage = onPreviewImage
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -318,7 +306,7 @@ private fun PhotoSection(
             .then(modifier)
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(vertical = 4.dp),
+            .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         imagePaths.forEachIndexed { index, imagePath ->
