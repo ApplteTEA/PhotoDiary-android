@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -371,14 +370,11 @@ fun CalendarScreen(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         if (entry.content.isNotBlank()) {
-                                            HorizontalDivider(
-                                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
-                                                thickness = 0.8.dp
-                                            )
                                             Text(
                                                 text = entry.content,
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                                                modifier = Modifier.padding(top = 2.dp),
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis
                                             )

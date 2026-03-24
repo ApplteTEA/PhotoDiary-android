@@ -655,14 +655,11 @@ private fun DiaryArchiveCard(
                 overflow = TextOverflow.Ellipsis
             )
             if (entry.content.isNotBlank()) {
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
-                    thickness = 0.8.dp
-                )
                 Text(
                     text = entry.content,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                    modifier = Modifier.padding(top = 2.dp),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )

@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -154,7 +153,7 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 8.dp, vertical = 10.dp)
+                .padding(vertical = 6.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -185,7 +184,7 @@ private fun ScrapbookPage(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(0.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
             shadowElevation = 0.dp
@@ -199,11 +198,11 @@ private fun ScrapbookPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 14.dp, vertical = 14.dp)
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     ScrapbookMetaHeader(entry = entry)
 
@@ -213,15 +212,11 @@ private fun ScrapbookPage(
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
-                        thickness = 0.8.dp
-                    )
-
                     Text(
                         text = entry.content,
                         style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 28.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }
