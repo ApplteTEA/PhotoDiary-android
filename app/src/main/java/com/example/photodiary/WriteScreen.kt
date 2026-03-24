@@ -549,7 +549,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = 14.dp, vertical = 12.dp)
+                .padding(horizontal = 10.dp, vertical = 12.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -566,7 +566,7 @@ fun WriteScreen(
                     },
                     onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                     onCanvasSizeChanged = { stickerCanvasSize = it },
-                    contentHorizontalPadding = 14.dp,
+                    contentHorizontalPadding = 10.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) { contentSizeModifier ->
                     Column(
@@ -675,18 +675,15 @@ private fun WriteInfoHeader(
     onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    Box(modifier = modifier.fillMaxWidth()) {
         WriteDateCard(
             diaryDate = diaryDate,
             onClick = onDateClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.align(Alignment.TopStart)
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.align(Alignment.TopEnd),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
