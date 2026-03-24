@@ -198,7 +198,7 @@ private fun ScrapbookPage(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         DiaryStickerWritingSurfaceReadOnly(
             placements = stickerPlacements,
@@ -209,14 +209,14 @@ private fun ScrapbookPage(
         ) { contentModifier ->
             Column(
                 modifier = contentModifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 ScrapbookMetaHeader(entry = entry)
 
                 if (entry.title.isNotBlank()) {
                     Text(
                         text = entry.title,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -225,19 +225,18 @@ private fun ScrapbookPage(
                     Text(
                         text = entry.content,
                         style = MaterialTheme.typography.bodyLarge.copy(
-                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
+                            lineHeight = 31.sp
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                     )
                 }
+                if (imagePaths.isNotEmpty()) {
+                    AttachedPhotoStrip(
+                        imagePaths = imagePaths.take(5),
+                        onPreviewImage = onPreviewImage
+                    )
+                }
             }
-        }
-
-        if (imagePaths.isNotEmpty()) {
-            AttachedPhotoStrip(
-                imagePaths = imagePaths.take(5),
-                onPreviewImage = onPreviewImage
-            )
         }
     }
 }
@@ -256,46 +255,37 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val hasWeather = weatherLabel != null
-        val hasMood = moodLabel != null
-
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            MetaFieldCard(
-                label = entry.diaryDate.toDisplayDate(),
-                selected = true,
-                onClick = null,
-                modifier = Modifier.weight(if (hasWeather || hasMood) 1.2f else 1f)
-            )
-
-            if (hasWeather) {
-                MetaFieldCard(
-                    label = weatherLabel,
-                    selected = true,
-                    onClick = null,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            if (hasMood) {
-                MetaFieldCard(
-                    label = moodLabel,
-                    selected = true,
-                    onClick = null,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        if (entry.title.isBlank() && entry.content.isBlank()) {
             Text(
-                text = "내용이 없는 기록입니다.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+                text = entry.diaryDate.toDisplayDate(),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface
             )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (weatherLabel != null) {
+                    CompactMetaPill(
+                        label = weatherLabel,
+                        selected = true,
+                        onClick = null
+                    )
+                }
+
+                if (moodLabel != null) {
+                    CompactMetaPill(
+                        label = moodLabel,
+                        selected = true,
+                        onClick = null
+                    )
+                }
+            }
         }
 
         if (tagLabel != null) {
@@ -318,26 +308,26 @@ private fun AttachedPhotoStrip(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
             text = "사진 ${imagePaths.size}",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
         )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             imagePaths.forEach { imagePath ->
                 DetailThumbnailCard(
                     imagePath = imagePath,
                     onPreviewClick = { onPreviewImage(imagePath) },
-                    modifier = Modifier.width(98.dp),
-                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.width(122.dp),
+                    shape = RoundedCornerShape(18.dp),
                     showZoomBadge = false
                 )
             }
