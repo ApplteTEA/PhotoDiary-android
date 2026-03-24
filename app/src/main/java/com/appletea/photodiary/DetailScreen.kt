@@ -258,36 +258,37 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Text(
-                text = entry.diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+            MetaFieldCard(
+                label = entry.diaryDate.toDisplayDate(),
+                selected = true,
+                onClick = null,
+                modifier = Modifier.weight(1.35f)
+            )
+
+            MetaFieldCard(
+                label = weatherLabel ?: "날씨",
+                selected = weatherLabel != null,
+                onClick = null,
                 modifier = Modifier.weight(1f)
             )
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (weatherLabel != null) {
-                    CompactMetaPill(
-                        label = weatherLabel,
-                        selected = true,
-                        onClick = null
-                    )
-                }
+            MetaFieldCard(
+                label = moodLabel ?: "기분",
+                selected = moodLabel != null,
+                onClick = null,
+                modifier = Modifier.weight(1f)
+            )
+        }
 
-                if (moodLabel != null) {
-                    CompactMetaPill(
-                        label = moodLabel,
-                        selected = true,
-                        onClick = null
-                    )
-                }
-            }
+        if (entry.title.isBlank() && entry.content.isBlank()) {
+            Text(
+                text = "내용이 없는 기록입니다.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+            )
         }
 
         if (tagLabel != null) {
@@ -308,38 +309,30 @@ private fun AttachedPhotoStrip(
     onPreviewImage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
-        tonalElevation = 0.dp,
-        shadowElevation = 0.5.dp
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
-        ) {
-            Text(
-                text = "사진 ${imagePaths.size}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
-            )
+        Text(
+            text = "사진 ${imagePaths.size}",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
+        )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                imagePaths.forEach { imagePath ->
-                    DetailThumbnailCard(
-                        imagePath = imagePath,
-                        onPreviewClick = { onPreviewImage(imagePath) },
-                        modifier = Modifier.width(94.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        showZoomBadge = false
-                    )
-                }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            imagePaths.forEach { imagePath ->
+                DetailThumbnailCard(
+                    imagePath = imagePath,
+                    onPreviewClick = { onPreviewImage(imagePath) },
+                    modifier = Modifier.width(98.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    showZoomBadge = false
+                )
             }
         }
     }

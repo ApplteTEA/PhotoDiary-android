@@ -699,35 +699,34 @@ private fun WriteInfoHeader(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 2.dp, vertical = 2.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        WriteDateCard(
-            diaryDate = diaryDate,
+        MetaFieldCard(
+            label = diaryDate.toDisplayDate(),
+            selected = true,
             onClick = onDateClick,
+            modifier = Modifier.weight(1.35f)
+        )
+
+        MetaFieldCard(
+            label = weatherLabel,
+            selected = isWeatherSelected,
+            onClick = onWeatherClick,
             modifier = Modifier.weight(1f)
         )
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CompactMetaPill(
-                label = moodLabel,
-                selected = isMoodSelected,
-                onClick = onMoodClick
-            )
-            CompactMetaPill(
-                label = weatherLabel,
-                selected = isWeatherSelected,
-                onClick = onWeatherClick
-            )
-        }
+        MetaFieldCard(
+            label = moodLabel,
+            selected = isMoodSelected,
+            onClick = onMoodClick,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 @Composable
-fun CompactMetaPill(
+fun MetaFieldCard(
     label: String,
     selected: Boolean,
     onClick: (() -> Unit)?,
@@ -750,34 +749,32 @@ fun CompactMetaPill(
     ) {
         Text(
             text = label,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
             style = MaterialTheme.typography.labelSmall,
             color = if (selected) {
                 MaterialTheme.colorScheme.onSurface
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
-            }
+            },
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
     }
 }
 
 @Composable
-private fun WriteDateCard(
-    diaryDate: Long,
-    onClick: () -> Unit,
+fun CompactMetaPill(
+    label: String,
+    selected: Boolean,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier.clickable(onClick = onClick),
-        color = Color.Transparent
-    ) {
-        Text(
-            text = diaryDate.toDisplayDate(),
-            modifier = Modifier.padding(vertical = 4.dp),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
+    MetaFieldCard(
+        label = label,
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -833,39 +830,42 @@ private fun DiaryOptionPickerDialog(
         },
         title = { Text(title) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                options.chunked(4).forEach { rowOptions ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                options.forEach { option ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(option.key) },
+                        shape = RoundedCornerShape(18.dp),
+                        color = if (selectedKey == option.key) {
+                            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.78f)
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                        },
+                        tonalElevation = 0.dp,
+                        shadowElevation = 0.dp
                     ) {
-                        rowOptions.forEach { option ->
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { onSelect(option.key) },
-                                shape = RoundedCornerShape(20.dp),
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 13.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = option.label,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = if (selectedKey == option.key) "선택됨" else "선택",
+                                style = MaterialTheme.typography.labelSmall,
                                 color = if (selectedKey == option.key) {
-                                    MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.9f)
+                                    MaterialTheme.colorScheme.onSurface
                                 } else {
-                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f)
-                                },
-                                tonalElevation = if (selectedKey == option.key) 1.dp else 0.dp
-                            ) {
-                                Box(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 14.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = option.label,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
+                                    MaterialTheme.colorScheme.onSurfaceVariant
                                 }
-                            }
-                        }
-                        repeat(4 - rowOptions.size) {
-                            Box(modifier = Modifier.weight(1f))
+                            )
                         }
                     }
                 }
