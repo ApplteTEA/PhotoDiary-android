@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -171,27 +170,19 @@ fun DetailScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp)
         ) {
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxSize()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                val pageMinHeight = (maxHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-                val bodyMinHeight =
-                    (pageMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    ScrapbookPage(
-                        entry = entry,
-                        documentBlocks = documentBlocks,
-                        stickerPlacements = stickerPlacements,
-                        surfaceMinHeight = pageMinHeight,
-                        trailingBodyMinHeight = bodyMinHeight,
-                        onPreviewImage = { previewImagePath = it }
-                    )
-                }
+                ScrapbookPage(
+                    entry = entry,
+                    documentBlocks = documentBlocks,
+                    stickerPlacements = stickerPlacements,
+                    surfaceMinHeight = 0.dp,
+                    trailingBodyMinHeight = 0.dp,
+                    onPreviewImage = { previewImagePath = it }
+                )
             }
         }
     }
@@ -336,7 +327,7 @@ private fun DetailDocumentContent(
                             ),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                         )
-                    } else if (index == blocks.lastIndex) {
+                    } else if (index == blocks.lastIndex && trailingBodyMinHeight > 0.dp) {
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()

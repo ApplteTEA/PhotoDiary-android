@@ -68,6 +68,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
@@ -191,6 +192,7 @@ fun WriteScreen(
     ) -> Unit
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -626,7 +628,9 @@ fun WriteScreen(
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val editorMinHeight = (maxHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+                    val viewportHeight = with(density) { editorViewportSize.height.toDp() }
+                    val canvasBaseHeight = if (editorViewportSize.height > 0) viewportHeight else maxHeight
+                    val editorMinHeight = (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
                     val bodyMinHeight =
                         (editorMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
 
