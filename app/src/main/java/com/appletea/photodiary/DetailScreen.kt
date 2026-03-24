@@ -144,8 +144,18 @@ fun DetailScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = onEditClick) { Text(text = "수정") }
-                    TextButton(onClick = { showDeleteConfirmDialog = true }) { Text(text = "삭제") }
+                    TextButton(onClick = onEditClick) {
+                        Text(
+                            text = "수정",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    TextButton(onClick = { showDeleteConfirmDialog = true }) {
+                        Text(
+                            text = "삭제",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                 },
                 windowInsets = WindowInsets.statusBars
             )
@@ -215,7 +225,7 @@ private fun ScrapbookPage(
                     Text(
                         text = entry.content,
                         style = MaterialTheme.typography.bodyLarge.copy(
-                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2f
+                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                     )
@@ -301,16 +311,16 @@ private fun AttachedPhotoStrip(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         tonalElevation = 0.dp,
-        shadowElevation = 1.dp
+        shadowElevation = 0.5.dp
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
             Text(
-                text = "첨부한 사진 ${imagePaths.size}",
+                text = "사진 ${imagePaths.size}",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
             )
@@ -325,7 +335,7 @@ private fun AttachedPhotoStrip(
                     DetailThumbnailCard(
                         imagePath = imagePath,
                         onPreviewClick = { onPreviewImage(imagePath) },
-                        modifier = Modifier.width(96.dp),
+                        modifier = Modifier.width(94.dp),
                         shape = RoundedCornerShape(16.dp),
                         showZoomBadge = false
                     )

@@ -463,7 +463,7 @@ private fun DiaryStickerWritingSurface(
         shape = RoundedCornerShape(DiaryPageCornerRadius),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp,
-        shadowElevation = 1.dp
+        shadowElevation = 0.5.dp
     ) {
         Box(
             modifier = Modifier
