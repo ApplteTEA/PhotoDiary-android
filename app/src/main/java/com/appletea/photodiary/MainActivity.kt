@@ -14,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,8 +41,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -606,53 +603,49 @@ private fun DiaryArchiveCard(
     val moodLabel = remember(entry.mood) { entry.mood.toMetaLabelOrNull(moodOptions) }
     val weatherLabel = remember(entry.weather) { entry.weather.toMetaLabelOrNull(weatherOptions) }
 
-    Card(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            .clickable(onClick = onClick)
+            .padding(vertical = 2.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
         ) {
+            Text(
+                text = entry.diaryDate.toDisplayDate(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
+            )
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = entry.diaryDate.toDisplayDate(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+                val weatherMeta = weatherLabel.toMetaHeaderParts()
+                val moodMeta = moodLabel.toMetaHeaderParts()
+                MetaHeaderSlot(
+                    label = weatherMeta?.second ?: "",
+                    icon = weatherMeta?.first,
+                    selected = weatherMeta != null,
+                    onClick = null
                 )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (weatherLabel != null) {
-                        CompactMetaPill(
-                            label = weatherLabel,
-                            selected = true,
-                            onClick = null
-                        )
-                    }
-                    if (moodLabel != null) {
-                        CompactMetaPill(
-                            label = moodLabel,
-                            selected = true,
-                            onClick = null
-                        )
-                    }
-                }
+                MetaHeaderSlot(
+                    label = moodMeta?.second ?: "",
+                    icon = moodMeta?.first,
+                    selected = moodMeta != null,
+                    onClick = null
+                )
             }
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
             Text(
                 text = entry.title.ifBlank { "제목 없는 기록" },
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -661,39 +654,42 @@ private fun DiaryArchiveCard(
                 Text(
                     text = previewContent,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
-                    modifier = Modifier.padding(top = 2.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
+        }
 
-            if (imagePaths.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 5.dp)
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    imagePaths.forEach { imagePath ->
-                        Box(
-                            modifier = Modifier
-                                .size(62.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f))
-                        ) {
-                            AsyncImage(
-                                model = imagePath,
-                                contentDescription = "첨부 이미지",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
+        if (imagePaths.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                imagePaths.forEach { imagePath ->
+                    Box(
+                        modifier = Modifier
+                            .size(62.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
+                    ) {
+                        AsyncImage(
+                            model = imagePath,
+                            contentDescription = "첨부 이미지",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
                     }
                 }
             }
         }
+
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+            thickness = 1.dp
+        )
     }
 }
 
@@ -704,54 +700,51 @@ private fun MonthlyReflectionPreviewCard(
     entryCount: Int,
     onClick: () -> Unit
 ) {
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = monthLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                )
-                Text(
-                    text = "월간 회고",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                )
-            }
             Text(
-                text = if (reflection == null) {
-                    "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
-                } else {
-                    reflection.reflectionText.ifBlank {
-                        "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
-                    }
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                text = monthLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
             )
             Text(
-                text = if (reflection == null) "회고 쓰기" else "회고 보기",
+                text = "월간 회고",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
             )
         }
+        Text(
+            text = if (reflection == null) {
+                "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
+            } else {
+                reflection.reflectionText.ifBlank {
+                    "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
+                }
+            },
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = if (reflection == null) "회고 쓰기" else "회고 보기",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
+        )
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+            thickness = 1.dp
+        )
     }
 }
 
