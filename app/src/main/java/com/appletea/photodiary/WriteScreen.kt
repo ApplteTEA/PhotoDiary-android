@@ -435,17 +435,10 @@ fun WriteScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(
-                            text = "오늘의 페이지",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                        )
-                        Text(
-                            text = "오늘의 기록",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
+                    Text(
+                        text = "일기 작성",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -573,16 +566,16 @@ fun WriteScreen(
                     },
                     onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                     onCanvasSizeChanged = { stickerCanvasSize = it },
-                    contentHorizontalPadding = 10.dp,
-                    contentVerticalPadding = 18.dp,
-                    surfaceMinHeight = 400.dp,
+                    contentHorizontalPadding = 8.dp,
+                    contentVerticalPadding = 14.dp,
+                    surfaceMinHeight = 360.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) { contentSizeModifier ->
                     Column(
                         modifier = contentSizeModifier
                             .fillMaxWidth()
                             .padding(bottom = 28.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         WriteInfoHeader(
                             diaryDate = selectedDateMillis,
@@ -618,99 +611,56 @@ fun WriteScreen(
                             }
                         )
 
-                        WriteEditorCard(
-                            sectionLabel = "TITLE",
-                            sectionTitle = "오늘을 붙잡는 한 줄"
-                        ) {
-                            OutlinedTextField(
-                                value = title,
-                                onValueChange = {
-                                    title = it
-                                    collapseToolPanels()
+                        OutlinedTextField(
+                            value = title,
+                            onValueChange = {
+                                title = it
+                                collapseToolPanels()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onFocusChanged { state ->
+                                    if (state.isFocused) collapseToolPanels()
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .onFocusChanged { state ->
-                                        if (state.isFocused) collapseToolPanels()
-                                    },
-                                singleLine = true,
-                                placeholder = {
-                                    Text(
-                                        text = "기억하고 싶은 장면의 제목",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                    )
-                                },
-                                textStyle = MaterialTheme.typography.titleLarge,
-                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                colors = lowChromeTextFieldColors()
-                            )
-                        }
+                            singleLine = true,
+                            placeholder = {
+                                Text(
+                                    text = "제목",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                )
+                            },
+                            textStyle = MaterialTheme.typography.titleLarge,
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            colors = lowChromeTextFieldColors()
+                        )
 
-                        WriteEditorCard(
-                            sectionLabel = "STORY",
-                            sectionTitle = "오늘 남기고 싶은 이야기를 천천히 적어보세요"
-                        ) {
-                            OutlinedTextField(
-                                value = content,
-                                onValueChange = {
-                                    content = it
-                                    collapseToolPanels()
+                        OutlinedTextField(
+                            value = content,
+                            onValueChange = {
+                                content = it
+                                collapseToolPanels()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 180.dp)
+                                .onFocusChanged { state ->
+                                    if (state.isFocused) collapseToolPanels()
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = 220.dp)
-                                    .onFocusChanged { state ->
-                                        if (state.isFocused) collapseToolPanels()
-                                    },
-                                placeholder = {
-                                    Text(
-                                        text = "짧은 장면이어도 괜찮아요. 오늘의 온도, 표정, 대화를 그대로 남겨보세요.",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                    )
-                                },
-                                textStyle = MaterialTheme.typography.bodyLarge,
-                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                colors = lowChromeTextFieldColors(),
-                                minLines = 8,
-                                maxLines = Int.MAX_VALUE
-                            )
-                        }
+                            placeholder = {
+                                Text(
+                                    text = "오늘의 이야기를 천천히 적어보세요.",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                )
+                            },
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            colors = lowChromeTextFieldColors(),
+                            minLines = 8,
+                            maxLines = Int.MAX_VALUE
+                        )
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun WriteEditorCard(
-    sectionLabel: String,
-    sectionTitle: String,
-    content: @Composable () -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = sectionLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                )
-                Text(
-                    text = sectionTitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.86f)
-                )
-            }
-            content()
         }
     }
 }
@@ -731,21 +681,8 @@ private fun WriteInfoHeader(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(
-                text = "오늘의 기록",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-            )
-            Text(
-                text = "기억하고 싶은 장면부터 적어보세요",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
-            )
-        }
-
         WriteDateCard(
             diaryDate = diaryDate,
             onClick = onDateClick,
@@ -815,21 +752,12 @@ private fun WriteDateCard(
         modifier = modifier.clickable(onClick = onClick),
         color = Color.Transparent
     ) {
-        Column(
-            modifier = Modifier.padding(vertical = 2.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = diaryDate.toKoreanDisplayDate(),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "날짜를 눌러 바꿀 수 있어요",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
-            )
-        }
+        Text(
+            text = diaryDate.toKoreanDisplayDate(),
+            modifier = Modifier.padding(vertical = 4.dp),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
