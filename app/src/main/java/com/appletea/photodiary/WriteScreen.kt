@@ -677,16 +677,17 @@ private fun WriteInfoHeader(
     onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         WriteDateCard(
             diaryDate = diaryDate,
             onClick = onDateClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.weight(1f)
         )
 
         Row(
@@ -753,7 +754,7 @@ private fun WriteDateCard(
         color = Color.Transparent
     ) {
         Text(
-            text = diaryDate.toKoreanDisplayDate(),
+            text = diaryDate.toDisplayDate(),
             modifier = Modifier.padding(vertical = 4.dp),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface
