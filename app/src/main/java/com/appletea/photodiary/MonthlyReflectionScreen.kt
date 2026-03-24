@@ -150,10 +150,17 @@ fun MonthlyReflectionScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "${monthKey.toMonthlyReflectionTitle()} 회고",
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            text = "이번 달의 문장",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+                        )
+                        Text(
+                            text = "월간 회고",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -190,46 +197,42 @@ fun MonthlyReflectionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp)
-                .padding(top = 6.dp, bottom = 10.dp)
+                .padding(horizontal = 16.dp)
+                .padding(top = 10.dp, bottom = 12.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.5.dp
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                tonalElevation = 0.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text(
-                        text = monthKey.toMonthlyReflectionTitle(),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
+                        text = "월간 회고",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                     )
                     Text(
-                        text = "이번 달을 한 장과 한 줄로 남겨보세요",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = monthKey.toMonthlyReflectionTitle(),
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = if (hasSelectableImages) {
-                            "대표 사진을 고르고, 이번 달을 기억하고 싶은 문장을 짧게 적어두면 충분해요."
-                        } else {
-                            "사진이 없어도 괜찮아요. 이번 달을 기억할 한 줄만 남겨도 회고가 됩니다."
-                        },
+                        text = "이번 달을 한 장과 한 줄로 남겨보세요.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(236.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.26f))
+                            .height(262.dp)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.24f))
                     ) {
                         if (selectedCoverImagePath.isNotBlank()) {
                             AsyncImage(
@@ -241,8 +244,8 @@ fun MonthlyReflectionScreen(
                             Surface(
                                 modifier = Modifier
                                     .align(Alignment.BottomStart)
-                                    .padding(12.dp),
-                                shape = RoundedCornerShape(14.dp),
+                                    .padding(14.dp),
+                                shape = RoundedCornerShape(16.dp),
                                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                             ) {
                                 Column(
@@ -265,7 +268,7 @@ fun MonthlyReflectionScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(16.dp),
+                                    .padding(18.dp),
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
@@ -276,9 +279,9 @@ fun MonthlyReflectionScreen(
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = if (hasSelectableImages) {
-                                        "아래 스트립에서 이번 달을 가장 잘 닮은 장면을 골라보세요."
+                                        "아래에서 이번 달을 가장 잘 닮은 장면을 골라보세요."
                                     } else {
-                                        "아직 사진은 없지만, 한 줄 회고로 이번 달의 분위기를 남길 수 있어요."
+                                        "사진이 없어도 한 줄 회고만으로 이번 달의 분위기를 남길 수 있어요."
                                     },
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -292,17 +295,17 @@ fun MonthlyReflectionScreen(
             if (imagePaths.isNotEmpty()) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 0.5.dp
+                    shape = RoundedCornerShape(24.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
+                    tonalElevation = 0.dp
                 ) {
                     Column(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         ReflectionSectionHeader(
-                            title = "대표 사진 고르기",
-                            subtitle = "한 장만 골라도 충분해요."
+                            title = "대표 사진",
+                            subtitle = "한 장만 고르면 충분해요."
                         )
                         Row(
                             modifier = Modifier
@@ -314,17 +317,17 @@ fun MonthlyReflectionScreen(
                                 val isSelected = selectedCoverImagePath == imagePath
                                 Box(
                                     modifier = Modifier
-                                        .size(82.dp)
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+                                        .size(88.dp)
+                                        .clip(RoundedCornerShape(18.dp))
+                                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
                                         .border(
                                             width = if (isSelected) 2.dp else 0.dp,
                                             color = if (isSelected) {
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                                             } else {
-                                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f)
+                                                MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                                             },
-                                            shape = RoundedCornerShape(14.dp)
+                                            shape = RoundedCornerShape(18.dp)
                                         )
                                         .clickable { selectedCoverImagePath = imagePath }
                                 ) {
@@ -340,14 +343,20 @@ fun MonthlyReflectionScreen(
                                                 .fillMaxSize()
                                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
                                         )
-                                        Text(
+                                        Surface(
                                             modifier = Modifier
-                                                .align(Alignment.BottomCenter)
-                                                .padding(bottom = 6.dp),
-                                            text = "선택됨",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
+                                                .align(Alignment.TopStart)
+                                                .padding(8.dp),
+                                            shape = RoundedCornerShape(999.dp),
+                                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+                                        ) {
+                                            Text(
+                                                text = "대표",
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -358,17 +367,17 @@ fun MonthlyReflectionScreen(
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.5.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     ReflectionSectionHeader(
                         title = "이번 달의 짧은 회고",
-                        subtitle = "마무리 문장처럼, 이번 달을 어떻게 기억하고 싶은지 남겨보세요."
+                        subtitle = "이번 달을 어떻게 기억하고 싶은지 한 줄로 남겨보세요."
                     )
                     OutlinedTextField(
                         value = reflectionText,
@@ -385,7 +394,7 @@ fun MonthlyReflectionScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 if (!hasSelectedContent) {
-                                    Text("대표 사진이나 한 줄 회고 중 하나는 남겨주세요")
+                                    Text("사진이나 문장 중 하나는 남겨주세요")
                                 } else {
                                     Text("짧게 남겨도 충분해요")
                                 }
@@ -393,31 +402,31 @@ fun MonthlyReflectionScreen(
                             }
                         },
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                            focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f),
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f),
+                            focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
                             unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.08f)
                         ),
                         textStyle = MaterialTheme.typography.bodyMedium,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(18.dp)
                     )
                 }
             }
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.5.dp
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f),
+                tonalElevation = 0.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     ReflectionSectionHeader(
                         title = "이번 달의 조각들",
-                        subtitle = "이번 달 기록을 돌아보며 자주 남긴 감정과 장면을 모아봤어요."
+                        subtitle = "이번 달 기록의 분위기를 한 번에 돌아볼 수 있어요."
                     )
                     ReflectionSummaryRow(
                         label = "기록",
@@ -455,13 +464,13 @@ private fun ReflectionSectionHeader(
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
         )
     }
 }
@@ -472,15 +481,14 @@ private fun ReflectionSummaryRow(
     value: String
 ) {
     Surface(
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f)
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.68f)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 9.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 12.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
                 text = label,
@@ -489,7 +497,7 @@ private fun ReflectionSummaryRow(
             )
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
