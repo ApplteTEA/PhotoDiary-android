@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -167,22 +166,17 @@ fun DetailScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp)
         ) {
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                val contentMinHeight = (maxHeight - 4.dp).coerceAtLeast(520.dp)
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    ScrapbookPage(
-                        entry = entry,
-                        stickerPlacements = stickerPlacements,
-                        imagePaths = imagePaths,
-                        contentMinHeight = contentMinHeight,
-                        onPreviewImage = { previewImagePath = it }
-                    )
-                }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                ScrapbookPage(
+                    entry = entry,
+                    stickerPlacements = stickerPlacements,
+                    imagePaths = imagePaths,
+                    onPreviewImage = { previewImagePath = it }
+                )
             }
         }
     }
@@ -193,7 +187,6 @@ private fun ScrapbookPage(
     entry: DiaryEntry,
     stickerPlacements: List<DiaryStickerPlacement>,
     imagePaths: List<String>,
-    contentMinHeight: Dp,
     onPreviewImage: (String) -> Unit
 ) {
     Column(
@@ -204,7 +197,7 @@ private fun ScrapbookPage(
             placements = stickerPlacements,
             contentHorizontalPadding = 16.dp,
             contentVerticalPadding = 18.dp,
-            surfaceMinHeight = contentMinHeight,
+            surfaceMinHeight = 0.dp,
             modifier = Modifier.fillMaxWidth()
         ) { contentModifier ->
             Column(

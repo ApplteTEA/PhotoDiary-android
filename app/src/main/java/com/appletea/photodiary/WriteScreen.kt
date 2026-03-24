@@ -149,6 +149,11 @@ fun WriteScreen(
     var editorViewportSize by remember { androidx.compose.runtime.mutableStateOf(IntSize.Zero) }
     val stickerPayload = stickerPlacements.toList().toStickerPayload()
 
+    LaunchedEffect(Unit) {
+        focusManager.clearFocus(force = true)
+        keyboardController?.hide()
+    }
+
     val hasChanges = remember(
         selectedDateMillis,
         title,
