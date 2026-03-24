@@ -114,6 +114,44 @@ private fun List<DiaryDocumentBlock>.toEditorBlockStates(): List<EditorBlockStat
     }
 }
 
+private fun List<EditorBlockState>.normalizedEditorBlocks(): List<EditorBlockState> {
+    val normalized = mutableListOf<EditorBlockState>()
+
+    forEach { block ->
+        when (block) {
+            is TextEditorBlockState -> {
+                val last = normalized.lastOrNull()
+                if (last is TextEditorBlockState) {
+                    val mergedText = last.value.text + block.value.text
+                    last.value = TextFieldValue(
+                        text = mergedText,
+                        selection = TextRange(mergedText.length)
+                    )
+                } else if (block.value.text.isNotEmpty()) {
+                    normalized.add(block)
+                }
+            }
+
+            is ImageEditorBlockState -> normalized.add(block)
+        }
+    }
+
+    if (normalized.isEmpty() || normalized.last() !is TextEditorBlockState) {
+        normalized.add(TextEditorBlockState(nextEditorBlockId(), ""))
+    }
+
+    return normalized
+}
+
+private fun MutableList<EditorBlockState>.replaceWithNormalized(
+    blocks: List<EditorBlockState>
+): List<EditorBlockState> {
+    val normalized = blocks.normalizedEditorBlocks()
+    clear()
+    addAll(normalized)
+    return normalized
+}
+
 private fun List<EditorBlockState>.toPersistedDiaryBlocks(): List<DiaryDocumentBlock> {
     return mapNotNull { block ->
         when (block) {
@@ -178,7 +216,7 @@ fun WriteScreen(
 
     val documentBlocks = remember(initialDocumentBlocks) {
         mutableStateListOf<EditorBlockState>().apply {
-            addAll(initialDocumentBlocks.toEditorBlockStates())
+            addAll(initialDocumentBlocks.toEditorBlockStates().normalizedEditorBlocks())
         }
     }
     var selectedMood by remember(initialMood) { androidx.compose.runtime.mutableStateOf(initialMood) }
@@ -289,12 +327,17 @@ fun WriteScreen(
             val targetBlock = textBlocks.firstOrNull { it.id == activeTextBlockId } ?: textBlocks.lastOrNull()
 
             if (targetBlock == null) {
-                insertedPaths.forEach { path ->
-                    documentBlocks.add(ImageEditorBlockState(nextEditorBlockId(), path))
+                val updatedBlocks = buildList {
+                    insertedPaths.forEach { path ->
+                        add(ImageEditorBlockState(nextEditorBlockId(), path))
+                    }
+                    add(TextEditorBlockState(nextEditorBlockId(), ""))
                 }
-                val tailBlock = TextEditorBlockState(nextEditorBlockId(), "")
-                documentBlocks.add(tailBlock)
-                activeTextBlockId = tailBlock.id
+                val normalized = documentBlocks.replaceWithNormalized(updatedBlocks)
+                activeTextBlockId = normalized
+                    .filterIsInstance<TextEditorBlockState>()
+                    .lastOrNull()
+                    ?.id
             } else {
                 val targetIndex = documentBlocks.indexOfFirst { it.id == targetBlock.id }
                 val selection = targetBlock.value.selection.start.coerceIn(0, targetBlock.value.text.length)
@@ -309,11 +352,18 @@ fun WriteScreen(
                 val trailingBlock = TextEditorBlockState(nextEditorBlockId(), afterText)
                 replacement.add(trailingBlock)
 
-                documentBlocks.removeAt(targetIndex)
-                replacement.forEachIndexed { offset, block ->
-                    documentBlocks.add(targetIndex + offset, block)
+                val updatedBlocks = documentBlocks.toMutableList().apply {
+                    removeAt(targetIndex)
+                    replacement.forEachIndexed { offset, block ->
+                        add(targetIndex + offset, block)
+                    }
                 }
-                activeTextBlockId = trailingBlock.id
+                val normalized = documentBlocks.replaceWithNormalized(updatedBlocks)
+                activeTextBlockId = normalized
+                    .filterIsInstance<TextEditorBlockState>()
+                    .firstOrNull { it.id == trailingBlock.id }
+                    ?.id
+                    ?: normalized.filterIsInstance<TextEditorBlockState>().lastOrNull()?.id
             }
             showPhotoTray = true
         }
@@ -591,7 +641,13 @@ fun WriteScreen(
                                 it is ImageEditorBlockState && it.path == imagePath
                             }
                             if (imageIndex >= 0) {
-                                documentBlocks.removeAt(imageIndex)
+                                val normalized = documentBlocks.replaceWithNormalized(
+                                    documentBlocks.toMutableList().apply { removeAt(imageIndex) }
+                                )
+                                activeTextBlockId = normalized
+                                    .filterIsInstance<TextEditorBlockState>()
+                                    .lastOrNull()
+                                    ?.id
                             }
                         },
                         onPreviewPhoto = { imagePath ->
@@ -732,12 +788,13 @@ fun WriteScreen(
                                             it is ImageEditorBlockState && it.path == imagePath
                                         }
                                         if (imageIndex >= 0) {
-                                            documentBlocks.removeAt(imageIndex)
-                                            if (documentBlocks.none { it is TextEditorBlockState }) {
-                                                val textBlock = TextEditorBlockState(nextEditorBlockId(), "")
-                                                documentBlocks.add(textBlock)
-                                                activeTextBlockId = textBlock.id
-                                            }
+                                            val normalized = documentBlocks.replaceWithNormalized(
+                                                documentBlocks.toMutableList().apply { removeAt(imageIndex) }
+                                            )
+                                            activeTextBlockId = normalized
+                                                .filterIsInstance<TextEditorBlockState>()
+                                                .lastOrNull()
+                                                ?.id
                                         }
                                     }
                                 )
