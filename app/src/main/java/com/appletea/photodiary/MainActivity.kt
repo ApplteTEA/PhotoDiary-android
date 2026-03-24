@@ -470,7 +470,7 @@ fun MainScreen(
                 listState = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 16.dp, top = 14.dp, end = 16.dp)
+                    .padding(start = 18.dp, top = 18.dp, end = 18.dp)
             )
         }
     }
@@ -531,9 +531,16 @@ private fun DiaryListSection(
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                contentPadding = PaddingValues(top = 2.dp, bottom = 28.dp)
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+                contentPadding = PaddingValues(top = 2.dp, bottom = 36.dp)
             ) {
+                item(key = "archive-intro") {
+                    ArchiveIntro(
+                        monthCount = groupedEntries.size,
+                        entryCount = entries.size
+                    )
+                }
+
                 groupedEntries.forEach { (monthLabel, monthEntries, monthKey) ->
                     val monthlyReflection = monthlyReflections[monthKey]
                     item(key = "header-$monthKey") {
@@ -568,6 +575,32 @@ private fun DiaryListSection(
 }
 
 @Composable
+private fun ArchiveIntro(
+    monthCount: Int,
+    entryCount: Int
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = "기록 보관함",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+        )
+        Text(
+            text = "차곡히 쌓인 기록을 월별로 돌아보세요",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = "${monthCount}개월의 기록 ${entryCount}개",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
+        )
+    }
+}
+
+@Composable
 private fun MonthArchiveHeader(
     monthLabel: String,
     entryCount: Int,
@@ -575,27 +608,38 @@ private fun MonthArchiveHeader(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        Text(
+            text = "이달의 기록",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = monthLabel,
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Text(
-                text = "기록 ${entryCount}개",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-            )
+            Surface(
+                shape = RoundedCornerShape(999.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f)
+            ) {
+                Text(
+                    text = "기록 ${entryCount}개",
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f)
+                )
+            }
         }
         HorizontalDivider(
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.14f),
-            thickness = 1.dp
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+            thickness = 0.8.dp
         )
     }
 }
@@ -613,19 +657,15 @@ private fun DiaryArchiveCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -635,14 +675,14 @@ private fun DiaryArchiveCard(
                 Text(
                     text = entry.diaryDate.toKoreanDisplayDate(),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f),
                     modifier = Modifier.weight(1f)
                 )
                 if (metaLine.isNotBlank()) {
                     Text(
                         text = metaLine,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(start = 12.dp)
@@ -650,20 +690,22 @@ private fun DiaryArchiveCard(
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = entry.title,
+                    text = entry.title.ifBlank { "제목 없는 기록" },
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = entry.content,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
+                if (entry.content.isNotBlank()) {
+                    Text(
+                        text = entry.content,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
 
             if (imagePaths.isNotEmpty()) {
@@ -676,9 +718,9 @@ private fun DiaryArchiveCard(
                     imagePaths.forEach { imagePath ->
                         Box(
                             modifier = Modifier
-                                .size(76.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.24f))
+                                .size(72.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f))
                         ) {
                             AsyncImage(
                                 model = imagePath,
@@ -705,26 +747,22 @@ private fun MonthlyReflectionPreviewCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.58f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(76.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.26f)),
+                    .size(82.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75f)),
                 contentAlignment = Alignment.Center
             ) {
                 if (!reflection?.coverImagePath.isNullOrBlank()) {
@@ -736,7 +774,7 @@ private fun MonthlyReflectionPreviewCard(
                     )
                 } else {
                     Text(
-                        text = "기록",
+                        text = "회고",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -753,33 +791,39 @@ private fun MonthlyReflectionPreviewCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (reflection == null) "$monthLabel 회고" else "$monthLabel 회고",
+                        text = "$monthLabel 회고",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
                     )
-                    Text(
-                        text = if (reflection == null) "작성" else "보기",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Surface(
+                        shape = RoundedCornerShape(999.dp),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
+                    ) {
+                        Text(
+                            text = if (reflection == null) "회고 쓰기" else "회고 보기",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 Text(
                     text = if (reflection == null) {
-                        "${entryCount}개의 기록을 이번 달 회고로 남겨보세요."
+                        "${entryCount}개의 기록을 한 장과 한 줄로 남겨보세요."
                     } else {
                         reflection.reflectionText.ifBlank {
                             "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
                         }
                     },
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "기록 ${entryCount}개",
+                    text = "이번 달의 기록 ${entryCount}개를 돌아볼 수 있어요",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
                 )
             }
         }
@@ -793,13 +837,13 @@ private fun BottomButtonBar(
     onMyPageClick: () -> Unit
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+        tonalElevation = 5.dp,
         shadowElevation = 1.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
                 thickness = 1.dp
             )
 
@@ -807,21 +851,20 @@ private fun BottomButtonBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(start = 14.dp, top = 6.dp, end = 14.dp, bottom = 8.dp)
-                    .height(68.dp)
+                    .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 10.dp)
+                    .height(64.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
-                        .height(50.dp),
+                        .height(48.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     BottomNavigationTab(
-                        text = "Calendar",
+                        text = "달력",
                         icon = Icons.Filled.CalendarToday,
-                        selected = false,
                         modifier = Modifier.weight(1f),
                         onClick = onCalendarClick
                     )
@@ -829,9 +872,8 @@ private fun BottomButtonBar(
                     Spacer(modifier = Modifier.width(66.dp))
 
                     BottomNavigationTab(
-                        text = "MyPage",
+                        text = "마이",
                         icon = Icons.Filled.Person,
-                        selected = false,
                         modifier = Modifier.weight(1f),
                         onClick = onMyPageClick
                     )
@@ -840,15 +882,10 @@ private fun BottomButtonBar(
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .offset(y = (-10).dp)
-                        .size(56.dp)
+                        .offset(y = (-6).dp)
+                        .size(54.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                            shape = CircleShape
-                        )
+                        .background(MaterialTheme.colorScheme.primary)
                 ) {
                     IconButton(
                         onClick = onWriteClick,
@@ -859,7 +896,7 @@ private fun BottomButtonBar(
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "새 일기 작성",
-                            tint = MaterialTheme.colorScheme.onSurface
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -872,24 +909,19 @@ private fun BottomButtonBar(
 private fun BottomNavigationTab(
     text: String,
     icon: ImageVector,
-    selected: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val contentColor = if (selected) {
-        MaterialTheme.colorScheme.onSurface
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    val contentColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     TextButton(
         onClick = onClick,
         modifier = modifier
-            .height(50.dp)
+            .height(48.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(1.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Icon(
                 imageVector = icon,
