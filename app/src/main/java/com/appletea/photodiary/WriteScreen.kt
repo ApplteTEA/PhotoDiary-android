@@ -549,7 +549,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = 8.dp, vertical = 12.dp)
+                .padding(vertical = 6.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -566,8 +566,8 @@ fun WriteScreen(
                     },
                     onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                     onCanvasSizeChanged = { stickerCanvasSize = it },
-                    contentHorizontalPadding = 8.dp,
-                    contentVerticalPadding = 14.dp,
+                    contentHorizontalPadding = 0.dp,
+                    contentVerticalPadding = 16.dp,
                     surfaceMinHeight = 360.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) { contentSizeModifier ->
@@ -680,7 +680,7 @@ private fun WriteInfoHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
