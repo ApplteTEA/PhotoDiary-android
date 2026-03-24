@@ -84,6 +84,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+val RecordCanvasMinHeight = 560.dp
+val RecordCanvasContentReserve = 210.dp
+val RecordCanvasBodyMinHeight = 360.dp
+
 private sealed class EditorBlockState(open val id: String)
 
 private class TextEditorBlockState(
@@ -690,8 +694,9 @@ fun WriteScreen(
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val editorMinHeight = (maxHeight - 4.dp).coerceAtLeast(520.dp)
-                    val bodyMinHeight = (editorMinHeight - 150.dp).coerceAtLeast(320.dp)
+                    val editorMinHeight = (maxHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+                    val bodyMinHeight =
+                        (editorMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
 
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,

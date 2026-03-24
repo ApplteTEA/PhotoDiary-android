@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -170,17 +171,27 @@ fun DetailScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxSize()
             ) {
-                ScrapbookPage(
-                    entry = entry,
-                    documentBlocks = documentBlocks,
-                    stickerPlacements = stickerPlacements,
-                    onPreviewImage = { previewImagePath = it }
-                )
+                val pageMinHeight = (maxHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+                val bodyMinHeight =
+                    (pageMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    ScrapbookPage(
+                        entry = entry,
+                        documentBlocks = documentBlocks,
+                        stickerPlacements = stickerPlacements,
+                        surfaceMinHeight = pageMinHeight,
+                        trailingBodyMinHeight = bodyMinHeight,
+                        onPreviewImage = { previewImagePath = it }
+                    )
+                }
             }
         }
     }
@@ -191,6 +202,8 @@ private fun ScrapbookPage(
     entry: DiaryEntry,
     documentBlocks: List<DiaryDocumentBlock>,
     stickerPlacements: List<DiaryStickerPlacement>,
+    surfaceMinHeight: Dp,
+    trailingBodyMinHeight: Dp,
     onPreviewImage: (String) -> Unit
 ) {
     Column(
@@ -201,7 +214,7 @@ private fun ScrapbookPage(
             placements = stickerPlacements,
             contentHorizontalPadding = 16.dp,
             contentVerticalPadding = 18.dp,
-            surfaceMinHeight = DiaryPageMinHeight,
+            surfaceMinHeight = surfaceMinHeight,
             modifier = Modifier.fillMaxWidth()
         ) { contentModifier ->
             Column(
@@ -220,6 +233,7 @@ private fun ScrapbookPage(
 
                 DetailDocumentContent(
                     blocks = documentBlocks,
+                    trailingBodyMinHeight = trailingBodyMinHeight,
                     onPreviewImage = onPreviewImage
                 )
             }
@@ -304,6 +318,7 @@ private fun AttachedPhotoStrip(
 @Composable
 private fun DetailDocumentContent(
     blocks: List<DiaryDocumentBlock>,
+    trailingBodyMinHeight: Dp,
     onPreviewImage: (String) -> Unit
 ) {
     Column(
@@ -325,7 +340,7 @@ private fun DetailDocumentContent(
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(DiaryPageBodyMinHeight)
+                                .height(trailingBodyMinHeight)
                         )
                     }
                 }
