@@ -617,7 +617,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -644,7 +644,7 @@ fun WriteScreen(
                         },
                         onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                         onCanvasSizeChanged = { stickerCanvasSize = it },
-                        contentHorizontalPadding = 16.dp,
+                        contentHorizontalPadding = 10.dp,
                         contentVerticalPadding = 18.dp,
                         surfaceMinHeight = editorMinHeight,
                         surfaceColor = MaterialTheme.colorScheme.background,

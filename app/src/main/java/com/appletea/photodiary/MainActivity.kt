@@ -607,8 +607,8 @@ private fun DiaryArchiveCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 2.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -687,7 +687,7 @@ private fun DiaryArchiveCard(
         }
 
         HorizontalDivider(
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
             thickness = 1.dp
         )
     }
@@ -704,7 +704,7 @@ private fun MonthlyReflectionPreviewCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
+            .padding(vertical = 6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Row(
@@ -742,7 +742,7 @@ private fun MonthlyReflectionPreviewCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
         )
         HorizontalDivider(
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
             thickness = 1.dp
         )
     }
