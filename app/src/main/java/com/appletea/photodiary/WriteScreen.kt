@@ -699,14 +699,14 @@ private fun WriteInfoHeader(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 2.dp, vertical = 2.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         MetaFieldCard(
             label = diaryDate.toDisplayDate(),
             selected = true,
             onClick = onDateClick,
-            modifier = Modifier.weight(1.35f)
+            modifier = Modifier.weight(1.2f)
         )
 
         MetaFieldCard(
@@ -849,22 +849,12 @@ private fun DiaryOptionPickerDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 14.dp, vertical = 13.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = option.label,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = if (selectedKey == option.key) "선택됨" else "선택",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (selectedKey == option.key) {
-                                    MaterialTheme.colorScheme.onSurface
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                }
                             )
                         }
                     }

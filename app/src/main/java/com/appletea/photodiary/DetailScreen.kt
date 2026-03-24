@@ -256,6 +256,9 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        val hasWeather = weatherLabel != null
+        val hasMood = moodLabel != null
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -265,22 +268,26 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
                 label = entry.diaryDate.toDisplayDate(),
                 selected = true,
                 onClick = null,
-                modifier = Modifier.weight(1.35f)
+                modifier = Modifier.weight(if (hasWeather || hasMood) 1.2f else 1f)
             )
 
-            MetaFieldCard(
-                label = weatherLabel ?: "날씨",
-                selected = weatherLabel != null,
-                onClick = null,
-                modifier = Modifier.weight(1f)
-            )
+            if (hasWeather) {
+                MetaFieldCard(
+                    label = weatherLabel,
+                    selected = true,
+                    onClick = null,
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
-            MetaFieldCard(
-                label = moodLabel ?: "기분",
-                selected = moodLabel != null,
-                onClick = null,
-                modifier = Modifier.weight(1f)
-            )
+            if (hasMood) {
+                MetaFieldCard(
+                    label = moodLabel,
+                    selected = true,
+                    onClick = null,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         if (entry.title.isBlank() && entry.content.isBlank()) {
