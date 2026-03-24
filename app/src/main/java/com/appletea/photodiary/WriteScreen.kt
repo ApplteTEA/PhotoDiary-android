@@ -647,6 +647,8 @@ fun WriteScreen(
                         contentHorizontalPadding = 16.dp,
                         contentVerticalPadding = 18.dp,
                         surfaceMinHeight = editorMinHeight,
+                        surfaceColor = MaterialTheme.colorScheme.background,
+                        flat = true,
                         modifier = Modifier.fillMaxWidth()
                     ) { contentSizeModifier ->
                         Column(
@@ -945,35 +947,30 @@ private fun WriteInfoHeader(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 2.dp, vertical = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.Top
     ) {
-        Text(
-            text = diaryDate.toDisplayDate(),
-            modifier = Modifier
-                .weight(1f)
-                .clickable(onClick = onDateClick)
-                .padding(top = 2.dp),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
+        MetaHeaderSlot(
+            label = diaryDate.toDisplayDate(),
+            caption = "날짜",
+            selected = true,
+            onClick = onDateClick,
+            modifier = Modifier.weight(1f)
         )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            MetaHeaderSlot(
-                label = weatherMeta?.second ?: "날씨",
-                icon = weatherMeta?.first,
-                selected = isWeatherSelected,
-                onClick = onWeatherClick
-            )
-            MetaHeaderSlot(
-                label = moodMeta?.second ?: "기분",
-                icon = moodMeta?.first,
-                selected = isMoodSelected,
-                onClick = onMoodClick
-            )
-        }
+        MetaHeaderSlot(
+            label = weatherMeta?.first ?: " ",
+            caption = weatherMeta?.second ?: "날씨",
+            selected = isWeatherSelected,
+            onClick = onWeatherClick,
+            modifier = Modifier.weight(1f)
+        )
+        MetaHeaderSlot(
+            label = moodMeta?.first ?: " ",
+            caption = moodMeta?.second ?: "기분",
+            selected = isMoodSelected,
+            onClick = onMoodClick,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -989,7 +986,7 @@ fun String?.toMetaHeaderParts(): Pair<String?, String>? {
 @Composable
 fun MetaHeaderSlot(
     label: String,
-    icon: String?,
+    caption: String,
     selected: Boolean,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
@@ -997,28 +994,27 @@ fun MetaHeaderSlot(
     Column(
         modifier = if (onClick != null) {
             modifier
-                .width(54.dp)
                 .clickable(onClick = onClick)
         } else {
-            modifier.width(54.dp)
+            modifier
         },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = icon ?: "",
-            style = MaterialTheme.typography.titleMedium,
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
             color = if (selected) {
                 MaterialTheme.colorScheme.onSurface
             } else {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.44f)
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f)
             }
         )
         Text(
-            text = label,
+            text = caption,
             style = MaterialTheme.typography.labelSmall,
             color = if (selected) {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
             },

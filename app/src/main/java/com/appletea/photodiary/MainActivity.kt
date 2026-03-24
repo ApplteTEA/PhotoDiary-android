@@ -627,14 +627,14 @@ private fun DiaryArchiveCard(
                 val weatherMeta = weatherLabel.toMetaHeaderParts()
                 val moodMeta = moodLabel.toMetaHeaderParts()
                 MetaHeaderSlot(
-                    label = weatherMeta?.second ?: "",
-                    icon = weatherMeta?.first,
+                    label = weatherMeta?.first ?: " ",
+                    caption = weatherMeta?.second ?: "날씨",
                     selected = weatherMeta != null,
                     onClick = null
                 )
                 MetaHeaderSlot(
-                    label = moodMeta?.second ?: "",
-                    icon = moodMeta?.first,
+                    label = moodMeta?.first ?: " ",
+                    caption = moodMeta?.second ?: "기분",
                     selected = moodMeta != null,
                     onClick = null
                 )

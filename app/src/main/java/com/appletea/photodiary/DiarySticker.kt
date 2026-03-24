@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
@@ -301,6 +302,8 @@ fun DiaryStickerWritingSurfaceEditor(
     contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
     contentVerticalPadding: Dp = DiaryPageVerticalPadding,
     surfaceMinHeight: Dp = DiaryPageMinHeight,
+    surfaceColor: Color = MaterialTheme.colorScheme.surface,
+    flat: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -312,6 +315,8 @@ fun DiaryStickerWritingSurfaceEditor(
         contentHorizontalPadding = contentHorizontalPadding,
         contentVerticalPadding = contentVerticalPadding,
         surfaceMinHeight = surfaceMinHeight,
+        surfaceColor = surfaceColor,
+        flat = flat,
         modifier = modifier,
         content = content
     )
@@ -323,6 +328,8 @@ fun DiaryStickerWritingSurfaceReadOnly(
     contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
     contentVerticalPadding: Dp = DiaryPageVerticalPadding,
     surfaceMinHeight: Dp = DiaryPageMinHeight,
+    surfaceColor: Color = MaterialTheme.colorScheme.surface,
+    flat: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -333,6 +340,8 @@ fun DiaryStickerWritingSurfaceReadOnly(
         contentHorizontalPadding = contentHorizontalPadding,
         contentVerticalPadding = contentVerticalPadding,
         surfaceMinHeight = surfaceMinHeight,
+        surfaceColor = surfaceColor,
+        flat = flat,
         modifier = modifier,
         content = content
     )
@@ -435,6 +444,8 @@ private fun DiaryStickerWritingSurface(
     contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
     contentVerticalPadding: Dp = DiaryPageVerticalPadding,
     surfaceMinHeight: Dp = DiaryPageMinHeight,
+    surfaceColor: Color = MaterialTheme.colorScheme.surface,
+    flat: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -460,16 +471,16 @@ private fun DiaryStickerWritingSurface(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = surfaceMinHeight),
-        shape = RoundedCornerShape(DiaryPageCornerRadius),
-        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(if (flat) 0.dp else DiaryPageCornerRadius),
+        color = surfaceColor,
         tonalElevation = 0.dp,
-        shadowElevation = 0.5.dp
+        shadowElevation = if (flat) 0.dp else 0.5.dp
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(surfaceColor)
         ) {
             Box(
                 modifier = Modifier

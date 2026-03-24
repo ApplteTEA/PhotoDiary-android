@@ -206,6 +206,8 @@ private fun ScrapbookPage(
             contentHorizontalPadding = 16.dp,
             contentVerticalPadding = 18.dp,
             surfaceMinHeight = surfaceMinHeight,
+            surfaceColor = MaterialTheme.colorScheme.background,
+            flat = true,
             modifier = Modifier.fillMaxWidth()
         ) { contentModifier ->
             Column(
@@ -250,34 +252,30 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Text(
-                text = entry.diaryDate.toDisplayDate(),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 2.dp),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+            MetaHeaderSlot(
+                label = entry.diaryDate.toDisplayDate(),
+                caption = "날짜",
+                selected = true,
+                onClick = null,
+                modifier = Modifier.weight(1f)
             )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                MetaHeaderSlot(
-                    label = weatherMeta?.second ?: "",
-                    icon = weatherMeta?.first,
-                    selected = weatherMeta != null,
-                    onClick = null
-                )
-                MetaHeaderSlot(
-                    label = moodMeta?.second ?: "",
-                    icon = moodMeta?.first,
-                    selected = moodMeta != null,
-                    onClick = null
-                )
-            }
+            MetaHeaderSlot(
+                label = weatherMeta?.first ?: " ",
+                caption = weatherMeta?.second ?: "날씨",
+                selected = weatherMeta != null,
+                onClick = null,
+                modifier = Modifier.weight(1f)
+            )
+            MetaHeaderSlot(
+                label = moodMeta?.first ?: " ",
+                caption = moodMeta?.second ?: "기분",
+                selected = moodMeta != null,
+                onClick = null,
+                modifier = Modifier.weight(1f)
+            )
         }
 
         if (tagLabel != null) {
