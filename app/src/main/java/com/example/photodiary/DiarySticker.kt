@@ -45,6 +45,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -298,6 +299,7 @@ fun DiaryStickerWritingSurfaceEditor(
     onMoveSticker: (index: Int, xRatio: Float, yRatio: Float) -> Unit,
     onRemoveSticker: (index: Int) -> Unit,
     onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
+    contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -306,6 +308,7 @@ fun DiaryStickerWritingSurfaceEditor(
         onMoveSticker = onMoveSticker,
         onRemoveSticker = onRemoveSticker,
         onCanvasSizeChanged = onCanvasSizeChanged,
+        contentHorizontalPadding = contentHorizontalPadding,
         modifier = modifier,
         content = content
     )
@@ -416,6 +419,7 @@ private fun DiaryStickerWritingSurface(
     onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
     onRemoveSticker: ((index: Int) -> Unit)?,
     onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
+    contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -461,7 +465,7 @@ private fun DiaryStickerWritingSurface(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(
-                        horizontal = DiaryPageHorizontalPadding,
+                        horizontal = contentHorizontalPadding,
                         vertical = DiaryPageVerticalPadding
                     )
             ) {
@@ -482,7 +486,7 @@ private fun DiaryStickerWritingSurface(
                 modifier = Modifier
                     .matchParentSize()
                     .padding(
-                        horizontal = DiaryPageHorizontalPadding,
+                        horizontal = contentHorizontalPadding,
                         vertical = DiaryPageVerticalPadding
                     )
                     .onSizeChanged { containerSize = it }

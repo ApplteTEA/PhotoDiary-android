@@ -566,6 +566,7 @@ fun WriteScreen(
                     },
                     onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                     onCanvasSizeChanged = { stickerCanvasSize = it },
+                    contentHorizontalPadding = 14.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) { contentSizeModifier ->
                     Column(
@@ -709,32 +710,15 @@ private fun WriteDateCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val calendar = remember(diaryDate) {
-        Calendar.getInstance().apply { timeInMillis = diaryDate }
-    }
-
     Surface(
         modifier = modifier.clickable(onClick = onClick),
         color = Color.Transparent
     ) {
-        Column(
-            modifier = Modifier.padding(vertical = 2.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
+        Box(modifier = Modifier.padding(vertical = 4.dp)) {
             Text(
-                text = "${calendar.get(Calendar.DAY_OF_MONTH)}일",
-                style = MaterialTheme.typography.headlineLarge,
+                text = diaryDate.toKoreanDisplayDate(),
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
