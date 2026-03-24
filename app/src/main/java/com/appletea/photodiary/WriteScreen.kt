@@ -469,7 +469,10 @@ fun WriteScreen(
                         },
                         enabled = canSave
                     ) {
-                        Text(text = "저장")
+                        Text(
+                            text = "저장",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 },
                 windowInsets = WindowInsets.statusBars
@@ -481,8 +484,8 @@ fun WriteScreen(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .imePadding()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 if (showStickerTray) {
                     FloatingStickerTray(
@@ -620,7 +623,7 @@ fun WriteScreen(
                             )
 
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                                verticalArrangement = Arrangement.spacedBy(14.dp)
                             ) {
                                 OutlinedTextField(
                                     value = title,
@@ -664,7 +667,7 @@ fun WriteScreen(
                                         )
                                     },
                                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2f
+                                        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
                                     ),
                                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                                     colors = lowChromeTextFieldColors(),
@@ -738,9 +741,9 @@ fun CompactMetaPill(
         },
         shape = RoundedCornerShape(16.dp),
         color = if (selected) {
-            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.65f)
+            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.52f)
         } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f)
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f)
         },
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
@@ -885,14 +888,14 @@ private fun FloatingToolBar(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(26.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         tonalElevation = 0.dp,
-        shadowElevation = 1.dp
+        shadowElevation = 0.5.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 7.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -949,9 +952,9 @@ private fun FloatingToolButton(
         modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         color = if (selected) {
-            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f)
+            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.46f)
         } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f)
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.11f)
         },
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         tonalElevation = 0.dp
@@ -959,7 +962,7 @@ private fun FloatingToolButton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 10.dp),
+                .padding(horizontal = 10.dp, vertical = 9.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -986,13 +989,13 @@ private fun FloatingStickerTray(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         tonalElevation = 0.dp,
-        shadowElevation = 1.dp
+        shadowElevation = 0.5.dp
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
             Text(
                 text = if (canAddMoreStickers(placements)) {
@@ -1028,13 +1031,13 @@ private fun FloatingPhotoTray(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         tonalElevation = 0.dp,
-        shadowElevation = 1.dp
+        shadowElevation = 0.5.dp
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
