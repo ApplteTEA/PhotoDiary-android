@@ -128,8 +128,8 @@ fun DetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "상세 보기",
-                        style = MaterialTheme.typography.titleMedium
+                        text = "기록",
+                        style = MaterialTheme.typography.titleSmall
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -155,7 +155,7 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(vertical = 6.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val contentMinHeight = maxHeight.coerceAtLeast(480.dp)
@@ -188,41 +188,41 @@ private fun ScrapbookPage(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         DiaryStickerWritingSurfaceReadOnly(
             placements = stickerPlacements,
-            contentHorizontalPadding = 18.dp,
-            contentVerticalPadding = 20.dp,
+            contentHorizontalPadding = 16.dp,
+            contentVerticalPadding = 18.dp,
             surfaceMinHeight = contentMinHeight,
             modifier = Modifier.fillMaxWidth()
         ) { contentModifier ->
             Column(
                 modifier = contentModifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 ScrapbookMetaHeader(entry = entry)
 
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
                         text = entry.title.ifBlank { "제목 없는 기록" },
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
                         text = entry.content.ifBlank { "남겨둔 이야기가 없습니다." },
-                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 29.sp),
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                     )
                 }
 
                 if (imagePaths.isNotEmpty()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(
-                            text = "사진",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                            text = "사진 ${imagePaths.size}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                         )
                         PhotoSection(
                             imagePaths = imagePaths.take(5),
@@ -247,7 +247,7 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -256,7 +256,7 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
         ) {
             Text(
                 text = entry.diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
@@ -286,8 +286,8 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
         if (tagLabel != null) {
             Text(
                 text = tagLabel,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

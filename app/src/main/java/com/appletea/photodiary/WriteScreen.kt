@@ -437,8 +437,8 @@ fun WriteScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "기록 쓰기",
-                        style = MaterialTheme.typography.titleMedium
+                        text = "기록",
+                        style = MaterialTheme.typography.titleSmall
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -481,9 +481,8 @@ fun WriteScreen(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .imePadding()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (showStickerTray) {
                     FloatingStickerTray(
@@ -532,6 +531,8 @@ fun WriteScreen(
                     imageCount = imagePaths.size,
                     stickerCount = stickerPlacements.size,
                     tag = tag,
+                    photoSelected = showPhotoTray,
+                    stickerSelected = showStickerTray,
                     onPhotoClick = {
                         dismissKeyboardAndToggleTools(true)
                     },
@@ -550,7 +551,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -560,8 +561,8 @@ fun WriteScreen(
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val editorMinHeight = (maxHeight - 8.dp).coerceAtLeast(500.dp)
-                    val bodyMinHeight = (editorMinHeight - 156.dp).coerceAtLeast(280.dp)
+                    val editorMinHeight = (maxHeight - 4.dp).coerceAtLeast(520.dp)
+                    val bodyMinHeight = (editorMinHeight - 150.dp).coerceAtLeast(320.dp)
 
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,
@@ -573,16 +574,16 @@ fun WriteScreen(
                         },
                         onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                         onCanvasSizeChanged = { stickerCanvasSize = it },
-                        contentHorizontalPadding = 18.dp,
-                        contentVerticalPadding = 20.dp,
+                        contentHorizontalPadding = 16.dp,
+                        contentVerticalPadding = 18.dp,
                         surfaceMinHeight = editorMinHeight,
                         modifier = Modifier.fillMaxWidth()
                     ) { contentSizeModifier ->
                         Column(
                             modifier = contentSizeModifier
                                 .fillMaxWidth()
-                                .padding(bottom = 28.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(bottom = 30.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
                             WriteInfoHeader(
                                 diaryDate = selectedDateMillis,
@@ -619,7 +620,7 @@ fun WriteScreen(
                             )
 
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(14.dp)
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 OutlinedTextField(
                                     value = title,
@@ -639,7 +640,7 @@ fun WriteScreen(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                                         )
                                     },
-                                    textStyle = MaterialTheme.typography.titleSmall,
+                                    textStyle = MaterialTheme.typography.bodyLarge,
                                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                                     colors = lowChromeTextFieldColors()
                                 )
@@ -662,7 +663,9 @@ fun WriteScreen(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
                                         )
                                     },
-                                    textStyle = MaterialTheme.typography.bodyLarge,
+                                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2f
+                                    ),
                                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                                     colors = lowChromeTextFieldColors(),
                                     minLines = 10,
@@ -692,7 +695,7 @@ private fun WriteInfoHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 2.dp),
+            .padding(horizontal = 2.dp, vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -873,23 +876,30 @@ private fun FloatingToolBar(
     imageCount: Int,
     stickerCount: Int,
     tag: String,
+    photoSelected: Boolean,
+    stickerSelected: Boolean,
     onPhotoClick: () -> Unit,
     onStickerClick: () -> Unit,
     onTagClick: () -> Unit
 ) {
     Surface(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(26.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
         tonalElevation = 0.dp,
         shadowElevation = 1.dp
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             FloatingToolButton(
+                modifier = Modifier.weight(1f),
                 label = if (imageCount > 0) "사진 $imageCount" else "사진",
+                selected = photoSelected,
                 onClick = onPhotoClick,
                 leading = {
                     Icon(
@@ -900,7 +910,9 @@ private fun FloatingToolBar(
                 }
             )
             FloatingToolButton(
+                modifier = Modifier.weight(1f),
                 label = if (stickerCount > 0) "스티커 $stickerCount" else "스티커",
+                selected = stickerSelected,
                 onClick = onStickerClick,
                 leading = {
                     Text(
@@ -910,7 +922,9 @@ private fun FloatingToolBar(
                 }
             )
             FloatingToolButton(
+                modifier = Modifier.weight(1f),
                 label = if (tag.isBlank()) "태그" else tag.toDisplayHashtags().take(8),
+                selected = tag.isNotBlank(),
                 onClick = onTagClick,
                 leading = {
                     Text(
@@ -925,19 +939,27 @@ private fun FloatingToolBar(
 
 @Composable
 private fun FloatingToolButton(
+    modifier: Modifier = Modifier,
     label: String,
+    selected: Boolean,
     onClick: () -> Unit,
     leading: @Composable () -> Unit
 ) {
     Surface(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f),
+        color = if (selected) {
+            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f)
+        },
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         tonalElevation = 0.dp
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -945,7 +967,12 @@ private fun FloatingToolButton(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (selected) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                maxLines = 1
             )
         }
     }
@@ -958,18 +985,18 @@ private fun FloatingStickerTray(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
+        shape = RoundedCornerShape(22.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
         tonalElevation = 0.dp,
         shadowElevation = 1.dp
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = if (canAddMoreStickers(placements)) {
-                    "붙이고 싶은 스티커를 골라보세요"
+                    "스티커를 골라 기록 위에 바로 붙일 수 있어요"
                 } else {
                     "스티커는 최대 8개까지 붙일 수 있어요"
                 },
@@ -1000,14 +1027,14 @@ private fun FloatingPhotoTray(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
+        shape = RoundedCornerShape(22.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
         tonalElevation = 0.dp,
         shadowElevation = 1.dp
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1026,7 +1053,7 @@ private fun FloatingPhotoTray(
 
             if (imagePaths.isEmpty()) {
                 Text(
-                    text = "사진은 하단 도구 바에서 불러와 기록과 함께 남길 수 있어요.",
+                    text = "사진을 추가하면 기록 아래에 함께 남겨집니다.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f)
                 )

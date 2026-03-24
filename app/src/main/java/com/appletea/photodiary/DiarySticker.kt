@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,9 +58,9 @@ import org.json.JSONObject
 private const val MAX_STICKER_COUNT = 8
 private const val STICKER_NODE_HEIGHT_PX = 44f
 
-val DiaryPageCornerRadius = 28.dp
-val DiaryPageHorizontalPadding = 20.dp
-val DiaryPageVerticalPadding = 22.dp
+val DiaryPageCornerRadius = 22.dp
+val DiaryPageHorizontalPadding = 18.dp
+val DiaryPageVerticalPadding = 20.dp
 val DiaryPageMinHeight = 480.dp
 val DiaryPageBodyMinHeight = 220.dp
 
@@ -463,12 +462,8 @@ private fun DiaryStickerWritingSurface(
             .heightIn(min = surfaceMinHeight),
         shape = RoundedCornerShape(DiaryPageCornerRadius),
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
-        ),
         tonalElevation = 0.dp,
-        shadowElevation = 0.dp
+        shadowElevation = 1.dp
     ) {
         Box(
             modifier = Modifier
