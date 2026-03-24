@@ -952,7 +952,7 @@ private fun WriteInfoHeader(
     ) {
         MetaHeaderSlot(
             label = diaryDate.toDisplayDate(),
-            caption = "날짜",
+            caption = null,
             selected = true,
             onClick = onDateClick,
             modifier = Modifier.weight(1f)
@@ -986,7 +986,7 @@ fun String?.toMetaHeaderParts(): Pair<String?, String>? {
 @Composable
 fun MetaHeaderSlot(
     label: String,
-    caption: String,
+    caption: String?,
     selected: Boolean,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
@@ -1010,17 +1010,19 @@ fun MetaHeaderSlot(
                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f)
             }
         )
-        Text(
-            text = caption,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (selected) {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
-            },
-            maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-        )
+        if (!caption.isNullOrBlank()) {
+            Text(
+                text = caption,
+                style = MaterialTheme.typography.labelSmall,
+                color = if (selected) {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
+                },
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+        }
     }
 }
 

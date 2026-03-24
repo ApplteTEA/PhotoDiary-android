@@ -602,6 +602,8 @@ private fun DiaryArchiveCard(
     }
     val moodLabel = remember(entry.mood) { entry.mood.toMetaLabelOrNull(moodOptions) }
     val weatherLabel = remember(entry.weather) { entry.weather.toMetaLabelOrNull(weatherOptions) }
+    val weatherMeta = weatherLabel.toMetaHeaderParts()
+    val moodMeta = moodLabel.toMetaHeaderParts()
 
     Column(
         modifier = modifier
@@ -620,24 +622,29 @@ private fun DiaryArchiveCard(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
             )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                val weatherMeta = weatherLabel.toMetaHeaderParts()
-                val moodMeta = moodLabel.toMetaHeaderParts()
-                MetaHeaderSlot(
-                    label = weatherMeta?.first ?: " ",
-                    caption = weatherMeta?.second ?: "날씨",
-                    selected = weatherMeta != null,
-                    onClick = null
-                )
-                MetaHeaderSlot(
-                    label = moodMeta?.first ?: " ",
-                    caption = moodMeta?.second ?: "기분",
-                    selected = moodMeta != null,
-                    onClick = null
-                )
+            if (weatherMeta != null || moodMeta != null) {
+                Row(
+                    modifier = Modifier.padding(top = 1.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    if (weatherMeta != null) {
+                        MetaHeaderSlot(
+                            label = weatherMeta.first ?: " ",
+                            caption = weatherMeta.second,
+                            selected = true,
+                            onClick = null
+                        )
+                    }
+                    if (moodMeta != null) {
+                        MetaHeaderSlot(
+                            label = moodMeta.first ?: " ",
+                            caption = moodMeta.second,
+                            selected = true,
+                            onClick = null
+                        )
+                    }
+                }
             }
         }
         Column(
