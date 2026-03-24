@@ -222,9 +222,6 @@ private fun ScrapbookPage(
 
 @Composable
 private fun ScrapbookMetaHeader(entry: DiaryEntry) {
-    val calendar = remember(entry.diaryDate) {
-        Calendar.getInstance().apply { timeInMillis = entry.diaryDate }
-    }
     val moodLabel = entry.mood.toMetaLabelOrNull(moodOptions)
     val weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions)
     val tagLabel = entry.tag
@@ -237,25 +234,11 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = "${calendar.get(Calendar.DAY_OF_MONTH)}일",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = entry.diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = entry.diaryDate.toKoreanDisplayDate(),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),

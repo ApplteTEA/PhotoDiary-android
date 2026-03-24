@@ -7,6 +7,7 @@ import java.util.Locale
 import org.json.JSONArray
 
 private val displayDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+private val koreanDisplayDateFormatter = SimpleDateFormat("yyyy년 M월 d일", Locale.getDefault())
 
 fun Long.toDayStartMillis(): Long {
     return Calendar.getInstance().apply {
@@ -19,6 +20,8 @@ fun Long.toDayStartMillis(): Long {
 }
 
 fun Long.toDisplayDate(): String = displayDateFormatter.format(Date(this))
+
+fun Long.toKoreanDisplayDate(): String = koreanDisplayDateFormatter.format(Date(this))
 
 fun String?.toImagePathList(): List<String> {
     if (this.isNullOrBlank()) return emptyList()
