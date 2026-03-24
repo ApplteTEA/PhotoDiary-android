@@ -188,7 +188,7 @@ private fun ScrapbookPage(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         DiaryStickerWritingSurfaceReadOnly(
             placements = stickerPlacements,
@@ -199,7 +199,7 @@ private fun ScrapbookPage(
         ) { contentModifier ->
             Column(
                 modifier = contentModifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 ScrapbookMetaHeader(entry = entry)
 
@@ -214,18 +214,20 @@ private fun ScrapbookPage(
                 if (entry.content.isNotBlank()) {
                     Text(
                         text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2f
+                        ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                     )
                 }
-
-                if (imagePaths.isNotEmpty()) {
-                    PhotoSection(
-                        imagePaths = imagePaths.take(5),
-                        onPreviewImage = onPreviewImage
-                    )
-                }
             }
+        }
+
+        if (imagePaths.isNotEmpty()) {
+            AttachedPhotoStrip(
+                imagePaths = imagePaths.take(5),
+                onPreviewImage = onPreviewImage
+            )
         }
     }
 }
@@ -282,7 +284,7 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
             Text(
                 text = tagLabel,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -291,28 +293,44 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
 }
 
 @Composable
-private fun PhotoSection(
+private fun AttachedPhotoStrip(
     imagePaths: List<String>,
     onPreviewImage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
-            .then(modifier)
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(vertical = 2.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        tonalElevation = 0.dp,
+        shadowElevation = 1.dp
     ) {
-        imagePaths.forEachIndexed { index, imagePath ->
-            DetailThumbnailCard(
-                imagePath = imagePath,
-                onPreviewClick = { onPreviewImage(imagePath) },
-                modifier = Modifier
-                    .width(92.dp),
-                shape = RoundedCornerShape(16.dp),
-                showZoomBadge = false
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "첨부한 사진 ${imagePaths.size}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
             )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                imagePaths.forEach { imagePath ->
+                    DetailThumbnailCard(
+                        imagePath = imagePath,
+                        onPreviewClick = { onPreviewImage(imagePath) },
+                        modifier = Modifier.width(96.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        showZoomBadge = false
+                    )
+                }
+            }
         }
     }
 }
@@ -329,7 +347,7 @@ private fun DetailThumbnailCard(
         modifier = modifier
             .aspectRatio(1f)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.16f))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f))
             .clickable(onClick = onPreviewClick)
     ) {
         AsyncImage(
