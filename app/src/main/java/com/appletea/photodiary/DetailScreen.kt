@@ -250,7 +250,7 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
             verticalAlignment = Alignment.Top
         ) {
             Text(
-                text = entry.diaryDate.toKoreanDisplayDate(),
+                text = entry.diaryDate.toDisplayDate(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
@@ -260,17 +260,17 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (moodLabel != null) {
+                if (weatherLabel != null) {
                     CompactMetaPill(
-                        label = moodLabel,
+                        label = weatherLabel,
                         selected = true,
                         onClick = null
                     )
                 }
 
-                if (weatherLabel != null) {
+                if (moodLabel != null) {
                     CompactMetaPill(
-                        label = weatherLabel,
+                        label = moodLabel,
                         selected = true,
                         onClick = null
                     )

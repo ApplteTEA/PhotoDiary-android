@@ -600,7 +600,8 @@ private fun DiaryArchiveCard(
     modifier: Modifier = Modifier
 ) {
     val imagePaths = remember(entry.imagePath) { entry.imagePath.toImagePathList().take(5) }
-    val metaLine = remember(entry) { entry.toMetaLine() }
+    val moodLabel = remember(entry.mood) { entry.mood.toMetaLabelOrNull(moodOptions) }
+    val weatherLabel = remember(entry.weather) { entry.weather.toMetaLabelOrNull(weatherOptions) }
 
     Card(
         modifier = modifier
@@ -616,17 +617,35 @@ private fun DiaryArchiveCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = entry.diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-            )
-            if (metaLine.isNotBlank()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = metaLine,
+                    text = entry.diaryDate.toDisplayDate(),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                 )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (weatherLabel != null) {
+                        CompactMetaPill(
+                            label = weatherLabel,
+                            selected = true,
+                            onClick = null
+                        )
+                    }
+                    if (moodLabel != null) {
+                        CompactMetaPill(
+                            label = moodLabel,
+                            selected = true,
+                            onClick = null
+                        )
+                    }
+                }
             }
             Text(
                 text = entry.title.ifBlank { "제목 없는 기록" },
@@ -693,11 +712,22 @@ private fun MonthlyReflectionPreviewCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = "$monthLabel 회고",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = monthLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+                )
+                Text(
+                    text = "회고",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Text(
                 text = if (reflection == null) {
                     "${entryCount}개의 기록을 월간 회고로 남겨보세요."
