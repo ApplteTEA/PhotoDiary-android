@@ -629,7 +629,7 @@ fun WriteScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
                                 )
                             },
-                            textStyle = MaterialTheme.typography.titleLarge,
+                            textStyle = MaterialTheme.typography.titleMedium,
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             colors = lowChromeTextFieldColors()
                         )
