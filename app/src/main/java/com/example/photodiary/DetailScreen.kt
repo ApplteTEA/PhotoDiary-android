@@ -232,33 +232,36 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text(
-            text = entry.diaryDate.toKoreanDisplayDate(),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = entry.diaryDate.toKoreanDisplayDate(),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.TopStart)
+            )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (moodLabel != null) {
-                DiaryMetaPill(
-                    label = moodLabel,
-                    selected = true,
-                    onClick = null
-                )
-            }
+            Row(
+                modifier = Modifier.align(Alignment.TopEnd),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (moodLabel != null) {
+                    DiaryMetaPill(
+                        label = moodLabel,
+                        selected = true,
+                        onClick = null
+                    )
+                }
 
-            if (weatherLabel != null) {
-                DiaryMetaPill(
-                    label = weatherLabel,
-                    selected = true,
-                    onClick = null
-                )
+                if (weatherLabel != null) {
+                    DiaryMetaPill(
+                        label = weatherLabel,
+                        selected = true,
+                        onClick = null
+                    )
+                }
             }
         }
 
