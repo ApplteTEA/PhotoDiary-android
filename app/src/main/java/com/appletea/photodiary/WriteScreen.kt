@@ -948,7 +948,7 @@ private fun WriteInfoHeader(
             .fillMaxWidth()
             .padding(horizontal = 2.dp, vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.CenterVertically
     ) {
         MetaHeaderSlot(
             label = diaryDate.toDisplayDate(),
@@ -999,29 +999,39 @@ fun MetaHeaderSlot(
             modifier
         },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (selected) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f)
+        Box(
+            modifier = Modifier.height(34.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f)
+                    }
+                )
+                if (!caption.isNullOrBlank()) {
+                    Text(
+                        text = caption,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (selected) {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
+                        },
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                }
             }
-        )
-        if (!caption.isNullOrBlank()) {
-            Text(
-                text = caption,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (selected) {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
-                },
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
         }
     }
 }

@@ -606,97 +606,102 @@ private fun DiaryArchiveCard(
     val moodMeta = moodLabel.toMetaHeaderParts()
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp,
+            shadowElevation = 0.5.dp
         ) {
-            Text(
-                text = entry.diaryDate.toDisplayDate(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
-            )
-            if (weatherMeta != null || moodMeta != null) {
-                Row(
-                    modifier = Modifier.padding(top = 1.dp),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    if (weatherMeta != null) {
-                        MetaHeaderSlot(
-                            label = weatherMeta.first ?: " ",
-                            caption = weatherMeta.second,
-                            selected = true,
-                            onClick = null
-                        )
-                    }
-                    if (moodMeta != null) {
-                        MetaHeaderSlot(
-                            label = moodMeta.first ?: " ",
-                            caption = moodMeta.second,
-                            selected = true,
-                            onClick = null
-                        )
-                    }
-                }
-            }
-        }
-        Column(
-            verticalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            Text(
-                text = entry.title.ifBlank { "제목 없는 기록" },
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (previewContent.isNotBlank()) {
-                Text(
-                    text = previewContent,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-
-        if (imagePaths.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                imagePaths.forEach { imagePath ->
-                    Box(
-                        modifier = Modifier
-                            .size(62.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
-                    ) {
-                        AsyncImage(
-                            model = imagePath,
-                            contentDescription = "첨부 이미지",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = entry.diaryDate.toDisplayDate(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
+                    )
+                    if (weatherMeta != null || moodMeta != null) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (weatherMeta != null) {
+                                MetaHeaderSlot(
+                                    label = weatherMeta.first ?: " ",
+                                    caption = weatherMeta.second,
+                                    selected = true,
+                                    onClick = null
+                                )
+                            }
+                            if (moodMeta != null) {
+                                MetaHeaderSlot(
+                                    label = moodMeta.first ?: " ",
+                                    caption = moodMeta.second,
+                                    selected = true,
+                                    onClick = null
+                                )
+                            }
+                        }
+                    }
+                }
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = entry.title.ifBlank { "제목 없는 기록" },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (previewContent.isNotBlank()) {
+                        Text(
+                            text = previewContent,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
+                    }
+                }
+
+                if (imagePaths.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        imagePaths.forEach { imagePath ->
+                            Box(
+                                modifier = Modifier
+                                    .size(62.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
+                            ) {
+                                AsyncImage(
+                                    model = imagePath,
+                                    contentDescription = "첨부 이미지",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
-
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-            thickness = 1.dp
-        )
     }
 }
 
