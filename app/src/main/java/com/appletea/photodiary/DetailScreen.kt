@@ -155,10 +155,10 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .padding(horizontal = 14.dp)
         ) {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                val contentMinHeight = maxHeight.coerceAtLeast(480.dp)
+                val contentMinHeight = (maxHeight - 4.dp).coerceAtLeast(520.dp)
 
                 Column(
                     modifier = Modifier
@@ -199,36 +199,31 @@ private fun ScrapbookPage(
         ) { contentModifier ->
             Column(
                 modifier = contentModifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 ScrapbookMetaHeader(entry = entry)
 
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (entry.title.isNotBlank()) {
                     Text(
-                        text = entry.title.ifBlank { "제목 없는 기록" },
-                        style = MaterialTheme.typography.titleMedium,
+                        text = entry.title,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+                }
 
+                if (entry.content.isNotBlank()) {
                     Text(
-                        text = entry.content.ifBlank { "남겨둔 이야기가 없습니다." },
+                        text = entry.content,
                         style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                     )
                 }
 
                 if (imagePaths.isNotEmpty()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            text = "사진 ${imagePaths.size}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                        )
-                        PhotoSection(
-                            imagePaths = imagePaths.take(5),
-                            onPreviewImage = onPreviewImage
-                        )
-                    }
+                    PhotoSection(
+                        imagePaths = imagePaths.take(5),
+                        onPreviewImage = onPreviewImage
+                    )
                 }
             }
         }
@@ -314,8 +309,8 @@ private fun PhotoSection(
                 imagePath = imagePath,
                 onPreviewClick = { onPreviewImage(imagePath) },
                 modifier = Modifier
-                    .width(128.dp),
-                shape = RoundedCornerShape(18.dp),
+                    .width(92.dp),
+                shape = RoundedCornerShape(16.dp),
                 showZoomBadge = false
             )
         }

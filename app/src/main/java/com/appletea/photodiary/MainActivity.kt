@@ -470,7 +470,7 @@ fun MainScreen(
                 listState = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 18.dp, top = 18.dp, end = 18.dp)
+                    .padding(start = 18.dp, top = 10.dp, end = 18.dp)
             )
         }
     }
@@ -532,7 +532,7 @@ private fun DiaryListSection(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(top = 4.dp, bottom = 28.dp)
+                contentPadding = PaddingValues(top = 0.dp, bottom = 28.dp)
             ) {
                 groupedEntries.forEach { (monthLabel, monthEntries, monthKey) ->
                     val monthlyReflection = monthlyReflections[monthKey]
@@ -540,7 +540,7 @@ private fun DiaryListSection(
                         MonthArchiveHeader(
                             monthLabel = monthLabel,
                             entryCount = monthEntries.size,
-                            modifier = Modifier.padding(top = 6.dp)
+                            modifier = Modifier.padding(top = 2.dp)
                         )
                     }
 
@@ -576,7 +576,7 @@ private fun MonthArchiveHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 10.dp, bottom = 2.dp),
+            .padding(top = 4.dp, bottom = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
