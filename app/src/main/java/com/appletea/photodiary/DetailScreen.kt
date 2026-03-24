@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler

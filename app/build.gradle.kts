@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.photodiary"
+    namespace = "com.appletea.photodiary"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.photodiary"
+        applicationId = "com.appletea.photodiary"
         minSdk = 25
         targetSdk = 35
         versionCode = 1

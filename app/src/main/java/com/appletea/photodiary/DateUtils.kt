@@ -1,4 +1,4 @@
-package com.example.photodiary
+package com.appletea.photodiary
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
