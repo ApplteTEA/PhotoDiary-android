@@ -300,6 +300,8 @@ fun DiaryStickerWritingSurfaceEditor(
     onRemoveSticker: (index: Int) -> Unit,
     onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
     contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
+    contentVerticalPadding: Dp = DiaryPageVerticalPadding,
+    surfaceMinHeight: Dp = DiaryPageMinHeight,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -309,6 +311,8 @@ fun DiaryStickerWritingSurfaceEditor(
         onRemoveSticker = onRemoveSticker,
         onCanvasSizeChanged = onCanvasSizeChanged,
         contentHorizontalPadding = contentHorizontalPadding,
+        contentVerticalPadding = contentVerticalPadding,
+        surfaceMinHeight = surfaceMinHeight,
         modifier = modifier,
         content = content
     )
@@ -317,6 +321,9 @@ fun DiaryStickerWritingSurfaceEditor(
 @Composable
 fun DiaryStickerWritingSurfaceReadOnly(
     placements: List<DiaryStickerPlacement>,
+    contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
+    contentVerticalPadding: Dp = DiaryPageVerticalPadding,
+    surfaceMinHeight: Dp = DiaryPageMinHeight,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -324,6 +331,9 @@ fun DiaryStickerWritingSurfaceReadOnly(
         placements = placements,
         onMoveSticker = null,
         onRemoveSticker = null,
+        contentHorizontalPadding = contentHorizontalPadding,
+        contentVerticalPadding = contentVerticalPadding,
+        surfaceMinHeight = surfaceMinHeight,
         modifier = modifier,
         content = content
     )
@@ -332,12 +342,14 @@ fun DiaryStickerWritingSurfaceReadOnly(
 @Composable
 fun DiaryStickerOverlayReadOnly(
     placements: List<DiaryStickerPlacement>,
+    stickerWidthPx: Float = 104f,
+    stickerHeightPx: Float = 44f,
+    stickerVisualSize: Dp = 44.dp,
+    stickerImageSize: Dp = 30.dp,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    val stickerWidthPx = 104f
-    val stickerHeightPx = 44f
 
     Box(
         modifier = modifier
@@ -353,6 +365,8 @@ fun DiaryStickerOverlayReadOnly(
                 canvasSize = canvasSize,
                 stickerWidthPx = stickerWidthPx,
                 stickerHeightPx = stickerHeightPx,
+                stickerVisualSize = stickerVisualSize,
+                stickerImageSize = stickerImageSize,
                 editable = false,
                 onMoveSticker = null,
                 onRemoveSticker = null
@@ -420,6 +434,8 @@ private fun DiaryStickerWritingSurface(
     onRemoveSticker: ((index: Int) -> Unit)?,
     onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
     contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
+    contentVerticalPadding: Dp = DiaryPageVerticalPadding,
+    surfaceMinHeight: Dp = DiaryPageMinHeight,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.(Modifier) -> Unit
 ) {
@@ -444,7 +460,7 @@ private fun DiaryStickerWritingSurface(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = DiaryPageMinHeight),
+            .heightIn(min = surfaceMinHeight),
         shape = RoundedCornerShape(DiaryPageCornerRadius),
         color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(
@@ -466,7 +482,7 @@ private fun DiaryStickerWritingSurface(
                     .wrapContentHeight()
                     .padding(
                         horizontal = contentHorizontalPadding,
-                        vertical = DiaryPageVerticalPadding
+                        vertical = contentVerticalPadding
                     )
             ) {
                 content(
@@ -487,7 +503,7 @@ private fun DiaryStickerWritingSurface(
                     .matchParentSize()
                     .padding(
                         horizontal = contentHorizontalPadding,
-                        vertical = DiaryPageVerticalPadding
+                        vertical = contentVerticalPadding
                     )
                     .onSizeChanged { containerSize = it }
                     .zIndex(1f)
@@ -516,12 +532,13 @@ private fun DiaryStickerPlacementNode(
     canvasSize: IntSize,
     stickerWidthPx: Float,
     stickerHeightPx: Float,
+    stickerVisualSize: Dp = 44.dp,
+    stickerImageSize: Dp = 30.dp,
     editable: Boolean,
     onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
     onRemoveSticker: ((index: Int) -> Unit)?
 ) {
     val option = placement.key.toStickerOptionOrNull() ?: return
-    val stickerVisualSize = 44.dp
     val horizontalRange = (canvasSize.width - stickerWidthPx).coerceAtLeast(1f)
     val verticalRange = (canvasSize.height - stickerHeightPx).coerceAtLeast(1f)
     val xOffset = (horizontalRange * placement.xRatio).roundToInt()
@@ -579,7 +596,7 @@ private fun DiaryStickerPlacementNode(
         ) {
             StickerImage(
                 option = option,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(stickerImageSize)
             )
         }
     }

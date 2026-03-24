@@ -153,7 +153,7 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp, vertical = 12.dp)
+                .padding(horizontal = 8.dp, vertical = 10.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -184,33 +184,37 @@ private fun ScrapbookPage(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
+            shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
             shadowElevation = 0.dp
         ) {
             DiaryStickerOverlayReadOnly(
                 placements = stickerPlacements,
+                stickerWidthPx = 92f,
+                stickerHeightPx = 38f,
+                stickerVisualSize = 38.dp,
+                stickerImageSize = 24.dp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 18.dp, vertical = 18.dp)
+                    .padding(horizontal = 14.dp, vertical = 14.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ScrapbookMetaHeader(entry = entry)
 
                     Text(
                         text = entry.title,
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
                         text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
+                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 28.sp),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -238,16 +242,16 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Text(
                 text = entry.diaryDate.toKoreanDisplayDate(),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
@@ -298,16 +302,15 @@ private fun PhotoSection(
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
             .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         imagePaths.forEachIndexed { index, imagePath ->
             DetailThumbnailCard(
                 imagePath = imagePath,
                 onPreviewClick = { onPreviewImage(imagePath) },
                 modifier = Modifier
-                    .width(164.dp)
-                    .rotate(if (index % 2 == 0) -2.5f else 2.5f),
-                shape = RoundedCornerShape(20.dp),
+                    .width(128.dp),
+                shape = RoundedCornerShape(18.dp),
                 showZoomBadge = false
             )
         }
