@@ -52,8 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
-import java.util.Calendar
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
@@ -180,42 +178,50 @@ private fun ScrapbookPage(
     imagePaths: List<String>,
     onPreviewImage: (String) -> Unit
 ) {
-    DiaryStickerWritingSurfaceReadOnly(
-        placements = stickerPlacements,
-        modifier = Modifier.fillMaxWidth()
-    ) { contentSizeModifier ->
-        Column(
-            modifier = contentSizeModifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp
         ) {
-            ScrapbookMetaHeader(entry = entry)
-
-            Text(
-                text = entry.title,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Box(
+            DiaryStickerOverlayReadOnly(
+                placements = stickerPlacements,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = DiaryPageBodyMinHeight),
-                contentAlignment = Alignment.TopStart
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 18.dp, vertical = 18.dp)
             ) {
-                Text(
-                    text = entry.content,
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    ScrapbookMetaHeader(entry = entry)
 
-            if (imagePaths.isNotEmpty()) {
-                PhotoSection(
-                    imagePaths = imagePaths.take(5),
-                    onPreviewImage = onPreviewImage,
-                    modifier = Modifier.padding(top = 6.dp)
-                )
+                    Text(
+                        text = entry.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        text = entry.content,
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 31.sp),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
+        }
+
+        if (imagePaths.isNotEmpty()) {
+            PhotoSection(
+                imagePaths = imagePaths.take(5),
+                onPreviewImage = onPreviewImage
+            )
         }
     }
 }
@@ -232,23 +238,26 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = entry.diaryDate.toKoreanDisplayDate(),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.align(Alignment.TopStart)
+                modifier = Modifier.weight(1f)
             )
 
             Row(
-                modifier = Modifier.align(Alignment.TopEnd),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (moodLabel != null) {
-                    DiaryMetaPill(
+                    CompactMetaPill(
                         label = moodLabel,
                         selected = true,
                         onClick = null
@@ -256,7 +265,7 @@ private fun ScrapbookMetaHeader(entry: DiaryEntry) {
                 }
 
                 if (weatherLabel != null) {
-                    DiaryMetaPill(
+                    CompactMetaPill(
                         label = weatherLabel,
                         selected = true,
                         onClick = null

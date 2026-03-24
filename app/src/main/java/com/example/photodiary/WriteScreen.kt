@@ -549,7 +549,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = 10.dp, vertical = 12.dp)
+                .padding(horizontal = 8.dp, vertical = 12.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -566,14 +566,14 @@ fun WriteScreen(
                     },
                     onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                     onCanvasSizeChanged = { stickerCanvasSize = it },
-                    contentHorizontalPadding = 10.dp,
+                    contentHorizontalPadding = 8.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) { contentSizeModifier ->
                     Column(
                         modifier = contentSizeModifier
                             .fillMaxWidth()
                             .padding(bottom = 28.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         WriteInfoHeader(
                             diaryDate = selectedDateMillis,
@@ -675,29 +675,67 @@ private fun WriteInfoHeader(
     onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.fillMaxWidth()) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         WriteDateCard(
             diaryDate = diaryDate,
             onClick = onDateClick,
-            modifier = Modifier.align(Alignment.TopStart)
+            modifier = Modifier.weight(1f)
         )
 
         Row(
-            modifier = Modifier.align(Alignment.TopEnd),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            DiaryMetaPill(
+            CompactMetaPill(
                 label = moodLabel,
                 selected = isMoodSelected,
                 onClick = onMoodClick
             )
-            DiaryMetaPill(
+            CompactMetaPill(
                 label = weatherLabel,
                 selected = isWeatherSelected,
                 onClick = onWeatherClick
             )
         }
+    }
+}
+
+@Composable
+fun CompactMetaPill(
+    label: String,
+    selected: Boolean,
+    onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = if (onClick != null) {
+            modifier.clickable(onClick = onClick)
+        } else {
+            modifier
+        },
+        shape = RoundedCornerShape(16.dp),
+        color = if (selected) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f)
+        },
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = if (selected) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+        )
     }
 }
 
@@ -714,7 +752,7 @@ private fun WriteDateCard(
         Box(modifier = Modifier.padding(vertical = 4.dp)) {
             Text(
                 text = diaryDate.toKoreanDisplayDate(),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
