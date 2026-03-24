@@ -316,6 +316,9 @@ fun CalendarScreen(
                         ) {
                             items(filteredEntries, key = { it.id }) { entry ->
                                 val imagePaths = entry.imagePath.toImagePathList().take(5)
+                                val previewContent = remember(entry.content, entry.imagePath) {
+                                    parseDiaryDocument(entry.content, entry.imagePath.toImagePathList()).toPlainTextPreview()
+                                }
                                 val moodLabel = entry.mood.toMetaLabelOrNull(moodOptions)
                                 val weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions)
                                 Card(
@@ -369,9 +372,9 @@ fun CalendarScreen(
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                        if (entry.content.isNotBlank()) {
+                                        if (previewContent.isNotBlank()) {
                                             Text(
-                                                text = entry.content,
+                                                text = previewContent,
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
                                                 modifier = Modifier.padding(top = 2.dp),

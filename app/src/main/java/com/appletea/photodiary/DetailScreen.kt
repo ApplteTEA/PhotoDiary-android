@@ -63,7 +63,9 @@ fun DetailScreen(
 ) {
     BackHandler(onBack = onBackClick)
 
-    val imagePaths = entry.imagePath.toImagePathList()
+    val documentBlocks = remember(entry.content, entry.imagePath) {
+        parseDiaryDocument(entry.content, entry.imagePath.toImagePathList())
+    }
     val stickerPlacements = remember(entry.sticker) { entry.sticker.toStickerPlacements() }
     var previewImagePath by remember { mutableStateOf<String?>(null) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
@@ -173,8 +175,8 @@ fun DetailScreen(
             ) {
                 ScrapbookPage(
                     entry = entry,
+                    documentBlocks = documentBlocks,
                     stickerPlacements = stickerPlacements,
-                    imagePaths = imagePaths,
                     onPreviewImage = { previewImagePath = it }
                 )
             }
@@ -185,8 +187,8 @@ fun DetailScreen(
 @Composable
 private fun ScrapbookPage(
     entry: DiaryEntry,
+    documentBlocks: List<DiaryDocumentBlock>,
     stickerPlacements: List<DiaryStickerPlacement>,
-    imagePaths: List<String>,
     onPreviewImage: (String) -> Unit
 ) {
     Column(
@@ -214,21 +216,10 @@ private fun ScrapbookPage(
                     )
                 }
 
-                if (entry.content.isNotBlank()) {
-                    Text(
-                        text = entry.content,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
-                    )
-                }
-                if (imagePaths.isNotEmpty()) {
-                    AttachedPhotoStrip(
-                        imagePaths = imagePaths.take(5),
-                        onPreviewImage = onPreviewImage
-                    )
-                }
+                DetailDocumentContent(
+                    blocks = documentBlocks,
+                    onPreviewImage = onPreviewImage
+                )
             }
         }
     }
@@ -293,28 +284,50 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
 
 @Composable
 private fun AttachedPhotoStrip(
-    imagePaths: List<String>,
-    onPreviewImage: (String) -> Unit,
+    imagePath: String,
+    onPreviewImage: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    DetailThumbnailCard(
+        imagePath = imagePath,
+        onPreviewClick = onPreviewImage,
+        modifier = modifier
+            .fillMaxWidth(0.58f)
+            .aspectRatio(0.72f),
+        shape = RoundedCornerShape(18.dp),
+        showZoomBadge = false
+    )
+}
+
+@Composable
+private fun DetailDocumentContent(
+    blocks: List<DiaryDocumentBlock>,
+    onPreviewImage: (String) -> Unit
+) {
     Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            imagePaths.forEach { imagePath ->
-                DetailThumbnailCard(
-                    imagePath = imagePath,
-                    onPreviewClick = { onPreviewImage(imagePath) },
-                    modifier = Modifier.width(92.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    showZoomBadge = false
-                )
+        blocks.forEach { block ->
+            when (block) {
+                is DiaryDocumentBlock.Text -> {
+                    if (block.value.isNotBlank()) {
+                        Text(
+                            text = block.value,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
+                        )
+                    }
+                }
+
+                is DiaryDocumentBlock.Image -> {
+                    AttachedPhotoStrip(
+                        imagePath = block.path,
+                        onPreviewImage = { onPreviewImage(block.path) }
+                    )
+                }
             }
         }
     }

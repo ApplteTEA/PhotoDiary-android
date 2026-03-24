@@ -5,10 +5,9 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,12 +60,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -82,7 +84,44 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val MAX_IMAGE_COUNT = 5
+private sealed class EditorBlockState(open val id: String)
+
+private class TextEditorBlockState(
+    override val id: String,
+    initialText: String
+) : EditorBlockState(id) {
+    var value by androidx.compose.runtime.mutableStateOf(
+        TextFieldValue(
+            text = initialText,
+            selection = TextRange(initialText.length)
+        )
+    )
+}
+
+private class ImageEditorBlockState(
+    override val id: String,
+    val path: String
+) : EditorBlockState(id)
+
+private fun nextEditorBlockId(): String = "block_${System.nanoTime()}_${(1000..9999).random()}"
+
+private fun List<DiaryDocumentBlock>.toEditorBlockStates(): List<EditorBlockState> {
+    return map { block ->
+        when (block) {
+            is DiaryDocumentBlock.Text -> TextEditorBlockState(nextEditorBlockId(), block.value)
+            is DiaryDocumentBlock.Image -> ImageEditorBlockState(nextEditorBlockId(), block.path)
+        }
+    }
+}
+
+private fun List<EditorBlockState>.toPersistedDiaryBlocks(): List<DiaryDocumentBlock> {
+    return mapNotNull { block ->
+        when (block) {
+            is TextEditorBlockState -> DiaryDocumentBlock.Text(block.value.text)
+            is ImageEditorBlockState -> DiaryDocumentBlock.Image(block.path)
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,10 +154,18 @@ fun WriteScreen(
     val initialDateMillis = remember(initialDiaryDate) {
         (initialDiaryDate ?: System.currentTimeMillis()).toDayStartMillis()
     }
+    val initialDocumentBlocks = remember(initialContent, initialImagePaths) {
+        parseDiaryDocument(initialContent, initialImagePaths)
+    }
+    val initialPersistedContent = remember(initialDocumentBlocks) {
+        initialDocumentBlocks.toPersistedDiaryContent()
+    }
+    val initialImagePathsSnapshot = remember(initialDocumentBlocks) {
+        initialDocumentBlocks.toDocumentImagePaths()
+    }
 
     var selectedDateMillis by remember(initialDateMillis) { mutableLongStateOf(initialDateMillis) }
     var title by remember(initialTitle) { androidx.compose.runtime.mutableStateOf(initialTitle) }
-    var content by remember(initialContent) { androidx.compose.runtime.mutableStateOf(initialContent) }
     var showAttachPicker by remember { androidx.compose.runtime.mutableStateOf(false) }
     var pendingCameraImageUri by remember { androidx.compose.runtime.mutableStateOf<Uri?>(null) }
     var previewImagePath by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
@@ -129,12 +176,11 @@ fun WriteScreen(
     var showPhotoTray by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showTagDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
 
-    val imagePaths = remember(initialImagePaths) {
-        mutableStateListOf<String>().apply {
-            addAll(initialImagePaths.take(MAX_IMAGE_COUNT))
+    val documentBlocks = remember(initialDocumentBlocks) {
+        mutableStateListOf<EditorBlockState>().apply {
+            addAll(initialDocumentBlocks.toEditorBlockStates())
         }
     }
-    val initialImagePathsSnapshot = remember(initialImagePaths) { initialImagePaths.take(MAX_IMAGE_COUNT) }
     var selectedMood by remember(initialMood) { androidx.compose.runtime.mutableStateOf(initialMood) }
     var selectedWeather by remember(initialWeather) { androidx.compose.runtime.mutableStateOf(initialWeather) }
     var tag by remember(initialTag) { androidx.compose.runtime.mutableStateOf(initialTag) }
@@ -148,6 +194,13 @@ fun WriteScreen(
     var stickerCanvasSize by remember { androidx.compose.runtime.mutableStateOf(IntSize.Zero) }
     var editorViewportSize by remember { androidx.compose.runtime.mutableStateOf(IntSize.Zero) }
     val stickerPayload = stickerPlacements.toList().toStickerPayload()
+    val persistedContent = documentBlocks.toList().toPersistedDiaryBlocks().toPersistedDiaryContent()
+    val imagePaths = documentBlocks.toList().toPersistedDiaryBlocks().toDocumentImagePaths()
+    var activeTextBlockId by remember(documentBlocks) {
+        androidx.compose.runtime.mutableStateOf(
+            documentBlocks.filterIsInstance<TextEditorBlockState>().lastOrNull()?.id
+        )
+    }
 
     LaunchedEffect(Unit) {
         focusManager.clearFocus(force = true)
@@ -157,8 +210,8 @@ fun WriteScreen(
     val hasChanges = remember(
         selectedDateMillis,
         title,
-        content,
-        imagePaths.size,
+        persistedContent,
+        imagePaths,
         selectedMood,
         selectedWeather,
         tag,
@@ -166,7 +219,7 @@ fun WriteScreen(
         stickerPayload,
         initialDateMillis,
         initialTitle,
-        initialContent,
+        initialPersistedContent,
         initialImagePathsSnapshot,
         initialMood,
         initialWeather,
@@ -175,22 +228,23 @@ fun WriteScreen(
     ) {
         selectedDateMillis.toDayStartMillis() != initialDateMillis.toDayStartMillis() ||
             title != initialTitle ||
-            content != initialContent ||
-            imagePaths.toList() != initialImagePathsSnapshot ||
+            persistedContent != initialPersistedContent ||
+            imagePaths != initialImagePathsSnapshot ||
             selectedMood != initialMood ||
             selectedWeather != initialWeather ||
             tag != initialTag ||
             stickerPayload != initialStickerPayload
     }
 
-    val canSave = remember(title, content, imagePaths.size, stickerPlacements.size) {
-        !(title.isBlank() && content.isBlank() && imagePaths.isEmpty() && stickerPlacements.isEmpty())
+    val plainTextContent = documentBlocks.toList().toPersistedDiaryBlocks().toPlainTextPreview()
+    val canSave = remember(title, plainTextContent, imagePaths.size, stickerPlacements.size) {
+        !(title.isBlank() && plainTextContent.isBlank() && imagePaths.isEmpty() && stickerPlacements.isEmpty())
     }
     val contentScrollState = rememberScrollState()
-    var previousContentLength by remember(initialContent) { mutableIntStateOf(initialContent.length) }
+    var previousContentLength by remember(initialPersistedContent) { mutableIntStateOf(plainTextContent.length) }
 
-    LaunchedEffect(content, contentScrollState.maxValue) {
-        val currentLength = content.length
+    LaunchedEffect(plainTextContent, contentScrollState.maxValue) {
+        val currentLength = plainTextContent.length
         val contentGrew = currentLength > previousContentLength
         previousContentLength = currentLength
 
@@ -227,24 +281,46 @@ fun WriteScreen(
     BackHandler(onBack = attemptExit)
 
     val appendImages: (List<String>) -> Unit = { newPaths ->
-        val remaining = MAX_IMAGE_COUNT - imagePaths.size
-        if (remaining <= 0) {
-            Toast.makeText(context, "사진은 최대 5장까지 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show()
+        val insertedPaths = newPaths.filter { it.isNotBlank() }
+        if (insertedPaths.isEmpty()) {
+            Toast.makeText(context, "이미지를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
         } else {
-            imagePaths.addAll(newPaths.take(remaining))
-            showPhotoTray = true
-            if (newPaths.size > remaining) {
-                Toast.makeText(
-                    context,
-                    "사진은 최대 5장까지 첨부할 수 있어 일부 사진만 추가되었습니다.",
-                    Toast.LENGTH_SHORT
-                ).show()
+            val textBlocks = documentBlocks.filterIsInstance<TextEditorBlockState>()
+            val targetBlock = textBlocks.firstOrNull { it.id == activeTextBlockId } ?: textBlocks.lastOrNull()
+
+            if (targetBlock == null) {
+                insertedPaths.forEach { path ->
+                    documentBlocks.add(ImageEditorBlockState(nextEditorBlockId(), path))
+                }
+                val tailBlock = TextEditorBlockState(nextEditorBlockId(), "")
+                documentBlocks.add(tailBlock)
+                activeTextBlockId = tailBlock.id
+            } else {
+                val targetIndex = documentBlocks.indexOfFirst { it.id == targetBlock.id }
+                val selection = targetBlock.value.selection.start.coerceIn(0, targetBlock.value.text.length)
+                val beforeText = targetBlock.value.text.substring(0, selection)
+                val afterText = targetBlock.value.text.substring(selection)
+                val replacement = mutableListOf<EditorBlockState>()
+
+                replacement.add(TextEditorBlockState(nextEditorBlockId(), beforeText))
+                insertedPaths.forEach { path ->
+                    replacement.add(ImageEditorBlockState(nextEditorBlockId(), path))
+                }
+                val trailingBlock = TextEditorBlockState(nextEditorBlockId(), afterText)
+                replacement.add(trailingBlock)
+
+                documentBlocks.removeAt(targetIndex)
+                replacement.forEachIndexed { offset, block ->
+                    documentBlocks.add(targetIndex + offset, block)
+                }
+                activeTextBlockId = trailingBlock.id
             }
+            showPhotoTray = true
         }
     }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = MAX_IMAGE_COUNT),
+        contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris ->
             if (uris.isNotEmpty()) {
                 scope.launch {
@@ -287,9 +363,7 @@ fun WriteScreen(
                 TextButton(
                     onClick = {
                         showAttachPicker = false
-                        imagePickerLauncher.launch(
-                            PickVisualMediaRequest(PickVisualMedia.ImageOnly)
-                        )
+                        imagePickerLauncher.launch("image/*")
                     }
                 ) {
                     Text("갤러리에서 선택")
@@ -299,13 +373,9 @@ fun WriteScreen(
                 TextButton(
                     onClick = {
                         showAttachPicker = false
-                        if (imagePaths.size >= MAX_IMAGE_COUNT) {
-                            Toast.makeText(context, "사진은 최대 5장까지 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            val cameraUri = createCameraImageUri(context)
-                            pendingCameraImageUri = cameraUri
-                            cameraLauncher.launch(cameraUri)
-                        }
+                        val cameraUri = createCameraImageUri(context)
+                        pendingCameraImageUri = cameraUri
+                        cameraLauncher.launch(cameraUri)
                     }
                 ) {
                     Text("카메라로 촬영")
@@ -464,8 +534,8 @@ fun WriteScreen(
                             onSaveClick(
                                 selectedDateMillis.toDayStartMillis(),
                                 title.trim(),
-                                content.trim(),
-                                imagePaths.toList(),
+                                persistedContent,
+                                imagePaths,
                                 selectedMood,
                                 selectedWeather,
                                 tag.trim(),
@@ -514,20 +584,15 @@ fun WriteScreen(
                 if (showPhotoTray) {
                     FloatingPhotoTray(
                         imagePaths = imagePaths,
-                        onAddPhoto = {
-                            if (imagePaths.size >= MAX_IMAGE_COUNT) {
-                                Toast.makeText(
-                                    context,
-                                    "사진은 최대 5장까지 첨부할 수 있습니다.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                showAttachPicker = true
-                            }
-                        },
+                        onAddPhoto = { showAttachPicker = true },
                         onDeletePhoto = { imagePath ->
                             deleteInternalImageIfExists(context, imagePath)
-                            imagePaths.remove(imagePath)
+                            val imageIndex = documentBlocks.indexOfFirst {
+                                it is ImageEditorBlockState && it.path == imagePath
+                            }
+                            if (imageIndex >= 0) {
+                                documentBlocks.removeAt(imageIndex)
+                            }
                         },
                         onPreviewPhoto = { imagePath ->
                             previewImagePath = imagePath
@@ -653,36 +718,139 @@ fun WriteScreen(
                                     colors = lowChromeTextFieldColors()
                                 )
 
-                                OutlinedTextField(
-                                    value = content,
-                                    onValueChange = {
-                                        content = it
+                                InlineDiaryDocumentEditor(
+                                    blocks = documentBlocks,
+                                    bodyMinHeight = bodyMinHeight,
+                                    onTextFocus = { blockId ->
+                                        activeTextBlockId = blockId
                                         collapseToolPanels()
                                     },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(min = bodyMinHeight)
-                                        .onFocusChanged { state ->
-                                            if (state.isFocused) collapseToolPanels()
-                                        },
-                                    placeholder = {
-                                        Text(
-                                            text = "오늘 남기고 싶은 이야기를 천천히 적어보세요.",
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                        )
-                                    },
-                                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
-                                    ),
-                                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                    colors = lowChromeTextFieldColors(),
-                                    minLines = 10,
-                                    maxLines = Int.MAX_VALUE
+                                    onPreviewImage = { previewImagePath = it },
+                                    onDeleteImage = { imagePath ->
+                                        deleteInternalImageIfExists(context, imagePath)
+                                        val imageIndex = documentBlocks.indexOfFirst {
+                                            it is ImageEditorBlockState && it.path == imagePath
+                                        }
+                                        if (imageIndex >= 0) {
+                                            documentBlocks.removeAt(imageIndex)
+                                            if (documentBlocks.none { it is TextEditorBlockState }) {
+                                                val textBlock = TextEditorBlockState(nextEditorBlockId(), "")
+                                                documentBlocks.add(textBlock)
+                                                activeTextBlockId = textBlock.id
+                                            }
+                                        }
+                                    }
                                 )
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InlineDiaryDocumentEditor(
+    blocks: List<EditorBlockState>,
+    bodyMinHeight: androidx.compose.ui.unit.Dp,
+    onTextFocus: (String) -> Unit,
+    onPreviewImage: (String) -> Unit,
+    onDeleteImage: (String) -> Unit
+) {
+    val textBlockCount = blocks.count { it is TextEditorBlockState }
+    val hasImages = blocks.any { it is ImageEditorBlockState }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        blocks.forEach { block ->
+            when (block) {
+                is TextEditorBlockState -> {
+                    val isOnlyTextBlock = textBlockCount == 1 && !hasImages
+                    val isLastTextBlock = blocks.lastOrNull()?.id == block.id
+                    OutlinedTextField(
+                        value = block.value,
+                        onValueChange = { updated -> block.value = updated },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(
+                                min = when {
+                                    isOnlyTextBlock || isLastTextBlock -> bodyMinHeight
+                                    else -> 72.dp
+                                }
+                            )
+                            .onFocusChanged { state ->
+                                if (state.isFocused) onTextFocus(block.id)
+                            },
+                        placeholder = {
+                            if (blocks.firstOrNull()?.id == block.id) {
+                                Text(
+                                    text = "오늘 남기고 싶은 이야기를 천천히 적어보세요.",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                                )
+                            }
+                        },
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
+                        ),
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = lowChromeTextFieldColors(),
+                        minLines = if (isOnlyTextBlock || isLastTextBlock) 8 else 2,
+                        maxLines = Int.MAX_VALUE
+                    )
+                }
+
+                is ImageEditorBlockState -> {
+                    InlineImageBlock(
+                        imagePath = block.path,
+                        onPreviewImage = { onPreviewImage(block.path) },
+                        onDeleteImage = { onDeleteImage(block.path) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InlineImageBlock(
+    imagePath: String,
+    onPreviewImage: () -> Unit,
+    onDeleteImage: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(0.58f)
+            .aspectRatio(0.72f)
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
+            .clickable(onClick = onPreviewImage)
+    ) {
+        AsyncImage(
+            model = Uri.parse(imagePath),
+            contentDescription = "삽입한 이미지",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Surface(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+        ) {
+            IconButton(
+                onClick = onDeleteImage,
+                modifier = Modifier.size(30.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = "이미지 삭제",
+                    modifier = Modifier.size(14.dp)
+                )
             }
         }
     }
@@ -1040,7 +1208,7 @@ private fun FloatingPhotoTray(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "첨부 사진 ${imagePaths.size}/$MAX_IMAGE_COUNT",
+                    text = "첨부 사진 ${imagePaths.size}",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
