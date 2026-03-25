@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -94,6 +95,7 @@ val RecordCanvasOuterHorizontalPadding = 2.dp
 val RecordCanvasInnerHorizontalPadding = 3.dp
 val RecordCanvasOuterVerticalPadding = 2.dp
 val RecordCanvasTopPadding = 10.dp
+val RecordWriteVisualTopLift = 8.dp
 
 private sealed class EditorBlockState(open val id: String)
 
@@ -660,7 +662,9 @@ fun WriteScreen(
                         surfaceMinHeight = editorMinHeight,
                         surfaceColor = MaterialTheme.colorScheme.background,
                         flat = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset(y = -RecordWriteVisualTopLift)
                     ) { contentSizeModifier ->
                         Column(
                             modifier = contentSizeModifier
