@@ -332,7 +332,6 @@ private fun DetailThumbnailCard(
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(1f)
             .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f))
             .clickable(onClick = onPreviewClick)
