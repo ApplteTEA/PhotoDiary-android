@@ -71,6 +71,7 @@ fun DetailScreen(
         parseDiaryDocument(entry.content, entry.imagePath.toImagePathList())
     }
     val stickerPlacements = remember(entry.sticker) { entry.sticker.toStickerPlacements() }
+    val stickerBodyMinHeightDp = remember(entry.sticker) { entry.sticker.toStickerBodyMinHeightDp() }
     var previewImagePath by remember { mutableStateOf<String?>(null) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var detailViewportSize by remember { mutableStateOf(IntSize.Zero) }
@@ -169,16 +170,7 @@ fun DetailScreen(
             )
         }
     ) { innerPadding ->
-        val viewportHeight = with(density) { detailViewportSize.height.toDp() }
-        val authoredTrailingBodyMinHeight = if (stickerPlacements.isNotEmpty()) {
-            if (detailViewportSize.height > 0) {
-                (viewportHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
-            } else {
-                RecordCanvasBodyMinHeight
-            }
-        } else {
-            0.dp
-        }
+        val authoredTrailingBodyMinHeight = stickerBodyMinHeightDp?.dp ?: 0.dp
 
         RecordPageViewport(
             innerPadding = innerPadding,

@@ -235,15 +235,35 @@ fun WriteScreen(
     var selectedWeather by remember(initialWeather) { androidx.compose.runtime.mutableStateOf(initialWeather) }
     var tag by remember(initialTag) { androidx.compose.runtime.mutableStateOf(initialTag) }
     val initialStickerPlacements = remember(initialSticker) { initialSticker.toStickerPlacements() }
+    val initialStickerBodyMinHeightDp = remember(initialSticker) { initialSticker.toStickerBodyMinHeightDp() }
     val stickerPlacements = remember(initialSticker) {
         mutableStateListOf<DiaryStickerPlacement>().apply { addAll(initialStickerPlacements) }
     }
-    val initialStickerPayload = remember(initialStickerPlacements) {
-        initialStickerPlacements.toStickerPayload()
-    }
     var stickerCanvasSize by remember { androidx.compose.runtime.mutableStateOf(IntSize.Zero) }
     var editorViewportSize by remember { androidx.compose.runtime.mutableStateOf(IntSize.Zero) }
-    val stickerPayload = stickerPlacements.toList().toStickerPayload()
+    val editorViewportHeightDp = with(density) { editorViewportSize.height.toDp() }
+    val currentExpandedBodyMinHeight = if (editorViewportSize.height > 0) {
+        (editorViewportHeightDp - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+    } else {
+        RecordCanvasBodyMinHeight
+    }
+    val normalizedInitialStickerBodyMinHeightDp = when {
+        initialStickerPlacements.isEmpty() -> null
+        initialStickerBodyMinHeightDp != null -> initialStickerBodyMinHeightDp
+        else -> currentExpandedBodyMinHeight.value
+    }
+    val initialStickerPayload = remember(
+        initialStickerPlacements,
+        normalizedInitialStickerBodyMinHeightDp
+    ) {
+        initialStickerPlacements.toStickerPayload(normalizedInitialStickerBodyMinHeightDp)
+    }
+    val currentStickerBodyMinHeightDp = when {
+        stickerPlacements.isEmpty() -> null
+        stickerPlacements.toList() == initialStickerPlacements -> normalizedInitialStickerBodyMinHeightDp
+        else -> currentExpandedBodyMinHeight.value
+    }
+    val stickerPayload = stickerPlacements.toList().toStickerPayload(currentStickerBodyMinHeightDp)
     val persistedContent = documentBlocks.toList().toPersistedDiaryBlocks().toPersistedDiaryContent()
     val imagePaths = documentBlocks.toList().toPersistedDiaryBlocks().toDocumentImagePaths()
     var activeTextBlockId by remember(documentBlocks) {
@@ -643,13 +663,6 @@ fun WriteScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) { contentSizeModifier ->
                         RecordPageSurfaceContent(contentSizeModifier) {
-                            val viewportHeight = with(density) { editorViewportSize.height.toDp() }
-                            val expandedBodyMinHeight = if (editorViewportSize.height > 0) {
-                                (viewportHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
-                            } else {
-                                RecordCanvasBodyMinHeight
-                            }
-
                             WriteInfoHeader(
                                 diaryDate = selectedDateMillis,
                                 moodLabel = selectedMood.toMetaLabelOrNull(moodOptions),
@@ -704,7 +717,7 @@ fun WriteScreen(
 
                                 InlineDiaryDocumentEditor(
                                     blocks = documentBlocks,
-                                    bodyMinHeight = expandedBodyMinHeight,
+                                    bodyMinHeight = currentExpandedBodyMinHeight,
                                     expandTrailingTextBlock = true,
                                     onTextFocus = { blockId ->
                                         activeTextBlockId = blockId

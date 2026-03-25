@@ -79,6 +79,11 @@ data class DiaryStickerPlacement(
     val yRatio: Float
 )
 
+private data class StickerPayloadData(
+    val placements: List<DiaryStickerPlacement>,
+    val bodyMinHeightDp: Float? = null
+)
+
 val stickerOptions = listOf(
     DiaryStickerOption("tape_heart", R.drawable.sticker_heart, "하트", -4f),
     DiaryStickerOption("luck_clover", R.drawable.sticker_clover, "클로버", 3f),
@@ -119,37 +124,65 @@ private fun String.normalizeStickerKey(): String {
 }
 
 fun String.toStickerPlacements(): List<DiaryStickerPlacement> {
-    if (isBlank()) return emptyList()
-    return runCatching {
-        if (!trim().startsWith("[")) {
-            listOf(
-                DiaryStickerPlacement(
-                    key = normalizeStickerKey(),
-                    xRatio = 0.14f,
-                    yRatio = 0.16f
-                )
-            )
-        } else {
-            val array = JSONArray(this)
-            buildList {
-                repeat(array.length()) { index ->
-                    val item = array.optJSONObject(index) ?: return@repeat
-                    add(
-                        DiaryStickerPlacement(
-                            key = item.optString("key").normalizeStickerKey(),
-                            xRatio = item.optDouble("x", 0.15).toFloat().coerceIn(0f, 1f),
-                            yRatio = item.optDouble("y", 0.16).toFloat().coerceIn(0f, 1f)
-                        )
-                    )
-                }
-            }.filter { it.key.toStickerOptionOrNull() != null }
-        }
-    }.getOrElse { emptyList() }
+    return toStickerPayloadData().placements
 }
 
-fun List<DiaryStickerPlacement>.toStickerPayload(): String {
+fun String.toStickerBodyMinHeightDp(): Float? {
+    return toStickerPayloadData().bodyMinHeightDp
+}
+
+private fun String.toStickerPayloadData(): StickerPayloadData {
+    if (isBlank()) return StickerPayloadData(emptyList())
+    return runCatching {
+        when {
+            trim().startsWith("[") -> {
+                StickerPayloadData(
+                    placements = JSONArray(this).toStickerPlacementsList()
+                )
+            }
+
+            trim().startsWith("{") -> {
+                val payload = JSONObject(this)
+                val placementsArray = payload.optJSONArray("placements")
+                StickerPayloadData(
+                    placements = placementsArray?.toStickerPlacementsList().orEmpty(),
+                    bodyMinHeightDp = payload.optDouble("bodyMinHeightDp").takeIf { !it.isNaN() }?.toFloat()
+                )
+            }
+
+            else -> {
+                StickerPayloadData(
+                    placements = listOf(
+                        DiaryStickerPlacement(
+                            key = normalizeStickerKey(),
+                            xRatio = 0.14f,
+                            yRatio = 0.16f
+                        )
+                    )
+                )
+            }
+        }
+    }.getOrElse { StickerPayloadData(emptyList()) }
+}
+
+private fun JSONArray.toStickerPlacementsList(): List<DiaryStickerPlacement> {
+    return buildList {
+        repeat(length()) { index ->
+            val item = optJSONObject(index) ?: return@repeat
+            add(
+                DiaryStickerPlacement(
+                    key = item.optString("key").normalizeStickerKey(),
+                    xRatio = item.optDouble("x", 0.15).toFloat().coerceIn(0f, 1f),
+                    yRatio = item.optDouble("y", 0.16).toFloat().coerceIn(0f, 1f)
+                )
+            )
+        }
+    }.filter { it.key.toStickerOptionOrNull() != null }
+}
+
+fun List<DiaryStickerPlacement>.toStickerPayload(bodyMinHeightDp: Float? = null): String {
     if (isEmpty()) return ""
-    return JSONArray().apply {
+    val placementsArray = JSONArray().apply {
         forEach { placement ->
             put(
                 JSONObject()
@@ -158,6 +191,10 @@ fun List<DiaryStickerPlacement>.toStickerPayload(): String {
                     .put("y", placement.yRatio.toDouble())
             )
         }
+    }
+    return JSONObject().apply {
+        put("placements", placementsArray)
+        bodyMinHeightDp?.let { put("bodyMinHeightDp", it.toDouble()) }
     }.toString()
 }
 
