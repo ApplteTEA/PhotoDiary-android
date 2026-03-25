@@ -150,17 +150,10 @@ fun MonthlyReflectionScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(
-                            text = "월간 회고",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                        )
-                        Text(
-                            text = monthKey.toMonthlyReflectionTitle(),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
+                    Text(
+                        text = monthKey.toMonthlyReflectionTitle(),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -212,25 +205,10 @@ fun MonthlyReflectionScreen(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "월간 회고",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                    )
-                    Text(
-                        text = monthKey.toMonthlyReflectionTitle(),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "한 장과 한 줄로 남겨보세요.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
-                    )
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(236.dp)
+                            .height(248.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
                     ) {
@@ -241,29 +219,6 @@ fun MonthlyReflectionScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
-                            Surface(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(12.dp),
-                                shape = RoundedCornerShape(14.dp),
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Text(
-                                        text = "대표 사진",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = monthKey.toMonthlyReflectionTitle(),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                            }
                         } else {
                             Column(
                                 modifier = Modifier
@@ -289,68 +244,41 @@ fun MonthlyReflectionScreen(
                             }
                         }
                     }
-                }
-            }
-
-            if (imagePaths.isNotEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    ReflectionSectionHeader(
-                        title = "대표 사진",
-                        subtitle = "한 장만 고르면 충분해요."
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        imagePaths.forEach { imagePath ->
-                            val isSelected = selectedCoverImagePath == imagePath
-                            Box(
-                                modifier = Modifier
-                                    .size(84.dp)
-                                    .clip(RoundedCornerShape(18.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
-                                    .border(
-                                        width = if (isSelected) 2.dp else 0.dp,
-                                        color = if (isSelected) {
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.52f)
-                                        } else {
-                                            MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                                        },
-                                        shape = RoundedCornerShape(18.dp)
-                                    )
-                                    .clickable { selectedCoverImagePath = imagePath }
-                            ) {
-                                AsyncImage(
-                                    model = Uri.parse(imagePath),
-                                    contentDescription = "월 회고 대표 사진",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                                if (isSelected) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                                    )
-                                    Surface(
-                                        modifier = Modifier
-                                            .align(Alignment.TopStart)
-                                            .padding(8.dp),
-                                        shape = RoundedCornerShape(999.dp),
-                                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-                                    ) {
-                                        Text(
-                                            text = "대표",
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurface
+                    if (imagePaths.isNotEmpty()) {
+                        ReflectionSectionHeader(
+                            title = "대표 사진",
+                            subtitle = null
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            imagePaths.forEach { imagePath ->
+                                val isSelected = selectedCoverImagePath == imagePath
+                                Box(
+                                    modifier = Modifier
+                                        .size(84.dp)
+                                        .clip(RoundedCornerShape(18.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
+                                        .border(
+                                            width = if (isSelected) 2.dp else 0.dp,
+                                            color = if (isSelected) {
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.52f)
+                                            } else {
+                                                MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                                            },
+                                            shape = RoundedCornerShape(18.dp)
                                         )
-                                    }
+                                        .clickable { selectedCoverImagePath = imagePath }
+                                ) {
+                                    AsyncImage(
+                                        model = Uri.parse(imagePath),
+                                        contentDescription = "월 회고 대표 사진",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
                                 }
                             }
                         }
@@ -363,8 +291,8 @@ fun MonthlyReflectionScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 ReflectionSectionHeader(
-                    title = "이번 달의 짧은 회고",
-                    subtitle = "이번 달을 어떻게 기억하고 싶은지 한 줄로 남겨보세요."
+                    title = "한 줄 회고",
+                    subtitle = null
                 )
                 OutlinedTextField(
                     value = reflectionText,
@@ -378,15 +306,8 @@ fun MonthlyReflectionScreen(
                     supportingText = {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            Text(
-                                text = if (!hasSelectedContent) {
-                                    "사진이나 문장 중 하나는 남겨주세요"
-                                } else {
-                                    "한 줄이면 충분해요"
-                                }
-                            )
                             Text("${reflectionText.length}/120")
                         }
                     },
@@ -414,7 +335,7 @@ fun MonthlyReflectionScreen(
                 ) {
                     ReflectionSectionHeader(
                         title = "이번 달의 조각들",
-                        subtitle = "이번 달 기록의 분위기를 한 번에 돌아볼 수 있어요."
+                        subtitle = null
                     )
                     ReflectionSummaryRow(
                         label = "기록",
@@ -447,7 +368,7 @@ fun MonthlyReflectionScreen(
 @Composable
 private fun ReflectionSectionHeader(
     title: String,
-    subtitle: String
+    subtitle: String? = null
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
@@ -455,11 +376,13 @@ private fun ReflectionSectionHeader(
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface
         )
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-        )
+        if (!subtitle.isNullOrBlank()) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+            )
+        }
     }
 }
 
