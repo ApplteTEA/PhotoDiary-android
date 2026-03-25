@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -75,6 +76,14 @@ fun RecordPageSurfaceContent(
         content = content
     )
 }
+
+@Composable
+fun recordTitleTextStyle(): TextStyle = MaterialTheme.typography.bodyLarge
+
+@Composable
+fun recordBodyTextStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(
+    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
+)
 
 @Composable
 fun RecordPageInfoHeader(

@@ -885,7 +885,7 @@ private fun PlainTitleField(
         if (value.isBlank()) {
             Text(
                 text = "제목",
-                style = MaterialTheme.typography.bodyLarge,
+                style = recordTitleTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
             )
         }
@@ -895,7 +895,7 @@ private fun PlainTitleField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
+            textStyle = recordTitleTextStyle().copy(
                 color = MaterialTheme.colorScheme.onSurface
             ),
             keyboardOptions = keyboardOptions,
@@ -918,9 +918,7 @@ private fun PlainBodyField(
         if (value.text.isBlank() && !placeholder.isNullOrBlank()) {
             Text(
                 text = placeholder,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
-                ),
+                style = recordBodyTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
             )
         }
@@ -929,10 +927,7 @@ private fun PlainBodyField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
-            ),
+            textStyle = recordBodyTextStyle().copy(color = MaterialTheme.colorScheme.onSurface),
             keyboardOptions = keyboardOptions,
             cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             minLines = minLines,

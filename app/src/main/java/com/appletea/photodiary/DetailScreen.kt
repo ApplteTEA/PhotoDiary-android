@@ -179,7 +179,7 @@ fun DetailScreen(
                     documentBlocks = documentBlocks,
                     stickerPlacements = stickerPlacements,
                     surfaceMinHeight = 0.dp,
-                    trailingBodyMinHeight = 0.dp,
+                    trailingBodyMinHeight = stickerPlacements.toDetailTrailingBodyMinHeight(),
                     onPreviewImage = { previewImagePath = it }
                 )
             }
@@ -212,7 +212,7 @@ private fun ScrapbookPage(
                 Text(
                     text = entry.title,
                     modifier = Modifier.padding(horizontal = RecordTextInset),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = recordTitleTextStyle(),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -271,9 +271,7 @@ private fun DetailDocumentContent(
                         Text(
                             text = block.value,
                             modifier = Modifier.padding(horizontal = RecordTextInset),
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
-                            ),
+                            style = recordBodyTextStyle(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
                         )
                     } else if (index == blocks.lastIndex && trailingBodyMinHeight > 0.dp) {
@@ -294,6 +292,12 @@ private fun DetailDocumentContent(
             }
         }
     }
+}
+
+private fun List<DiaryStickerPlacement>.toDetailTrailingBodyMinHeight(): Dp {
+    val maxYRatio = maxOfOrNull { it.yRatio } ?: return 0.dp
+    val reserveRatio = ((maxYRatio - 0.58f) / 0.42f).coerceIn(0f, 1f)
+    return RecordCanvasBodyMinHeight * reserveRatio
 }
 
 @Composable
