@@ -52,6 +52,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.annotation.DrawableRes
+import kotlin.math.atan2
+import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.roundToInt
 import org.json.JSONArray
@@ -77,7 +79,9 @@ data class DiaryStickerOption(
 data class DiaryStickerPlacement(
     val key: String,
     val xRatio: Float,
-    val yRatio: Float
+    val yRatio: Float,
+    val scale: Float = 1f,
+    val rotation: Float? = null
 )
 
 private data class StickerPayloadData(
@@ -189,7 +193,12 @@ private fun JSONArray.toStickerPlacementsList(): List<DiaryStickerPlacement> {
                 DiaryStickerPlacement(
                     key = item.optString("key").normalizeStickerKey(),
                     xRatio = item.optDouble("x", 0.15).toFloat().coerceIn(0f, 1f),
-                    yRatio = item.optDouble("y", 0.16).toFloat().coerceIn(0f, 1f)
+                    yRatio = item.optDouble("y", 0.16).toFloat().coerceIn(0f, 1f),
+                    scale = item.optDouble("scale", 1.0).toFloat().coerceIn(0.65f, 1.8f),
+                    rotation = item.opt("rotation")
+                        .takeUnless { it == null || it == JSONObject.NULL }
+                        ?.toString()
+                        ?.toFloatOrNull()
                 )
             )
         }
@@ -205,6 +214,8 @@ fun List<DiaryStickerPlacement>.toStickerPayload(bodyMinHeightDp: Float? = null)
                     .put("key", placement.key)
                     .put("x", placement.xRatio.toDouble())
                     .put("y", placement.yRatio.toDouble())
+                    .put("scale", placement.scale.toDouble())
+                    .put("rotation", placement.rotation?.toDouble() ?: JSONObject.NULL)
             )
         }
     }
@@ -290,6 +301,7 @@ fun DiaryStickerCanvasEditor(
     titlePreview: String,
     contentPreview: String,
     onMoveSticker: (index: Int, xRatio: Float, yRatio: Float) -> Unit,
+    onTransformSticker: (index: Int, scale: Float, rotation: Float) -> Unit,
     onRemoveSticker: (index: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -298,6 +310,7 @@ fun DiaryStickerCanvasEditor(
         titlePreview = titlePreview,
         contentPreview = contentPreview,
         onMoveSticker = onMoveSticker,
+        onTransformSticker = onTransformSticker,
         onRemoveSticker = onRemoveSticker,
         modifier = modifier
     )
@@ -315,6 +328,7 @@ fun DiaryStickerCanvasReadOnly(
         titlePreview = titlePreview,
         contentPreview = contentPreview,
         onMoveSticker = null,
+        onTransformSticker = null,
         onRemoveSticker = null,
         modifier = modifier
     )
@@ -324,6 +338,7 @@ fun DiaryStickerCanvasReadOnly(
 fun DiaryStickerWritingSurfaceEditor(
     placements: List<DiaryStickerPlacement>,
     onMoveSticker: (index: Int, xRatio: Float, yRatio: Float) -> Unit,
+    onTransformSticker: (index: Int, scale: Float, rotation: Float) -> Unit,
     onRemoveSticker: (index: Int) -> Unit,
     onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
     contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
@@ -337,6 +352,7 @@ fun DiaryStickerWritingSurfaceEditor(
     DiaryStickerWritingSurface(
         placements = placements,
         onMoveSticker = onMoveSticker,
+        onTransformSticker = onTransformSticker,
         onRemoveSticker = onRemoveSticker,
         onCanvasSizeChanged = onCanvasSizeChanged,
         contentHorizontalPadding = contentHorizontalPadding,
@@ -363,6 +379,7 @@ fun DiaryStickerWritingSurfaceReadOnly(
     DiaryStickerWritingSurface(
         placements = placements,
         onMoveSticker = null,
+        onTransformSticker = null,
         onRemoveSticker = null,
         contentHorizontalPadding = contentHorizontalPadding,
         contentVerticalPadding = contentVerticalPadding,
@@ -404,6 +421,7 @@ fun DiaryStickerOverlayReadOnly(
                 stickerImageSize = stickerImageSize,
                 editable = false,
                 onMoveSticker = null,
+                onTransformSticker = null,
                 onRemoveSticker = null
             )
         }
@@ -416,12 +434,14 @@ private fun DiaryStickerCanvas(
     titlePreview: String,
     contentPreview: String,
     onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
+    onTransformSticker: ((index: Int, scale: Float, rotation: Float) -> Unit)?,
     onRemoveSticker: ((index: Int) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     DiaryStickerWritingSurface(
         placements = placements,
         onMoveSticker = onMoveSticker,
+        onTransformSticker = onTransformSticker,
         onRemoveSticker = onRemoveSticker,
         modifier = modifier.height(236.dp)
     ) { contentModifier ->
@@ -466,6 +486,7 @@ private fun DiaryStickerCanvas(
 private fun DiaryStickerWritingSurface(
     placements: List<DiaryStickerPlacement>,
     onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
+    onTransformSticker: ((index: Int, scale: Float, rotation: Float) -> Unit)?,
     onRemoveSticker: ((index: Int) -> Unit)?,
     onCanvasSizeChanged: ((IntSize) -> Unit)? = null,
     contentHorizontalPadding: Dp = DiaryPageHorizontalPadding,
@@ -550,6 +571,7 @@ private fun DiaryStickerWritingSurface(
                         stickerHeightPx = stickerHeightPx,
                         editable = editable,
                         onMoveSticker = onMoveSticker,
+                        onTransformSticker = onTransformSticker,
                         onRemoveSticker = onRemoveSticker
                     )
                 }
@@ -569,11 +591,16 @@ private fun DiaryStickerPlacementNode(
     stickerImageSize: Dp = 30.dp,
     editable: Boolean,
     onMoveSticker: ((index: Int, xRatio: Float, yRatio: Float) -> Unit)?,
+    onTransformSticker: ((index: Int, scale: Float, rotation: Float) -> Unit)?,
     onRemoveSticker: ((index: Int) -> Unit)?
 ) {
     val option = placement.key.toStickerOptionOrNull() ?: return
-    val horizontalRange = (canvasSize.width - stickerWidthPx).coerceAtLeast(1f)
-    val verticalRange = (canvasSize.height - stickerHeightPx).coerceAtLeast(1f)
+    val effectiveScale = placement.scale.coerceIn(0.65f, 1.8f)
+    val effectiveRotation = placement.rotation ?: option.rotation
+    val effectiveStickerWidthPx = (stickerWidthPx * effectiveScale).coerceAtLeast(36f)
+    val effectiveStickerHeightPx = (stickerHeightPx * effectiveScale).coerceAtLeast(36f)
+    val horizontalRange = (canvasSize.width - effectiveStickerWidthPx).coerceAtLeast(1f)
+    val verticalRange = (canvasSize.height - effectiveStickerHeightPx).coerceAtLeast(1f)
     val xOffset = (horizontalRange * placement.xRatio).roundToInt()
     val yOffset = (verticalRange * placement.yRatio).roundToInt()
     val latestPlacement by rememberUpdatedState(placement)
@@ -581,10 +608,10 @@ private fun DiaryStickerPlacementNode(
     Box(
         modifier = Modifier
             .offset { IntOffset(xOffset, yOffset) }
-            .rotate(option.rotation)
+            .rotate(effectiveRotation)
             .then(
                 if (editable) {
-                    Modifier.pointerInput(index, canvasSize) {
+                    Modifier.pointerInput(index, canvasSize, placement.scale, effectiveRotation) {
                         var dragX = 0f
                         var dragY = 0f
 
@@ -611,7 +638,7 @@ private fun DiaryStickerPlacementNode(
     ) {
         Box(
             modifier = Modifier
-                .size(stickerVisualSize)
+                .size(stickerVisualSize.scaledBy(effectiveScale))
                 .then(
                     if (editable) {
                         Modifier.border(
@@ -627,7 +654,9 @@ private fun DiaryStickerPlacementNode(
         ) {
             StickerImage(
                 option = option,
-                modifier = Modifier.size(stickerImageSize.scaledBy(option.visualScale))
+                modifier = Modifier.size(
+                    stickerImageSize.scaledBy(option.visualScale * effectiveScale)
+                )
             )
         }
 
@@ -648,6 +677,63 @@ private fun DiaryStickerPlacementNode(
                         contentDescription = "스티커 삭제",
                         modifier = Modifier.size(12.dp),
                         tint = MaterialTheme.colorScheme.onError
+                    )
+                }
+            }
+
+            Surface(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            effectiveStickerWidthPx.roundToInt() - 10,
+                            effectiveStickerHeightPx.roundToInt() - 10
+                        )
+                    }
+                    .pointerInput(index, canvasSize, placement.scale, effectiveRotation) {
+                        var currentScale = effectiveScale
+                        var currentRotation = effectiveRotation
+                        var startDistance = 0f
+                        var startAngle = 0f
+
+                        detectDragGestures(
+                            onDragStart = {
+                                val centerX = xOffset + effectiveStickerWidthPx / 2f
+                                val centerY = yOffset + effectiveStickerHeightPx / 2f
+                                val handleX = xOffset + effectiveStickerWidthPx
+                                val handleY = yOffset + effectiveStickerHeightPx
+                                startDistance = hypot(handleX - centerX, handleY - centerY).coerceAtLeast(1f)
+                                startAngle = atan2(handleY - centerY, handleX - centerX)
+                                currentScale = effectiveScale
+                                currentRotation = effectiveRotation
+                            }
+                        ) { change, dragAmount ->
+                            change.consume()
+                            val centerX = xOffset + effectiveStickerWidthPx / 2f
+                            val centerY = yOffset + effectiveStickerHeightPx / 2f
+                            val handleX = change.position.x + dragAmount.x
+                            val handleY = change.position.y + dragAmount.y
+                            val currentDistance = hypot(handleX - centerX, handleY - centerY).coerceAtLeast(1f)
+                            val currentAngle = atan2(handleY - centerY, handleX - centerX)
+                            val newScale = (currentDistance / startDistance * effectiveScale).coerceIn(0.65f, 1.8f)
+                            val rotationDelta = Math.toDegrees((currentAngle - startAngle).toDouble()).toFloat()
+                            currentScale = newScale
+                            currentRotation = effectiveRotation + rotationDelta
+                            onTransformSticker?.invoke(index, currentScale, currentRotation)
+                        }
+                    },
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                tonalElevation = 0.dp,
+                shadowElevation = 0.5.dp
+            ) {
+                Box(
+                    modifier = Modifier.size(22.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "↻",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

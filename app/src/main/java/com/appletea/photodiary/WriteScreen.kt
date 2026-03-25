@@ -653,6 +653,12 @@ fun WriteScreen(
                                 yRatio = yRatio
                             )
                         },
+                        onTransformSticker = { index, scale, rotation ->
+                            stickerPlacements[index] = stickerPlacements[index].copy(
+                                scale = scale,
+                                rotation = rotation
+                            )
+                        },
                         onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                         onCanvasSizeChanged = { stickerCanvasSize = it },
                         contentHorizontalPadding = RecordCanvasInnerHorizontalPadding,
