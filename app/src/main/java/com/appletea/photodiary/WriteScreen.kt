@@ -11,7 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -625,11 +624,15 @@ fun WriteScreen(
                     .verticalScroll(contentScrollState)
                     .padding(bottom = 112.dp)
             ) {
-                BoxWithConstraints(
+                Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     val viewportHeight = with(density) { editorViewportSize.height.toDp() }
-                    val canvasBaseHeight = if (editorViewportSize.height > 0) viewportHeight else maxHeight
+                    val canvasBaseHeight = if (editorViewportSize.height > 0) {
+                        viewportHeight
+                    } else {
+                        RecordCanvasMinHeight
+                    }
                     val editorMinHeight = (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
                     val bodyMinHeight =
                         (editorMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
