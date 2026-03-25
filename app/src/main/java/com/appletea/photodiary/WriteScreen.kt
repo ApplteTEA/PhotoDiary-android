@@ -631,9 +631,17 @@ fun WriteScreen(
                     } else {
                         RecordCanvasMinHeight
                     }
-                    val editorMinHeight = (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-                    val bodyMinHeight =
+                    val preserveStickerCanvas = stickerPlacements.isNotEmpty()
+                    val editorMinHeight = if (preserveStickerCanvas) {
+                        (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+                    } else {
+                        0.dp
+                    }
+                    val bodyMinHeight = if (preserveStickerCanvas) {
                         (editorMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+                    } else {
+                        0.dp
+                    }
 
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,
@@ -707,6 +715,7 @@ fun WriteScreen(
                                 InlineDiaryDocumentEditor(
                                     blocks = documentBlocks,
                                     bodyMinHeight = bodyMinHeight,
+                                    expandTrailingTextBlock = preserveStickerCanvas,
                                     onTextFocus = { blockId ->
                                         activeTextBlockId = blockId
                                         collapseToolPanels()
@@ -814,6 +823,7 @@ fun WriteScreen(
 private fun InlineDiaryDocumentEditor(
     blocks: List<EditorBlockState>,
     bodyMinHeight: androidx.compose.ui.unit.Dp,
+    expandTrailingTextBlock: Boolean,
     onTextFocus: (String) -> Unit,
     onPreviewImage: (String) -> Unit,
     onDeleteImage: (String) -> Unit
@@ -838,7 +848,7 @@ private fun InlineDiaryDocumentEditor(
                             .fillMaxWidth()
                             .then(
                                 when {
-                                    isOnlyTextBlock || isLastTextBlock -> {
+                                    expandTrailingTextBlock && (isOnlyTextBlock || isLastTextBlock) -> {
                                         Modifier.height(bodyMinHeight)
                                     }
                                     else -> Modifier
@@ -853,7 +863,7 @@ private fun InlineDiaryDocumentEditor(
                         } else {
                             null
                         },
-                        minLines = if (isOnlyTextBlock || isLastTextBlock) {
+                        minLines = if (expandTrailingTextBlock && (isOnlyTextBlock || isLastTextBlock)) {
                             8
                         } else {
                             1
