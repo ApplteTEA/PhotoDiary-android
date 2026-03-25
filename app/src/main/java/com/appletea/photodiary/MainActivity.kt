@@ -714,51 +714,55 @@ private fun MonthlyReflectionPreviewCard(
     entryCount: Int,
     onClick: () -> Unit
 ) {
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(vertical = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.5.dp
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = monthLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
+                )
+                Text(
+                    text = "월간 회고",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
+                )
+            }
             Text(
-                text = monthLabel,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
+                text = if (reflection == null) {
+                    "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
+                } else {
+                    reflection.reflectionText.ifBlank {
+                        "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
+                    }
+                },
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "월간 회고",
+                text = if (reflection == null) "회고 쓰기" else "회고 보기",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
             )
         }
-        Text(
-            text = if (reflection == null) {
-                "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
-            } else {
-                reflection.reflectionText.ifBlank {
-                    "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
-                }
-            },
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = if (reflection == null) "회고 쓰기" else "회고 보기",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
-        )
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-            thickness = 1.dp
-        )
     }
 }
 
