@@ -153,13 +153,15 @@ fun DetailScreen(
                     TextButton(onClick = onEditClick) {
                         Text(
                             text = "수정",
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     TextButton(onClick = { showDeleteConfirmDialog = true }) {
                         Text(
                             text = "삭제",
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                         )
                     }
                 },
@@ -212,37 +214,32 @@ private fun ScrapbookPage(
     trailingBodyMinHeight: Dp,
     onPreviewImage: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        DiaryStickerWritingSurfaceReadOnly(
-            placements = stickerPlacements,
-            contentHorizontalPadding = RecordCanvasInnerHorizontalPadding,
-            contentVerticalPadding = RecordCanvasTopPadding,
-            surfaceMinHeight = surfaceMinHeight,
-            surfaceColor = MaterialTheme.colorScheme.background,
-            flat = true,
-            modifier = Modifier.fillMaxWidth()
-        ) { contentModifier ->
-            RecordPageSurfaceContent(contentModifier = contentModifier) {
-                    DetailInfoHeader(entry = entry)
+    DiaryStickerWritingSurfaceReadOnly(
+        placements = stickerPlacements,
+        contentHorizontalPadding = RecordCanvasInnerHorizontalPadding,
+        contentVerticalPadding = RecordCanvasTopPadding,
+        surfaceMinHeight = surfaceMinHeight,
+        surfaceColor = MaterialTheme.colorScheme.background,
+        flat = true,
+        modifier = Modifier.fillMaxWidth()
+    ) { contentModifier ->
+        RecordPageSurfaceContent(contentModifier = contentModifier) {
+            DetailInfoHeader(entry = entry)
 
-                    if (entry.title.isNotBlank()) {
-                        Text(
-                            text = entry.title,
-                            modifier = Modifier.padding(horizontal = RecordTextInset),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    DetailDocumentContent(
-                        blocks = documentBlocks,
-                        trailingBodyMinHeight = trailingBodyMinHeight,
-                        onPreviewImage = onPreviewImage
-                    )
+            if (entry.title.isNotBlank()) {
+                Text(
+                    text = entry.title,
+                    modifier = Modifier.padding(horizontal = RecordTextInset),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
+
+            DetailDocumentContent(
+                blocks = documentBlocks,
+                trailingBodyMinHeight = trailingBodyMinHeight,
+                onPreviewImage = onPreviewImage
+            )
         }
     }
 }
@@ -259,7 +256,7 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
         weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions),
         moodLabel = entry.mood.toMetaLabelOrNull(moodOptions),
         tagLabel = tagLabel,
-        showEmptyMetaSlots = true
+        showEmptyMetaSlots = false
     )
 }
 
