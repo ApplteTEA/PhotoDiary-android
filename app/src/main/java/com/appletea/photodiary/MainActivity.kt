@@ -742,20 +742,20 @@ private fun MonthlyReflectionPreviewCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = monthLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                )
-                Text(
-                    text = if (reflection == null) "회고 쓰기" else "회고 보기",
+                    text = "월간 회고",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
                 )
             }
             Text(
-                text = reflectionText,
-                style = MaterialTheme.typography.titleSmall,
+                text = monthLabel,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = reflectionText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )

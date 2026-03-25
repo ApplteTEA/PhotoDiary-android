@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -98,7 +99,7 @@ fun RecordPageInfoHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = RecordTextInset),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             MetaHeaderSlot(
@@ -110,23 +111,28 @@ fun RecordPageInfoHeader(
                 modifier = Modifier.weight(1f)
             )
 
-            RecordPageMetaSlot(
-                meta = weatherMeta,
-                emptyCaption = "날씨",
-                selected = weatherLabel != null,
-                onClick = onWeatherClick,
-                showEmptySlot = showEmptyMetaSlots,
-                modifier = Modifier.weight(1f)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RecordPageMetaSlot(
+                    meta = weatherMeta,
+                    emptyCaption = "날씨",
+                    selected = weatherLabel != null,
+                    onClick = onWeatherClick,
+                    showEmptySlot = showEmptyMetaSlots,
+                    modifier = Modifier.widthIn(min = 48.dp)
+                )
 
-            RecordPageMetaSlot(
-                meta = moodMeta,
-                emptyCaption = "기분",
-                selected = moodLabel != null,
-                onClick = onMoodClick,
-                showEmptySlot = showEmptyMetaSlots,
-                modifier = Modifier.weight(1f)
-            )
+                RecordPageMetaSlot(
+                    meta = moodMeta,
+                    emptyCaption = "기분",
+                    selected = moodLabel != null,
+                    onClick = onMoodClick,
+                    showEmptySlot = showEmptyMetaSlots,
+                    modifier = Modifier.widthIn(min = 48.dp)
+                )
+            }
         }
 
         if (!tagLabel.isNullOrBlank()) {
@@ -157,7 +163,7 @@ private fun RecordPageMetaSlot(
             caption = meta.second,
             selected = selected,
             onClick = onClick,
-            contentAlignment = Alignment.CenterStart,
+            contentAlignment = Alignment.CenterEnd,
             modifier = modifier
         )
     } else if (showEmptySlot) {
@@ -166,7 +172,7 @@ private fun RecordPageMetaSlot(
             caption = emptyCaption,
             selected = false,
             onClick = onClick,
-            contentAlignment = Alignment.CenterStart,
+            contentAlignment = Alignment.CenterEnd,
             modifier = modifier
         )
     }

@@ -208,7 +208,7 @@ fun MonthlyReflectionScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(248.dp)
+                            .height(if (selectedCoverImagePath.isNotBlank()) 220.dp else 176.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
                     ) {
@@ -224,7 +224,8 @@ fun MonthlyReflectionScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(16.dp),
-                                verticalArrangement = Arrangement.Center
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                                horizontalAlignment = Alignment.Start
                             ) {
                                 Text(
                                     text = "대표 사진이 아직 없어요",
@@ -245,10 +246,6 @@ fun MonthlyReflectionScreen(
                         }
                     }
                     if (imagePaths.isNotEmpty()) {
-                        ReflectionSectionHeader(
-                            title = "대표 사진",
-                            subtitle = null
-                        )
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -312,11 +309,11 @@ fun MonthlyReflectionScreen(
                         }
                     },
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f),
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f),
-                        focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.14f),
-                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.06f)
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f),
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f),
+                        focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.08f),
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.04f)
                     ),
                     textStyle = MaterialTheme.typography.bodyMedium,
                     shape = RoundedCornerShape(18.dp)
