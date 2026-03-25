@@ -92,7 +92,8 @@ val RecordCanvasBodyMinHeight = 360.dp
 val RecordTextInset = 16.dp
 val RecordCanvasOuterHorizontalPadding = 2.dp
 val RecordCanvasInnerHorizontalPadding = 3.dp
-val RecordCanvasWriteTopPadding = 0.dp
+val RecordCanvasOuterVerticalPadding = 2.dp
+val RecordCanvasTopPadding = 10.dp
 
 private sealed class EditorBlockState(open val id: String)
 
@@ -619,8 +620,11 @@ fun WriteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(
+                    horizontal = RecordCanvasOuterHorizontalPadding,
+                    vertical = RecordCanvasOuterVerticalPadding
+                )
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = RecordCanvasOuterHorizontalPadding)
         ) {
             Column(
                 modifier = Modifier
@@ -652,7 +656,7 @@ fun WriteScreen(
                         onRemoveSticker = { index -> stickerPlacements.removeAt(index) },
                         onCanvasSizeChanged = { stickerCanvasSize = it },
                         contentHorizontalPadding = RecordCanvasInnerHorizontalPadding,
-                        contentVerticalPadding = RecordCanvasWriteTopPadding,
+                        contentVerticalPadding = RecordCanvasTopPadding,
                         surfaceMinHeight = editorMinHeight,
                         surfaceColor = MaterialTheme.colorScheme.background,
                         flat = true,

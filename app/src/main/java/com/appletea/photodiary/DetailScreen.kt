@@ -173,7 +173,10 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = RecordCanvasOuterHorizontalPadding, vertical = 2.dp)
+                .padding(
+                    horizontal = RecordCanvasOuterHorizontalPadding,
+                    vertical = RecordCanvasOuterVerticalPadding
+                )
                 .onSizeChanged { detailViewportSize = it }
         ) {
             val viewportHeight = with(density) { detailViewportSize.height.toDp() }
@@ -228,7 +231,7 @@ private fun ScrapbookPage(
         DiaryStickerWritingSurfaceReadOnly(
             placements = stickerPlacements,
             contentHorizontalPadding = RecordCanvasInnerHorizontalPadding,
-            contentVerticalPadding = 10.dp,
+            contentVerticalPadding = RecordCanvasTopPadding,
             surfaceMinHeight = surfaceMinHeight,
             surfaceColor = MaterialTheme.colorScheme.background,
             flat = true,
