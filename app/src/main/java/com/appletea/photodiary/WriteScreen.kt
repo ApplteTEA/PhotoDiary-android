@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -95,7 +94,6 @@ val RecordCanvasOuterHorizontalPadding = 2.dp
 val RecordCanvasInnerHorizontalPadding = 3.dp
 val RecordCanvasOuterVerticalPadding = 2.dp
 val RecordCanvasTopPadding = 10.dp
-val RecordWriteVisualTopLift = 8.dp
 
 private sealed class EditorBlockState(open val id: String)
 
@@ -292,7 +290,7 @@ fun WriteScreen(
     val canSave = remember(title, plainTextContent, imagePaths.size, stickerPlacements.size) {
         !(title.isBlank() && plainTextContent.isBlank() && imagePaths.isEmpty() && stickerPlacements.isEmpty())
     }
-    val contentScrollState = rememberScrollState()
+    val contentScrollState = rememberRecordPageScrollState()
     var previousContentLength by remember(initialPersistedContent) { mutableIntStateOf(plainTextContent.length) }
 
     LaunchedEffect(plainTextContent, contentScrollState.maxValue) {
@@ -618,22 +616,12 @@ fun WriteScreen(
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(
-                    horizontal = RecordCanvasOuterHorizontalPadding,
-                    vertical = RecordCanvasOuterVerticalPadding
-                )
-                .onSizeChanged { editorViewportSize = it }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(contentScrollState)
-                    .padding(bottom = 112.dp)
-            ) {
+        RecordPageViewport(
+            innerPadding = innerPadding,
+            onViewportSizeChanged = { editorViewportSize = it },
+            scrollState = contentScrollState,
+            bottomPadding = 112.dp,
+            scrollContent = {
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -662,16 +650,9 @@ fun WriteScreen(
                         surfaceMinHeight = editorMinHeight,
                         surfaceColor = MaterialTheme.colorScheme.background,
                         flat = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset(y = -RecordWriteVisualTopLift)
+                        modifier = Modifier.fillMaxWidth()
                     ) { contentSizeModifier ->
-                        Column(
-                            modifier = contentSizeModifier
-                                .fillMaxWidth()
-                                .padding(bottom = 30.dp),
-                            verticalArrangement = Arrangement.spacedBy(14.dp)
-                        ) {
+                        RecordPageSurfaceContent(contentSizeModifier) {
                             WriteInfoHeader(
                                 diaryDate = selectedDateMillis,
                                 moodLabel = selectedMood.toMetaLabelOrNull(moodOptions),
@@ -760,80 +741,81 @@ fun WriteScreen(
                         }
                     }
                 }
-            }
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .navigationBarsPadding()
-                    .imePadding()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                if (showStickerTray) {
-                    FloatingStickerTray(
-                        placements = stickerPlacements,
-                        onAddSticker = { key ->
-                            if (canAddMoreStickers(stickerPlacements)) {
-                                stickerPlacements.add(
-                                    nextStickerPlacement(
-                                        key = key,
-                                        existingCount = stickerPlacements.size,
-                                        scrollOffsetPx = contentScrollState.value,
-                                        viewportHeightPx = editorViewportSize.height,
-                                        canvasHeightPx = stickerCanvasSize.height
+            },
+            overlayContent = {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .navigationBarsPadding()
+                        .imePadding()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    if (showStickerTray) {
+                        FloatingStickerTray(
+                            placements = stickerPlacements,
+                            onAddSticker = { key ->
+                                if (canAddMoreStickers(stickerPlacements)) {
+                                    stickerPlacements.add(
+                                        nextStickerPlacement(
+                                            key = key,
+                                            existingCount = stickerPlacements.size,
+                                            scrollOffsetPx = contentScrollState.value,
+                                            viewportHeightPx = editorViewportSize.height,
+                                            canvasHeightPx = stickerCanvasSize.height
+                                        )
                                     )
-                                )
+                                }
                             }
-                        }
-                    )
-                }
-
-                if (showPhotoTray) {
-                    FloatingPhotoTray(
-                        imagePaths = imagePaths,
-                        onAddPhoto = { showAttachPicker = true },
-                        onDeletePhoto = { imagePath ->
-                            deleteInternalImageIfExists(context, imagePath)
-                            val imageIndex = documentBlocks.indexOfFirst {
-                                it is ImageEditorBlockState && it.path == imagePath
-                            }
-                            if (imageIndex >= 0) {
-                                val normalized = documentBlocks.replaceWithNormalized(
-                                    documentBlocks.toMutableList().apply { removeAt(imageIndex) }
-                                )
-                                activeTextBlockId = normalized
-                                    .filterIsInstance<TextEditorBlockState>()
-                                    .lastOrNull()
-                                    ?.id
-                            }
-                        },
-                        onPreviewPhoto = { imagePath ->
-                            previewImagePath = imagePath
-                        }
-                    )
-                }
-
-                FloatingToolBar(
-                    imageCount = imagePaths.size,
-                    stickerCount = stickerPlacements.size,
-                    tag = tag,
-                    photoSelected = showPhotoTray,
-                    stickerSelected = showStickerTray,
-                    onPhotoClick = {
-                        dismissKeyboardAndToggleTools(true)
-                    },
-                    onStickerClick = {
-                        dismissKeyboardAndToggleTools(false)
-                    },
-                    onTagClick = {
-                        showTagDialog = true
+                        )
                     }
-                )
+
+                    if (showPhotoTray) {
+                        FloatingPhotoTray(
+                            imagePaths = imagePaths,
+                            onAddPhoto = { showAttachPicker = true },
+                            onDeletePhoto = { imagePath ->
+                                deleteInternalImageIfExists(context, imagePath)
+                                val imageIndex = documentBlocks.indexOfFirst {
+                                    it is ImageEditorBlockState && it.path == imagePath
+                                }
+                                if (imageIndex >= 0) {
+                                    val normalized = documentBlocks.replaceWithNormalized(
+                                        documentBlocks.toMutableList().apply { removeAt(imageIndex) }
+                                    )
+                                    activeTextBlockId = normalized
+                                        .filterIsInstance<TextEditorBlockState>()
+                                        .lastOrNull()
+                                        ?.id
+                                }
+                            },
+                            onPreviewPhoto = { imagePath ->
+                                previewImagePath = imagePath
+                            }
+                        )
+                    }
+
+                    FloatingToolBar(
+                        imageCount = imagePaths.size,
+                        stickerCount = stickerPlacements.size,
+                        tag = tag,
+                        photoSelected = showPhotoTray,
+                        stickerSelected = showStickerTray,
+                        onPhotoClick = {
+                            dismissKeyboardAndToggleTools(true)
+                        },
+                        onStickerClick = {
+                            dismissKeyboardAndToggleTools(false)
+                        },
+                        onTagClick = {
+                            showTagDialog = true
+                        }
+                    )
+                }
             }
-        }
+        )
     }
 }
 

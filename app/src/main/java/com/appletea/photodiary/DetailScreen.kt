@@ -21,10 +21,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ZoomIn
@@ -197,11 +195,11 @@ fun DetailScreen(
                 0.dp
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
+            RecordPageViewport(
+                innerPadding = innerPadding,
+                onViewportSizeChanged = { detailViewportSize = it },
+                scrollState = rememberRecordPageScrollState(),
+                scrollContent = {
                 ScrapbookPage(
                     entry = entry,
                     documentBlocks = documentBlocks,
@@ -210,7 +208,7 @@ fun DetailScreen(
                     trailingBodyMinHeight = trailingBodyMinHeight,
                     onPreviewImage = { previewImagePath = it }
                 )
-            }
+            })
         }
     }
 }
@@ -237,14 +235,7 @@ private fun ScrapbookPage(
             flat = true,
             modifier = Modifier.fillMaxWidth()
         ) { contentModifier ->
-            Column(
-                modifier = contentModifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(bottom = 30.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
+            RecordPageSurfaceContent(contentModifier = contentModifier) {
                     DetailInfoHeader(entry = entry)
 
                     if (entry.title.isNotBlank()) {
@@ -261,7 +252,6 @@ private fun ScrapbookPage(
                         trailingBodyMinHeight = trailingBodyMinHeight,
                         onPreviewImage = onPreviewImage
                     )
-                }
             }
         }
     }
