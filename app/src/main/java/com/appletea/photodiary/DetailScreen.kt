@@ -49,11 +49,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.platform.LocalDensity
 import coil.compose.AsyncImage
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +67,7 @@ fun DetailScreen(
     onDeleteClick: () -> Unit
 ) {
     BackHandler(onBack = onBackClick)
+    val density = LocalDensity.current
 
     val documentBlocks = remember(entry.content, entry.imagePath) {
         parseDiaryDocument(entry.content, entry.imagePath.toImagePathList())
@@ -71,6 +75,7 @@ fun DetailScreen(
     val stickerPlacements = remember(entry.sticker) { entry.sticker.toStickerPlacements() }
     var previewImagePath by remember { mutableStateOf<String?>(null) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var detailViewportSize by remember { mutableStateOf(IntSize.Zero) }
 
     if (!previewImagePath.isNullOrBlank()) {
         Dialog(onDismissRequest = { previewImagePath = null }) {
@@ -168,8 +173,19 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 14.dp)
+                .padding(horizontal = 4.dp, vertical = 2.dp)
+                .onSizeChanged { detailViewportSize = it }
         ) {
+            val viewportHeight = with(density) { detailViewportSize.height.toDp() }
+            val canvasBaseHeight = if (detailViewportSize.height > 0) {
+                viewportHeight
+            } else {
+                RecordCanvasMinHeight
+            }
+            val detailMinHeight = (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+            val trailingBodyMinHeight =
+                (detailMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -179,8 +195,8 @@ fun DetailScreen(
                     entry = entry,
                     documentBlocks = documentBlocks,
                     stickerPlacements = stickerPlacements,
-                    surfaceMinHeight = 0.dp,
-                    trailingBodyMinHeight = 0.dp,
+                    surfaceMinHeight = detailMinHeight,
+                    trailingBodyMinHeight = trailingBodyMinHeight,
                     onPreviewImage = { previewImagePath = it }
                 )
             }
@@ -203,8 +219,8 @@ private fun ScrapbookPage(
     ) {
         DiaryStickerWritingSurfaceReadOnly(
             placements = stickerPlacements,
-            contentHorizontalPadding = 16.dp,
-            contentVerticalPadding = 18.dp,
+            contentHorizontalPadding = 6.dp,
+            contentVerticalPadding = 10.dp,
             surfaceMinHeight = surfaceMinHeight,
             surfaceColor = MaterialTheme.colorScheme.background,
             flat = true,
@@ -214,21 +230,27 @@ private fun ScrapbookPage(
                 modifier = contentModifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                DetailInfoHeader(entry = entry)
+                Column(
+                    modifier = Modifier.padding(bottom = 30.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    DetailInfoHeader(entry = entry)
 
-                if (entry.title.isNotBlank()) {
-                    Text(
-                        text = entry.title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                    if (entry.title.isNotBlank()) {
+                        Text(
+                            text = entry.title,
+                            modifier = Modifier.padding(horizontal = RecordTextInset),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    DetailDocumentContent(
+                        blocks = documentBlocks,
+                        trailingBodyMinHeight = trailingBodyMinHeight,
+                        onPreviewImage = onPreviewImage
                     )
                 }
-
-                DetailDocumentContent(
-                    blocks = documentBlocks,
-                    trailingBodyMinHeight = trailingBodyMinHeight,
-                    onPreviewImage = onPreviewImage
-                )
             }
         }
     }
@@ -251,7 +273,9 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = RecordTextInset),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -281,6 +305,7 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
         if (tagLabel != null) {
             Text(
                 text = tagLabel,
+                modifier = Modifier.padding(horizontal = RecordTextInset),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
                 maxLines = 1,
@@ -323,6 +348,7 @@ private fun DetailDocumentContent(
                     if (block.value.isNotBlank()) {
                         Text(
                             text = block.value,
+                            modifier = Modifier.padding(horizontal = RecordTextInset),
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
                             ),

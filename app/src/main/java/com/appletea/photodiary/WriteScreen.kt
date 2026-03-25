@@ -89,6 +89,7 @@ import kotlinx.coroutines.withContext
 val RecordCanvasMinHeight = 560.dp
 val RecordCanvasContentReserve = 210.dp
 val RecordCanvasBodyMinHeight = 360.dp
+val RecordTextInset = 16.dp
 
 private sealed class EditorBlockState(open val id: String)
 
@@ -949,7 +950,7 @@ private fun WriteInfoHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = RecordTextInset),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
