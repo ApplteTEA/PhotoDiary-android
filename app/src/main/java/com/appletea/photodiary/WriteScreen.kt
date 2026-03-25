@@ -92,7 +92,7 @@ val RecordCanvasBodyMinHeight = 360.dp
 val RecordTextInset = 16.dp
 val RecordCanvasOuterHorizontalPadding = 2.dp
 val RecordCanvasInnerHorizontalPadding = 3.dp
-val RecordCanvasWriteTopPadding = 4.dp
+val RecordCanvasWriteTopPadding = 0.dp
 
 private sealed class EditorBlockState(open val id: String)
 
@@ -620,7 +620,7 @@ fun WriteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .onSizeChanged { editorViewportSize = it }
-                .padding(horizontal = RecordCanvasOuterHorizontalPadding, vertical = 2.dp)
+                .padding(horizontal = RecordCanvasOuterHorizontalPadding)
         ) {
             Column(
                 modifier = Modifier
