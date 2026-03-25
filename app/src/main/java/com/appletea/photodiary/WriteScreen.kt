@@ -176,7 +176,6 @@ private fun List<EditorBlockState>.toPersistedDiaryBlocks(): List<DiaryDocumentB
 @Composable
 fun WriteScreen(
     onBackClick: () -> Unit,
-    isEditingExistingEntry: Boolean = false,
     initialDiaryDate: Long? = null,
     initialTitle: String = "",
     initialContent: String = "",
@@ -632,17 +631,9 @@ fun WriteScreen(
                     } else {
                         RecordCanvasMinHeight
                     }
-                    val preserveStickerCanvas = !isEditingExistingEntry || stickerPlacements.isNotEmpty()
-                    val editorMinHeight = if (preserveStickerCanvas) {
-                        (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-                    } else {
-                        0.dp
-                    }
-                    val bodyMinHeight = if (preserveStickerCanvas) {
+                    val editorMinHeight = (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+                    val bodyMinHeight =
                         (editorMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
-                    } else {
-                        0.dp
-                    }
 
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,
@@ -692,7 +683,7 @@ fun WriteScreen(
                                     showWeatherPicker = true
                                     showMoodPicker = false
                                 },
-                                showEmptyMetaSlots = !isEditingExistingEntry
+                                showEmptyMetaSlots = true
                             )
 
                             Column(
@@ -716,7 +707,6 @@ fun WriteScreen(
                                 InlineDiaryDocumentEditor(
                                     blocks = documentBlocks,
                                     bodyMinHeight = bodyMinHeight,
-                                    expandTrailingTextBlock = preserveStickerCanvas,
                                     onTextFocus = { blockId ->
                                         activeTextBlockId = blockId
                                         collapseToolPanels()
@@ -824,7 +814,6 @@ fun WriteScreen(
 private fun InlineDiaryDocumentEditor(
     blocks: List<EditorBlockState>,
     bodyMinHeight: androidx.compose.ui.unit.Dp,
-    expandTrailingTextBlock: Boolean,
     onTextFocus: (String) -> Unit,
     onPreviewImage: (String) -> Unit,
     onDeleteImage: (String) -> Unit
@@ -849,7 +838,7 @@ private fun InlineDiaryDocumentEditor(
                             .fillMaxWidth()
                             .then(
                                 when {
-                                    expandTrailingTextBlock && (isOnlyTextBlock || isLastTextBlock) -> {
+                                    isOnlyTextBlock || isLastTextBlock -> {
                                         Modifier.height(bodyMinHeight)
                                     }
                                     else -> Modifier
@@ -864,7 +853,7 @@ private fun InlineDiaryDocumentEditor(
                         } else {
                             null
                         },
-                        minLines = if (expandTrailingTextBlock && (isOnlyTextBlock || isLastTextBlock)) {
+                        minLines = if (isOnlyTextBlock || isLastTextBlock) {
                             8
                         } else {
                             1
