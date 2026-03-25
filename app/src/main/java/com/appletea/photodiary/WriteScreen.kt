@@ -631,17 +631,11 @@ fun WriteScreen(
                     } else {
                         RecordCanvasMinHeight
                     }
-                    val preserveStickerCanvas = stickerPlacements.isNotEmpty()
-                    val editorMinHeight = if (preserveStickerCanvas) {
-                        (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-                    } else {
-                        0.dp
-                    }
-                    val bodyMinHeight = if (preserveStickerCanvas) {
-                        (editorMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
-                    } else {
-                        0.dp
-                    }
+                    val preserveStickerCanvas = true
+                    val editorMinHeight = (canvasBaseHeight - 8.dp)
+                        .coerceAtLeast(RecordCanvasMinHeight)
+                    val bodyMinHeight = (editorMinHeight - RecordCanvasContentReserve)
+                        .coerceAtLeast(RecordCanvasBodyMinHeight)
 
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,
