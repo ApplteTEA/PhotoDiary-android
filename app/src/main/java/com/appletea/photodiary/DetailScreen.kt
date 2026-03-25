@@ -275,7 +275,7 @@ private fun DetailDocumentContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        blocks.forEachIndexed { index, block ->
+        blocks.forEach { block ->
             when (block) {
                 is DiaryDocumentBlock.Text -> {
                     if (block.value.isNotBlank()) {
@@ -284,12 +284,6 @@ private fun DetailDocumentContent(
                             modifier = Modifier.padding(horizontal = RecordTextInset),
                             style = recordBodyTextStyle(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.92f)
-                        )
-                    } else if (index == blocks.lastIndex && trailingBodyMinHeight > 0.dp) {
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(trailingBodyMinHeight)
                         )
                     }
                 }
@@ -301,6 +295,14 @@ private fun DetailDocumentContent(
                     )
                 }
             }
+        }
+
+        if (trailingBodyMinHeight > 0.dp) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(trailingBodyMinHeight)
+            )
         }
     }
 }
