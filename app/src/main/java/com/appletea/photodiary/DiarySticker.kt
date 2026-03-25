@@ -70,7 +70,8 @@ data class DiaryStickerOption(
     val key: String,
     @DrawableRes val imageResId: Int,
     val label: String,
-    val rotation: Float
+    val rotation: Float,
+    val visualScale: Float = 1f
 )
 
 data class DiaryStickerPlacement(
@@ -85,19 +86,19 @@ private data class StickerPayloadData(
 )
 
 private val allStickerOptions = listOf(
-    DiaryStickerOption("tape_heart", R.drawable.sticker_heart, "하트", -4f),
-    DiaryStickerOption("luck_clover", R.drawable.sticker_clover, "클로버", 3f),
-    DiaryStickerOption("quiet_moon", R.drawable.sticker_moon, "달", -6f),
-    DiaryStickerOption("spark_star", R.drawable.sticker_sparkles, "반짝", 4f),
-    DiaryStickerOption("coffee_break", R.drawable.sticker_coffee, "커피", -2f),
-    DiaryStickerOption("music_note", R.drawable.sticker_music, "음표", 5f),
-    DiaryStickerOption("book_day", R.drawable.sticker_book, "책", -5f),
-    DiaryStickerOption("flower_memo", R.drawable.sticker_flower, "꽃", 2f),
-    DiaryStickerOption("soft_bear", R.drawable.sticker_bear, "곰", -3f),
-    DiaryStickerOption("pink_pig", R.drawable.sticker_pig, "돼지", 3f),
-    DiaryStickerOption("white_cat", R.drawable.sticker_cat, "고양이", -2f),
-    DiaryStickerOption("blue_whale", R.drawable.sticker_whale, "고래", 4f),
-    DiaryStickerOption("tulip_bloom", R.drawable.sticker_tulip, "튤립", -2f),
+    DiaryStickerOption("tape_heart", R.drawable.sticker_heart, "하트", -4f, visualScale = 0.9f),
+    DiaryStickerOption("luck_clover", R.drawable.sticker_clover, "클로버", 3f, visualScale = 0.94f),
+    DiaryStickerOption("quiet_moon", R.drawable.sticker_moon, "달", -6f, visualScale = 0.82f),
+    DiaryStickerOption("spark_star", R.drawable.sticker_sparkles, "반짝", 4f, visualScale = 0.92f),
+    DiaryStickerOption("coffee_break", R.drawable.sticker_coffee, "커피", -2f, visualScale = 0.9f),
+    DiaryStickerOption("music_note", R.drawable.sticker_music, "음표", 5f, visualScale = 0.8f),
+    DiaryStickerOption("book_day", R.drawable.sticker_book, "책", -5f, visualScale = 0.92f),
+    DiaryStickerOption("flower_memo", R.drawable.sticker_flower, "꽃", 2f, visualScale = 0.92f),
+    DiaryStickerOption("soft_bear", R.drawable.sticker_bear, "곰", -3f, visualScale = 0.94f),
+    DiaryStickerOption("pink_pig", R.drawable.sticker_pig, "돼지", 3f, visualScale = 0.94f),
+    DiaryStickerOption("white_cat", R.drawable.sticker_cat, "고양이", -2f, visualScale = 1.08f),
+    DiaryStickerOption("blue_whale", R.drawable.sticker_whale, "고래", 4f, visualScale = 0.94f),
+    DiaryStickerOption("tulip_bloom", R.drawable.sticker_tulip, "튤립", -2f, visualScale = 0.84f),
     DiaryStickerOption("watermelon_slice", R.drawable.sticker_watermelon, "수박", 2f),
     DiaryStickerOption("red_apple", R.drawable.sticker_apple, "사과", -3f),
     DiaryStickerOption("sweet_cherries", R.drawable.sticker_cherries, "체리", 3f),
@@ -122,6 +123,8 @@ private val stickerPaletteKeys = listOf(
 private val stickerPaletteOptions = stickerPaletteKeys.mapNotNull { key ->
     allStickerOptions.firstOrNull { it.key == key }
 }
+
+private fun Dp.scaledBy(scale: Float): Dp = this * scale
 
 private val legacyStickerKeyMap = mapOf(
     "clover" to "luck_clover",
@@ -267,31 +270,31 @@ fun DiaryStickerPalette(
                 Surface(
                     modifier = Modifier
                         .clickable(enabled = canAddMore) { onAddSticker(option.key) },
-                    shape = RoundedCornerShape(22.dp),
+                    shape = RoundedCornerShape(20.dp),
                     color = if (canAddMore) {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.08f)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.06f)
                     } else {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f)
                     },
                     tonalElevation = 0.dp,
                     shadowElevation = 0.dp
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(60.dp)
                             .alpha(if (canAddMore) 1f else 0.45f),
                         contentAlignment = Alignment.Center
                     ) {
                         StickerImage(
                             option = option,
-                            modifier = Modifier.size(46.dp)
+                            modifier = Modifier.size(42.dp.scaledBy(option.visualScale))
                         )
                     }
                 }
                 Text(
                     text = option.label,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -645,7 +648,7 @@ private fun DiaryStickerPlacementNode(
         ) {
             StickerImage(
                 option = option,
-                modifier = Modifier.size(stickerImageSize)
+                modifier = Modifier.size(stickerImageSize.scaledBy(option.visualScale))
             )
         }
     }
