@@ -125,3 +125,12 @@
 - Prefer fewer, sharper agents over many overlapping reviewer roles.
 - Use `SKILL.md` for repeatable procedures and long checklists.
 - Use `AGENTS.md` for team structure, routing, output contracts, and failure rules.
+
+## Preferred Skills
+- Use local skills under `.codex/skills` for repeatable execution procedures.
+- Recommended skills in this repo:
+  - `ui-review`: spacing, hierarchy, alignment, state completeness review
+  - `mobile-qa`: scenario-based Android QA and regression checks
+  - `product-spec`: executable spec template with acceptance criteria
+  - `android-implementation`: local Compose implementation guardrails and validation
+  - `reference-research`: external reference collection with fact/pattern separation
