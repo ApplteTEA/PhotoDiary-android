@@ -173,7 +173,7 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 4.dp, vertical = 2.dp)
+                .padding(horizontal = RecordCanvasOuterHorizontalPadding, vertical = 2.dp)
                 .onSizeChanged { detailViewportSize = it }
         ) {
             val viewportHeight = with(density) { detailViewportSize.height.toDp() }
@@ -182,9 +182,17 @@ fun DetailScreen(
             } else {
                 RecordCanvasMinHeight
             }
-            val detailMinHeight = (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-            val trailingBodyMinHeight =
+            val preserveStickerCanvas = stickerPlacements.isNotEmpty()
+            val detailMinHeight = if (preserveStickerCanvas) {
+                (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+            } else {
+                0.dp
+            }
+            val trailingBodyMinHeight = if (preserveStickerCanvas) {
                 (detailMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+            } else {
+                0.dp
+            }
 
             Column(
                 modifier = Modifier
@@ -219,7 +227,7 @@ private fun ScrapbookPage(
     ) {
         DiaryStickerWritingSurfaceReadOnly(
             placements = stickerPlacements,
-            contentHorizontalPadding = 6.dp,
+            contentHorizontalPadding = RecordCanvasInnerHorizontalPadding,
             contentVerticalPadding = 10.dp,
             surfaceMinHeight = surfaceMinHeight,
             surfaceColor = MaterialTheme.colorScheme.background,
