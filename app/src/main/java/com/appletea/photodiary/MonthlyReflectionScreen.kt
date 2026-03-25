@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,8 +47,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,8 +82,10 @@ fun MonthlyReflectionScreen(
     var reflectionText by remember(initialReflectionText) {
         mutableStateOf(initialReflectionText)
     }
+    var previewImagePath by remember { mutableStateOf<String?>(null) }
     var isSaving by remember { mutableStateOf(false) }
     var showExitConfirmDialog by remember { mutableStateOf(false) }
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val normalizedReflectionText = remember(reflectionText) {
         reflectionText.trim()
     }
@@ -110,6 +116,32 @@ fun MonthlyReflectionScreen(
     }
 
     BackHandler(onBack = attemptExit)
+
+    if (!previewImagePath.isNullOrBlank()) {
+        Dialog(onDismissRequest = { previewImagePath = null }) {
+            Surface(shape = RoundedCornerShape(20.dp)) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    AsyncImage(
+                        model = Uri.parse(previewImagePath),
+                        contentDescription = "대표 사진 크게 보기",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = screenHeight * 0.7f)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentScale = ContentScale.Fit
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { previewImagePath = null }) {
+                            Text("닫기")
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     if (showExitConfirmDialog) {
         AlertDialog(
@@ -205,24 +237,19 @@ fun MonthlyReflectionScreen(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "월간 회고",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                        Text(
-                            text = monthKey.toMonthlyReflectionTitle(),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(if (selectedCoverImagePath.isNotBlank()) 220.dp else 176.dp)
+                            .height(if (selectedCoverImagePath.isNotBlank()) 248.dp else 164.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+                            .then(
+                                if (selectedCoverImagePath.isNotBlank()) {
+                                    Modifier.clickable { previewImagePath = selectedCoverImagePath }
+                                } else {
+                                    Modifier
+                                }
+                            )
                     ) {
                         if (selectedCoverImagePath.isNotBlank()) {
                             AsyncImage(
@@ -332,42 +359,24 @@ fun MonthlyReflectionScreen(
                 )
             }
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(22.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.dp
+            val summaryLines = buildList {
+                add("기록 ${entriesCount}개")
+                if (moodSummary.isNotEmpty()) add("분위기 ${moodSummary.joinToString(", ")}")
+                if (weatherSummary.isNotEmpty()) add("날씨 ${weatherSummary.joinToString(", ")}")
+                if (tagSummary.isNotEmpty()) add("태그 ${tagSummary.joinToString(" ")}")
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    ReflectionSectionHeader(
-                        title = "이번 달의 조각들",
-                        subtitle = null
+                summaryLines.forEach { line ->
+                    Text(
+                        text = line,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
                     )
-                    ReflectionSummaryRow(
-                        label = "기록",
-                        value = "${entriesCount}개"
-                    )
-                    if (moodSummary.isNotEmpty()) {
-                        ReflectionSummaryRow(
-                            label = "분위기",
-                            value = moodSummary.joinToString(", ")
-                        )
-                    }
-                    if (weatherSummary.isNotEmpty()) {
-                        ReflectionSummaryRow(
-                            label = "날씨",
-                            value = weatherSummary.joinToString(", ")
-                        )
-                    }
-                    if (tagSummary.isNotEmpty()) {
-                        ReflectionSummaryRow(
-                            label = "태그",
-                            value = tagSummary.joinToString(" ")
-                        )
-                    }
                 }
             }
         }
@@ -392,28 +401,6 @@ private fun ReflectionSectionHeader(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
             )
         }
-    }
-}
-
-@Composable
-private fun ReflectionSummaryRow(
-    label: String,
-    value: String
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 
