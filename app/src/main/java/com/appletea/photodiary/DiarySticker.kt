@@ -1,7 +1,8 @@
 package com.appletea.photodiary
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -543,11 +544,10 @@ private fun DiaryStickerPlacementNode(
     val yOffset = (verticalRange * placement.yRatio).roundToInt()
     val latestPlacement by rememberUpdatedState(placement)
 
-    Box(
+    Surface(
         modifier = Modifier
             .offset { IntOffset(xOffset, yOffset) }
             .rotate(option.rotation)
-            .size(stickerVisualSize)
             .then(
                 if (editable) {
                     Modifier.pointerInput(index, canvasSize) {
@@ -574,17 +574,35 @@ private fun DiaryStickerPlacementNode(
                     Modifier
                 }
             ),
-        contentAlignment = Alignment.Center
+        shape = RoundedCornerShape(22.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        shadowElevation = 2.dp
     ) {
-        StickerImage(
-            option = option,
-            modifier = Modifier.size(stickerImageSize + 10.dp)
-        )
+        Box(
+            modifier = Modifier
+                .size(stickerVisualSize)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
+                    shape = RoundedCornerShape(18.dp)
+                )
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(18.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            StickerImage(
+                option = option,
+                modifier = Modifier.size(stickerImageSize)
+            )
+        }
     }
 
     if (editable) {
         Surface(
-            modifier = Modifier.offset { IntOffset(xOffset + 30, yOffset - 4) },
+            modifier = Modifier.offset { IntOffset(xOffset + 28, yOffset - 6) },
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
             tonalElevation = 0.5.dp,
