@@ -643,6 +643,13 @@ fun WriteScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) { contentSizeModifier ->
                         RecordPageSurfaceContent(contentSizeModifier) {
+                            val viewportHeight = with(density) { editorViewportSize.height.toDp() }
+                            val expandedBodyMinHeight = if (editorViewportSize.height > 0) {
+                                (viewportHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+                            } else {
+                                RecordCanvasBodyMinHeight
+                            }
+
                             WriteInfoHeader(
                                 diaryDate = selectedDateMillis,
                                 moodLabel = selectedMood.toMetaLabelOrNull(moodOptions),
@@ -697,8 +704,8 @@ fun WriteScreen(
 
                                 InlineDiaryDocumentEditor(
                                     blocks = documentBlocks,
-                                    bodyMinHeight = 0.dp,
-                                    expandTrailingTextBlock = false,
+                                    bodyMinHeight = expandedBodyMinHeight,
+                                    expandTrailingTextBlock = true,
                                     onTextFocus = { blockId ->
                                         activeTextBlockId = blockId
                                         collapseToolPanels()
