@@ -112,6 +112,7 @@ fun RecordPageInfoHeader(
 
             RecordPageMetaSlot(
                 meta = weatherMeta,
+                emptyCaption = "날씨",
                 selected = weatherLabel != null,
                 onClick = onWeatherClick,
                 showEmptySlot = showEmptyMetaSlots,
@@ -120,6 +121,7 @@ fun RecordPageInfoHeader(
 
             RecordPageMetaSlot(
                 meta = moodMeta,
+                emptyCaption = "기분",
                 selected = moodLabel != null,
                 onClick = onMoodClick,
                 showEmptySlot = showEmptyMetaSlots,
@@ -143,6 +145,7 @@ fun RecordPageInfoHeader(
 @Composable
 private fun RecordPageMetaSlot(
     meta: Pair<String?, String>?,
+    emptyCaption: String,
     selected: Boolean,
     onClick: (() -> Unit)?,
     showEmptySlot: Boolean,
@@ -158,14 +161,13 @@ private fun RecordPageMetaSlot(
             modifier = modifier
         )
     } else if (showEmptySlot) {
-        val slotModifier = modifier.height(28.dp)
-        if (onClick != null) {
-            Box(
-                modifier = slotModifier.clickable(onClick = onClick),
-                contentAlignment = Alignment.CenterStart
-            ) {}
-        } else {
-            Spacer(modifier = slotModifier)
-        }
+        MetaHeaderSlot(
+            label = "",
+            caption = emptyCaption,
+            selected = false,
+            onClick = onClick,
+            contentAlignment = Alignment.CenterStart,
+            modifier = modifier
+        )
     }
 }
