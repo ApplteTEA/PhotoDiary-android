@@ -360,23 +360,29 @@ fun MonthlyReflectionScreen(
             }
 
             val summaryLines = buildList {
-                add("기록 ${entriesCount}개")
-                if (moodSummary.isNotEmpty()) add("분위기 ${moodSummary.joinToString(", ")}")
-                if (weatherSummary.isNotEmpty()) add("날씨 ${weatherSummary.joinToString(", ")}")
-                if (tagSummary.isNotEmpty()) add("태그 ${tagSummary.joinToString(" ")}")
+                if (moodSummary.isNotEmpty()) add("자주 남긴 분위기 ${moodSummary.joinToString(", ")}")
+                if (weatherSummary.isNotEmpty()) add("기억에 남은 날씨 ${weatherSummary.joinToString(", ")}")
+                if (tagSummary.isNotEmpty()) add("기억에 남은 태그 ${tagSummary.joinToString(" ")}")
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                summaryLines.forEach { line ->
+            if (summaryLines.isNotEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     Text(
-                        text = line,
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
+                        text = "이번 달의 조각들",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
                     )
+                    summaryLines.forEach { line ->
+                        Text(
+                            text = line,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
+                        )
+                    }
                 }
             }
         }
