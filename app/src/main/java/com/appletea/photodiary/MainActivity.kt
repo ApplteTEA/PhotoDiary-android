@@ -714,6 +714,14 @@ private fun MonthlyReflectionPreviewCard(
     entryCount: Int,
     onClick: () -> Unit
 ) {
+    val reflectionText = if (reflection == null) {
+        "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
+    } else {
+        reflection.reflectionText.ifBlank {
+            "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
+        }
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -726,7 +734,7 @@ private fun MonthlyReflectionPreviewCard(
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -745,23 +753,28 @@ private fun MonthlyReflectionPreviewCard(
                 )
             }
             Text(
-                text = if (reflection == null) {
-                    "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
-                } else {
-                    reflection.reflectionText.ifBlank {
-                        "${entryCount}개의 기록을 한 장의 회고로 남겨두었어요."
-                    }
-                },
+                text = reflectionText,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            Text(
-                text = if (reflection == null) "회고 쓰기" else "회고 보기",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${entryCount}개 기록",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f)
+                )
+                Text(
+                    text = if (reflection == null) "회고 쓰기" else "회고 보기",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
+                )
+            }
         }
     }
 }
