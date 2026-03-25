@@ -169,6 +169,17 @@ fun DetailScreen(
             )
         }
     ) { innerPadding ->
+        val viewportHeight = with(density) { detailViewportSize.height.toDp() }
+        val authoredTrailingBodyMinHeight = if (stickerPlacements.isNotEmpty()) {
+            if (detailViewportSize.height > 0) {
+                (viewportHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+            } else {
+                RecordCanvasBodyMinHeight
+            }
+        } else {
+            0.dp
+        }
+
         RecordPageViewport(
             innerPadding = innerPadding,
             onViewportSizeChanged = { detailViewportSize = it },
@@ -179,7 +190,7 @@ fun DetailScreen(
                     documentBlocks = documentBlocks,
                     stickerPlacements = stickerPlacements,
                     surfaceMinHeight = 0.dp,
-                    trailingBodyMinHeight = stickerPlacements.toDetailTrailingBodyMinHeight(),
+                    trailingBodyMinHeight = authoredTrailingBodyMinHeight,
                     onPreviewImage = { previewImagePath = it }
                 )
             }
@@ -292,12 +303,6 @@ private fun DetailDocumentContent(
             }
         }
     }
-}
-
-private fun List<DiaryStickerPlacement>.toDetailTrailingBodyMinHeight(): Dp {
-    val maxYRatio = maxOfOrNull { it.yRatio } ?: return 0.dp
-    val reserveRatio = ((maxYRatio - 0.58f) / 0.42f).coerceIn(0f, 1f)
-    return RecordCanvasBodyMinHeight * reserveRatio
 }
 
 @Composable
