@@ -265,39 +265,20 @@ fun DiaryStickerPalette(
         stickerPaletteOptions.forEach { option ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(5.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Surface(
+                Box(
                     modifier = Modifier
+                        .size(58.dp)
+                        .alpha(if (canAddMore) 1f else 0.45f)
                         .clickable(enabled = canAddMore) { onAddSticker(option.key) },
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (canAddMore) {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.06f)
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f)
-                    },
-                    tonalElevation = 0.dp,
-                    shadowElevation = 0.dp
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .alpha(if (canAddMore) 1f else 0.45f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        StickerImage(
-                            option = option,
-                            modifier = Modifier.size(42.dp.scaledBy(option.visualScale))
-                        )
-                    }
+                    StickerImage(
+                        option = option,
+                        modifier = Modifier.size(44.dp.scaledBy(option.visualScale))
+                    )
                 }
-                Text(
-                    text = option.label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
             }
         }
     }
@@ -597,7 +578,7 @@ private fun DiaryStickerPlacementNode(
     val yOffset = (verticalRange * placement.yRatio).roundToInt()
     val latestPlacement by rememberUpdatedState(placement)
 
-    Surface(
+    Box(
         modifier = Modifier
             .offset { IntOffset(xOffset, yOffset) }
             .rotate(option.rotation)
@@ -626,23 +607,21 @@ private fun DiaryStickerPlacementNode(
                 } else {
                     Modifier
                 }
-            ),
-        shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        shadowElevation = 2.dp
+            )
     ) {
         Box(
             modifier = Modifier
                 .size(stickerVisualSize)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
-                    shape = RoundedCornerShape(18.dp)
-                )
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(18.dp)
+                .then(
+                    if (editable) {
+                        Modifier.border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.42f),
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                    } else {
+                        Modifier
+                    }
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -651,26 +630,26 @@ private fun DiaryStickerPlacementNode(
                 modifier = Modifier.size(stickerImageSize.scaledBy(option.visualScale))
             )
         }
-    }
 
-    if (editable) {
-        Surface(
-            modifier = Modifier.offset { IntOffset(xOffset + 28, yOffset - 6) },
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
-            tonalElevation = 0.5.dp,
-            shadowElevation = 0.5.dp
-        ) {
-            IconButton(
-                onClick = { onRemoveSticker?.invoke(index) },
-                modifier = Modifier.size(22.dp)
+        if (editable) {
+            Surface(
+                modifier = Modifier.offset { IntOffset(-8, -8) },
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.error,
+                tonalElevation = 0.dp,
+                shadowElevation = 0.5.dp
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Close,
-                    contentDescription = "스티커 삭제",
-                    modifier = Modifier.size(12.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                IconButton(
+                    onClick = { onRemoveSticker?.invoke(index) },
+                    modifier = Modifier.size(22.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Close,
+                        contentDescription = "스티커 삭제",
+                        modifier = Modifier.size(12.dp),
+                        tint = MaterialTheme.colorScheme.onError
+                    )
+                }
             }
         }
     }
