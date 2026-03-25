@@ -665,6 +665,7 @@ fun WriteScreen(
                                 diaryDate = selectedDateMillis,
                                 moodLabel = selectedMood.toMetaLabelOrNull(moodOptions),
                                 weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions),
+                                tagLabel = tag.toTagMetaLabelOrNull(),
                                 onDateClick = {
                                     val calendar = Calendar.getInstance().apply {
                                         timeInMillis = selectedDateMillis
@@ -998,6 +999,7 @@ private fun WriteInfoHeader(
     diaryDate: Long,
     moodLabel: String?,
     weatherLabel: String?,
+    tagLabel: String?,
     onDateClick: () -> Unit,
     onMoodClick: () -> Unit,
     onWeatherClick: () -> Unit,
@@ -1008,6 +1010,7 @@ private fun WriteInfoHeader(
         diaryDate = diaryDate.toDisplayDate(),
         weatherLabel = weatherLabel,
         moodLabel = moodLabel,
+        tagLabel = tagLabel,
         onDateClick = onDateClick,
         onWeatherClick = onWeatherClick,
         onMoodClick = onMoodClick,

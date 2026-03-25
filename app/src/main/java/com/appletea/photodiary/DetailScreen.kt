@@ -246,16 +246,11 @@ private fun ScrapbookPage(
 
 @Composable
 private fun DetailInfoHeader(entry: DiaryEntry) {
-    val tagLabel = entry.tag
-        .trim()
-        .takeIf { it.isNotBlank() }
-        ?.split(Regex("\\s+"))
-        ?.joinToString(" ") { token -> "#${token.trimStart('#')}" }
     RecordPageInfoHeader(
         diaryDate = entry.diaryDate.toDisplayDate(),
         weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions),
         moodLabel = entry.mood.toMetaLabelOrNull(moodOptions),
-        tagLabel = tagLabel,
+        tagLabel = entry.tag.toTagMetaLabelOrNull(),
         showEmptyMetaSlots = false
     )
 }

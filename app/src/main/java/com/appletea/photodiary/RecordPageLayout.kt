@@ -148,6 +148,13 @@ fun RecordPageInfoHeader(
     }
 }
 
+fun String.toTagMetaLabelOrNull(): String? {
+    return trim()
+        .takeIf { it.isNotBlank() }
+        ?.split(Regex("\\s+"))
+        ?.joinToString(" ") { token -> "#${token.trimStart('#')}" }
+}
+
 @Composable
 private fun RecordPageMetaSlot(
     meta: Pair<String?, String>?,
