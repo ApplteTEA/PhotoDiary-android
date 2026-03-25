@@ -749,8 +749,8 @@ private fun MonthlyReflectionPreviewCard(
             }
             Text(
                 text = reflectionText,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )

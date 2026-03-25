@@ -205,6 +205,18 @@ fun MonthlyReflectionScreen(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "월간 회고",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                        Text(
+                            text = monthKey.toMonthlyReflectionTitle(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -235,9 +247,9 @@ fun MonthlyReflectionScreen(
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = if (hasSelectableImages) {
-                                        "아래에서 이번 달을 가장 잘 닮은 장면을 골라보세요."
+                                        "이번 달을 닮은 사진을 골라보세요."
                                     } else {
-                                        "사진이 없어도 한 줄 회고만으로 이번 달의 분위기를 남길 수 있어요."
+                                        "사진 없이도 한 줄 회고를 남길 수 있어요."
                                     },
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -295,8 +307,8 @@ fun MonthlyReflectionScreen(
                     value = reflectionText,
                     onValueChange = { reflectionText = it.take(120) },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 4,
-                    minLines = 4,
+                    maxLines = 3,
+                    minLines = 3,
                     placeholder = {
                         Text("예: 마음이 자주 바빠도, 소중한 장면은 분명히 남아 있던 달")
                     },
