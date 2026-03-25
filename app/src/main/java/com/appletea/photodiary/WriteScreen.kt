@@ -625,18 +625,6 @@ fun WriteScreen(
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val viewportHeight = with(density) { editorViewportSize.height.toDp() }
-                    val canvasBaseHeight = if (editorViewportSize.height > 0) {
-                        viewportHeight
-                    } else {
-                        RecordCanvasMinHeight
-                    }
-                    val preserveStickerCanvas = true
-                    val editorMinHeight = (canvasBaseHeight - 8.dp)
-                        .coerceAtLeast(RecordCanvasMinHeight)
-                    val bodyMinHeight = (editorMinHeight - RecordCanvasContentReserve)
-                        .coerceAtLeast(RecordCanvasBodyMinHeight)
-
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,
                         onMoveSticker = { index, xRatio, yRatio ->
@@ -649,7 +637,7 @@ fun WriteScreen(
                         onCanvasSizeChanged = { stickerCanvasSize = it },
                         contentHorizontalPadding = RecordCanvasInnerHorizontalPadding,
                         contentVerticalPadding = RecordCanvasTopPadding,
-                        surfaceMinHeight = editorMinHeight,
+                        surfaceMinHeight = 0.dp,
                         surfaceColor = MaterialTheme.colorScheme.background,
                         flat = true,
                         modifier = Modifier.fillMaxWidth()
@@ -709,8 +697,8 @@ fun WriteScreen(
 
                                 InlineDiaryDocumentEditor(
                                     blocks = documentBlocks,
-                                    bodyMinHeight = bodyMinHeight,
-                                    expandTrailingTextBlock = preserveStickerCanvas,
+                                    bodyMinHeight = 0.dp,
+                                    expandTrailingTextBlock = false,
                                     onTextFocus = { blockId ->
                                         activeTextBlockId = blockId
                                         collapseToolPanels()

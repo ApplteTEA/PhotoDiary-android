@@ -169,24 +169,6 @@ fun DetailScreen(
             )
         }
     ) { innerPadding ->
-        val viewportHeight = with(density) { detailViewportSize.height.toDp() }
-        val canvasBaseHeight = if (detailViewportSize.height > 0) {
-            viewportHeight
-        } else {
-            RecordCanvasMinHeight
-        }
-        val preserveStickerCanvas = stickerPlacements.isNotEmpty()
-        val detailMinHeight = if (preserveStickerCanvas) {
-            (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-        } else {
-            0.dp
-        }
-        val trailingBodyMinHeight = if (preserveStickerCanvas) {
-            (detailMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
-        } else {
-            0.dp
-        }
-
         RecordPageViewport(
             innerPadding = innerPadding,
             onViewportSizeChanged = { detailViewportSize = it },
@@ -196,8 +178,8 @@ fun DetailScreen(
                     entry = entry,
                     documentBlocks = documentBlocks,
                     stickerPlacements = stickerPlacements,
-                    surfaceMinHeight = detailMinHeight,
-                    trailingBodyMinHeight = trailingBodyMinHeight,
+                    surfaceMinHeight = 0.dp,
+                    trailingBodyMinHeight = 0.dp,
                     onPreviewImage = { previewImagePath = it }
                 )
             }
