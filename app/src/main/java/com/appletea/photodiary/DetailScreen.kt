@@ -284,22 +284,33 @@ private fun DetailInfoHeader(entry: DiaryEntry) {
                 caption = null,
                 selected = true,
                 onClick = null,
+                contentAlignment = Alignment.CenterStart,
                 modifier = Modifier.weight(1f)
             )
-            MetaHeaderSlot(
-                label = weatherMeta?.first ?: " ",
-                caption = weatherMeta?.second ?: "날씨",
-                selected = weatherMeta != null,
-                onClick = null,
-                modifier = Modifier.weight(1f)
-            )
-            MetaHeaderSlot(
-                label = moodMeta?.first ?: " ",
-                caption = moodMeta?.second ?: "기분",
-                selected = moodMeta != null,
-                onClick = null,
-                modifier = Modifier.weight(1f)
-            )
+            if (weatherMeta != null) {
+                MetaHeaderSlot(
+                    label = weatherMeta.first ?: "",
+                    caption = weatherMeta.second,
+                    selected = true,
+                    onClick = null,
+                    contentAlignment = Alignment.CenterStart,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                Spacer(modifier = Modifier.weight(1f).height(28.dp))
+            }
+            if (moodMeta != null) {
+                MetaHeaderSlot(
+                    label = moodMeta.first ?: "",
+                    caption = moodMeta.second,
+                    selected = true,
+                    onClick = null,
+                    contentAlignment = Alignment.CenterStart,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                Spacer(modifier = Modifier.weight(1f).height(28.dp))
+            }
         }
 
         if (tagLabel != null) {

@@ -959,6 +959,7 @@ private fun WriteInfoHeader(
             caption = null,
             selected = true,
             onClick = onDateClick,
+            contentAlignment = Alignment.CenterStart,
             modifier = Modifier.weight(1f)
         )
         MetaHeaderSlot(
@@ -966,6 +967,7 @@ private fun WriteInfoHeader(
             caption = weatherMeta?.second ?: "날씨",
             selected = isWeatherSelected,
             onClick = onWeatherClick,
+            contentAlignment = Alignment.CenterStart,
             modifier = Modifier.weight(1f)
         )
         MetaHeaderSlot(
@@ -973,6 +975,7 @@ private fun WriteInfoHeader(
             caption = moodMeta?.second ?: "기분",
             selected = isMoodSelected,
             onClick = onMoodClick,
+            contentAlignment = Alignment.CenterStart,
             modifier = Modifier.weight(1f)
         )
     }
@@ -993,6 +996,7 @@ fun MetaHeaderSlot(
     caption: String?,
     selected: Boolean,
     onClick: (() -> Unit)?,
+    contentAlignment: Alignment = Alignment.Center,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -1003,7 +1007,7 @@ fun MetaHeaderSlot(
         } else {
             modifier.height(28.dp)
         },
-        contentAlignment = Alignment.Center
+        contentAlignment = contentAlignment
     ) {
         if (!caption.isNullOrBlank()) {
             Row(
