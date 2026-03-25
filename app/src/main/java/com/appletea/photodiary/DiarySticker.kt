@@ -1,9 +1,8 @@
 package com.appletea.photodiary
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -211,44 +211,36 @@ fun DiaryStickerPalette(
         stickerOptions.forEach { option ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Surface(
                     modifier = Modifier
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(20.dp)
-                        )
                         .clickable(enabled = canAddMore) { onAddSticker(option.key) },
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(22.dp),
                     color = if (canAddMore) {
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.98f)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.08f)
                     } else {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f)
                     },
-                    tonalElevation = 1.dp,
-                    shadowElevation = 2.dp
+                    tonalElevation = 0.dp,
+                    shadowElevation = 0.dp
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(58.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(20.dp)
-                            ),
+                            .size(64.dp)
+                            .alpha(if (canAddMore) 1f else 0.45f),
                         contentAlignment = Alignment.Center
                     ) {
                         StickerImage(
                             option = option,
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(46.dp)
                         )
                     }
                 }
                 Text(
                     text = option.label,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -551,10 +543,11 @@ private fun DiaryStickerPlacementNode(
     val yOffset = (verticalRange * placement.yRatio).roundToInt()
     val latestPlacement by rememberUpdatedState(placement)
 
-    Surface(
+    Box(
         modifier = Modifier
             .offset { IntOffset(xOffset, yOffset) }
             .rotate(option.rotation)
+            .size(stickerVisualSize)
             .then(
                 if (editable) {
                     Modifier.pointerInput(index, canvasSize) {
@@ -581,35 +574,17 @@ private fun DiaryStickerPlacementNode(
                     Modifier
                 }
             ),
-        shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        shadowElevation = 2.dp
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(stickerVisualSize)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
-                    shape = RoundedCornerShape(18.dp)
-                )
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(18.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            StickerImage(
-                option = option,
-                modifier = Modifier.size(stickerImageSize)
-            )
-        }
+        StickerImage(
+            option = option,
+            modifier = Modifier.size(stickerImageSize + 10.dp)
+        )
     }
 
     if (editable) {
         Surface(
-            modifier = Modifier.offset { IntOffset(xOffset + 28, yOffset - 6) },
+            modifier = Modifier.offset { IntOffset(xOffset + 30, yOffset - 4) },
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
             tonalElevation = 0.5.dp,

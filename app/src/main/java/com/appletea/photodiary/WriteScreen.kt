@@ -1351,12 +1351,12 @@ private fun FloatingStickerTray(
         ) {
             Text(
                 text = if (canAddMoreStickers(placements)) {
-                    "스티커를 골라 기록 위에 바로 붙일 수 있어요"
+                    "붙이고 싶은 조각을 골라보세요"
                 } else {
                     "스티커는 최대 8개까지 붙일 수 있어요"
                 },
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
             )
             Row(
                 modifier = Modifier
