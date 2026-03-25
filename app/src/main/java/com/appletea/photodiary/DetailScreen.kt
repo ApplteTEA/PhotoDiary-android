@@ -167,39 +167,29 @@ fun DetailScreen(
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(
-                    horizontal = RecordCanvasOuterHorizontalPadding,
-                    vertical = RecordCanvasOuterVerticalPadding
-                )
-                .onSizeChanged { detailViewportSize = it }
-        ) {
-            val viewportHeight = with(density) { detailViewportSize.height.toDp() }
-            val canvasBaseHeight = if (detailViewportSize.height > 0) {
-                viewportHeight
-            } else {
-                RecordCanvasMinHeight
-            }
-            val preserveStickerCanvas = stickerPlacements.isNotEmpty()
-            val detailMinHeight = if (preserveStickerCanvas) {
-                (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-            } else {
-                0.dp
-            }
-            val trailingBodyMinHeight = if (preserveStickerCanvas) {
-                (detailMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
-            } else {
-                0.dp
-            }
+        val viewportHeight = with(density) { detailViewportSize.height.toDp() }
+        val canvasBaseHeight = if (detailViewportSize.height > 0) {
+            viewportHeight
+        } else {
+            RecordCanvasMinHeight
+        }
+        val preserveStickerCanvas = stickerPlacements.isNotEmpty()
+        val detailMinHeight = if (preserveStickerCanvas) {
+            (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+        } else {
+            0.dp
+        }
+        val trailingBodyMinHeight = if (preserveStickerCanvas) {
+            (detailMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+        } else {
+            0.dp
+        }
 
-            RecordPageViewport(
-                innerPadding = innerPadding,
-                onViewportSizeChanged = { detailViewportSize = it },
-                scrollState = rememberRecordPageScrollState(),
-                scrollContent = {
+        RecordPageViewport(
+            innerPadding = innerPadding,
+            onViewportSizeChanged = { detailViewportSize = it },
+            scrollState = rememberRecordPageScrollState(),
+            scrollContent = {
                 ScrapbookPage(
                     entry = entry,
                     documentBlocks = documentBlocks,
@@ -208,8 +198,8 @@ fun DetailScreen(
                     trailingBodyMinHeight = trailingBodyMinHeight,
                     onPreviewImage = { previewImagePath = it }
                 )
-            })
-        }
+            }
+        )
     }
 }
 
