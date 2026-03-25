@@ -864,7 +864,11 @@ private fun InlineDiaryDocumentEditor(
                         } else {
                             null
                         },
-                        minLines = if (isOnlyTextBlock || isLastTextBlock) 8 else 2,
+                        minLines = if (expandTrailingTextBlock && (isOnlyTextBlock || isLastTextBlock)) {
+                            8
+                        } else {
+                            1
+                        },
                         maxLines = Int.MAX_VALUE
                     )
                 }
