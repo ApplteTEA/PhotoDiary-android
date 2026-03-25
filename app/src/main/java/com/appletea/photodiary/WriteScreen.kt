@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -47,7 +48,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -62,7 +62,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.focus.onFocusChanged
@@ -176,6 +176,7 @@ private fun List<EditorBlockState>.toPersistedDiaryBlocks(): List<DiaryDocumentB
 @Composable
 fun WriteScreen(
     onBackClick: () -> Unit,
+    isEditingExistingEntry: Boolean = false,
     initialDiaryDate: Long? = null,
     initialTitle: String = "",
     initialContent: String = "",
@@ -631,9 +632,17 @@ fun WriteScreen(
                     } else {
                         RecordCanvasMinHeight
                     }
-                    val editorMinHeight = (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
-                    val bodyMinHeight =
+                    val preserveStickerCanvas = !isEditingExistingEntry || stickerPlacements.isNotEmpty()
+                    val editorMinHeight = if (preserveStickerCanvas) {
+                        (canvasBaseHeight - 8.dp).coerceAtLeast(RecordCanvasMinHeight)
+                    } else {
+                        0.dp
+                    }
+                    val bodyMinHeight = if (preserveStickerCanvas) {
                         (editorMinHeight - RecordCanvasContentReserve).coerceAtLeast(RecordCanvasBodyMinHeight)
+                    } else {
+                        0.dp
+                    }
 
                     DiaryStickerWritingSurfaceEditor(
                         placements = stickerPlacements,
@@ -657,8 +666,6 @@ fun WriteScreen(
                                 diaryDate = selectedDateMillis,
                                 moodLabel = selectedMood.toMetaLabelOrNull(moodOptions),
                                 weatherLabel = selectedWeather.toMetaLabelOrNull(weatherOptions),
-                                isMoodSelected = selectedMood.isNotBlank(),
-                                isWeatherSelected = selectedWeather.isNotBlank(),
                                 onDateClick = {
                                     val calendar = Calendar.getInstance().apply {
                                         timeInMillis = selectedDateMillis
@@ -684,38 +691,32 @@ fun WriteScreen(
                                 onWeatherClick = {
                                     showWeatherPicker = true
                                     showMoodPicker = false
-                                }
+                                },
+                                showEmptyMetaSlots = !isEditingExistingEntry
                             )
 
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(14.dp)
                             ) {
-                                OutlinedTextField(
+                                PlainTitleField(
                                     value = title,
                                     onValueChange = {
                                         title = it
                                         collapseToolPanels()
                                     },
                                     modifier = Modifier
+                                        .padding(horizontal = RecordTextInset)
                                         .fillMaxWidth()
                                         .onFocusChanged { state ->
                                             if (state.isFocused) collapseToolPanels()
                                         },
-                                    singleLine = true,
-                                    placeholder = {
-                                        Text(
-                                            text = "제목",
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                                        )
-                                    },
-                                    textStyle = MaterialTheme.typography.bodyLarge,
-                                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                                    colors = lowChromeTextFieldColors()
+                                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                                 )
 
                                 InlineDiaryDocumentEditor(
                                     blocks = documentBlocks,
                                     bodyMinHeight = bodyMinHeight,
+                                    expandTrailingTextBlock = preserveStickerCanvas,
                                     onTextFocus = { blockId ->
                                         activeTextBlockId = blockId
                                         collapseToolPanels()
@@ -823,6 +824,7 @@ fun WriteScreen(
 private fun InlineDiaryDocumentEditor(
     blocks: List<EditorBlockState>,
     bodyMinHeight: androidx.compose.ui.unit.Dp,
+    expandTrailingTextBlock: Boolean,
     onTextFocus: (String) -> Unit,
     onPreviewImage: (String) -> Unit,
     onDeleteImage: (String) -> Unit
@@ -839,33 +841,29 @@ private fun InlineDiaryDocumentEditor(
                 is TextEditorBlockState -> {
                     val isOnlyTextBlock = textBlockCount == 1 && !hasImages
                     val isLastTextBlock = blocks.lastOrNull()?.id == block.id
-                    OutlinedTextField(
+                    PlainBodyField(
                         value = block.value,
                         onValueChange = { updated -> block.value = updated },
                         modifier = Modifier
+                            .padding(horizontal = RecordTextInset)
                             .fillMaxWidth()
                             .then(
                                 when {
-                                    isOnlyTextBlock || isLastTextBlock -> Modifier.height(bodyMinHeight)
-                                    else -> Modifier.heightIn(max = 72.dp)
+                                    expandTrailingTextBlock && (isOnlyTextBlock || isLastTextBlock) -> {
+                                        Modifier.height(bodyMinHeight)
+                                    }
+                                    else -> Modifier
                                 }
                             )
                             .onFocusChanged { state ->
                                 if (state.isFocused) onTextFocus(block.id)
                             },
-                        placeholder = {
-                            if (blocks.firstOrNull()?.id == block.id) {
-                                Text(
-                                    text = "오늘 남기고 싶은 이야기를 천천히 적어보세요.",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
-                                )
-                            }
-                        },
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(
-                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
-                        ),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = lowChromeTextFieldColors(),
+                        placeholder = if (blocks.firstOrNull()?.id == block.id) {
+                            "오늘 남기고 싶은 이야기를 천천히 적어보세요."
+                        } else {
+                            null
+                        },
                         minLines = if (isOnlyTextBlock || isLastTextBlock) 8 else 2,
                         maxLines = Int.MAX_VALUE
                     )
@@ -880,6 +878,73 @@ private fun InlineDiaryDocumentEditor(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PlainTitleField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+) {
+    Box(modifier = modifier) {
+        if (value.isBlank()) {
+            Text(
+                text = "제목",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+            )
+        }
+
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            keyboardOptions = keyboardOptions,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface)
+        )
+    }
+}
+
+@Composable
+private fun PlainBodyField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    placeholder: String? = null,
+    minLines: Int = 1,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Box(modifier = modifier) {
+        if (value.text.isBlank() && !placeholder.isNullOrBlank()) {
+            Text(
+                text = placeholder,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+            )
+        }
+
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.18f
+            ),
+            keyboardOptions = keyboardOptions,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+            minLines = minLines,
+            maxLines = maxLines
+        )
     }
 }
 
@@ -930,48 +995,22 @@ private fun WriteInfoHeader(
     diaryDate: Long,
     moodLabel: String?,
     weatherLabel: String?,
-    isMoodSelected: Boolean,
-    isWeatherSelected: Boolean,
     onDateClick: () -> Unit,
     onMoodClick: () -> Unit,
     onWeatherClick: () -> Unit,
+    showEmptyMetaSlots: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val weatherMeta = weatherLabel.toMetaHeaderParts()
-    val moodMeta = moodLabel.toMetaHeaderParts()
-
-    Row(
+    RecordPageInfoHeader(
+        diaryDate = diaryDate.toDisplayDate(),
+        weatherLabel = weatherLabel,
+        moodLabel = moodLabel,
+        onDateClick = onDateClick,
+        onWeatherClick = onWeatherClick,
+        onMoodClick = onMoodClick,
+        showEmptyMetaSlots = showEmptyMetaSlots,
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = RecordTextInset),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        MetaHeaderSlot(
-            label = diaryDate.toDisplayDate(),
-            caption = null,
-            selected = true,
-            onClick = onDateClick,
-            contentAlignment = Alignment.CenterStart,
-            modifier = Modifier.weight(1f)
-        )
-        MetaHeaderSlot(
-            label = weatherMeta?.first ?: " ",
-            caption = weatherMeta?.second ?: "날씨",
-            selected = isWeatherSelected,
-            onClick = onWeatherClick,
-            contentAlignment = Alignment.CenterStart,
-            modifier = Modifier.weight(1f)
-        )
-        MetaHeaderSlot(
-            label = moodMeta?.first ?: " ",
-            caption = moodMeta?.second ?: "기분",
-            selected = isMoodSelected,
-            onClick = onMoodClick,
-            contentAlignment = Alignment.CenterStart,
-            modifier = Modifier.weight(1f)
-        )
-    }
+    )
 }
 
 fun String?.toMetaHeaderParts(): Pair<String?, String>? {
@@ -1449,20 +1488,6 @@ private fun ThumbnailCard(
     }
 }
 
-@Composable
-private fun lowChromeTextFieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = Color.Transparent,
-    unfocusedContainerColor = Color.Transparent,
-    disabledContainerColor = Color.Transparent,
-    focusedIndicatorColor = Color.Transparent,
-    unfocusedIndicatorColor = Color.Transparent,
-    disabledIndicatorColor = Color.Transparent,
-    cursorColor = MaterialTheme.colorScheme.onSurface,
-    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-)
 
 private fun String.toStoredTagText(): String {
     return trim()

@@ -225,6 +225,7 @@ class MainActivity : ComponentActivity() {
                                         currentScreen = if (editingEntry == null) writeOriginScreen else AppScreen.Detail
                                     }
                                 },
+                                isEditingExistingEntry = editingEntry != null,
                                 initialDiaryDate = writeInitialDiaryDate,
                                 initialTitle = editingEntry?.title.orEmpty(),
                                 initialContent = editingEntry?.content.orEmpty(),

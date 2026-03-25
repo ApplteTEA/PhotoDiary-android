@@ -249,72 +249,18 @@ private fun ScrapbookPage(
 
 @Composable
 private fun DetailInfoHeader(entry: DiaryEntry) {
-    val moodLabel = entry.mood.toMetaLabelOrNull(moodOptions)
-    val weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions)
-    val weatherMeta = weatherLabel.toMetaHeaderParts()
-    val moodMeta = moodLabel.toMetaHeaderParts()
     val tagLabel = entry.tag
         .trim()
         .takeIf { it.isNotBlank() }
         ?.split(Regex("\\s+"))
         ?.joinToString(" ") { token -> "#${token.trimStart('#')}" }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = RecordTextInset),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            MetaHeaderSlot(
-                label = entry.diaryDate.toDisplayDate(),
-                caption = null,
-                selected = true,
-                onClick = null,
-                contentAlignment = Alignment.CenterStart,
-                modifier = Modifier.weight(1f)
-            )
-            if (weatherMeta != null) {
-                MetaHeaderSlot(
-                    label = weatherMeta.first ?: "",
-                    caption = weatherMeta.second,
-                    selected = true,
-                    onClick = null,
-                    contentAlignment = Alignment.CenterStart,
-                    modifier = Modifier.weight(1f)
-                )
-            } else {
-                Spacer(modifier = Modifier.weight(1f).height(28.dp))
-            }
-            if (moodMeta != null) {
-                MetaHeaderSlot(
-                    label = moodMeta.first ?: "",
-                    caption = moodMeta.second,
-                    selected = true,
-                    onClick = null,
-                    contentAlignment = Alignment.CenterStart,
-                    modifier = Modifier.weight(1f)
-                )
-            } else {
-                Spacer(modifier = Modifier.weight(1f).height(28.dp))
-            }
-        }
-
-        if (tagLabel != null) {
-            Text(
-                text = tagLabel,
-                modifier = Modifier.padding(horizontal = RecordTextInset),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
+    RecordPageInfoHeader(
+        diaryDate = entry.diaryDate.toDisplayDate(),
+        weatherLabel = entry.weather.toMetaLabelOrNull(weatherOptions),
+        moodLabel = entry.mood.toMetaLabelOrNull(moodOptions),
+        tagLabel = tagLabel,
+        showEmptyMetaSlots = true
+    )
 }
 
 @Composable
