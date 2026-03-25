@@ -1,26 +1,46 @@
 # Third-Party Sticker Assets
 
-This project uses selected PNG image resources from the `googlefonts/noto-emoji` repository for diary sticker visuals.
+This project uses bundled third-party PNG image resources for diary sticker visuals.
+
+## Pixabay Assets
+
+The following files are sourced from Pixabay and used under the Pixabay Content License:
+
+- `sticker_heart.png`
+  - Source: https://pixabay.com/illustrations/a-heart-transparent-background-3275596/
+- `sticker_coffee.png`
+  - Source: https://pixabay.com/photos/coffee-cup-transparent-background-3300760/
+- `sticker_moon.png`
+  - Source: https://pixabay.com/illustrations/moon-full-moon-round-cut-out-night-8087324/
+- `sticker_music.png`
+  - Source: https://pixabay.com/illustrations/music-notes-png-music-melody-range-1275621/
+- `sticker_tulip.png`
+  - Source: https://pixabay.com/illustrations/tulips-png-image-transparent-5027633/
+- `sticker_cat.png`
+  - Source: https://pixabay.com/illustrations/kitty-cat-kitten-cat-cat-kitten-8981773/
+
+License references:
+
+- https://pixabay.com/service/license-summary/
+- https://pixabay.com/service/terms/
+
+## Noto Emoji Assets
+
+The remaining sticker files are sourced from the `googlefonts/noto-emoji` repository.
 
 - Source repository: https://github.com/googlefonts/noto-emoji
 - License: Apache License 2.0 for tools and most image resources
 - License reference: https://github.com/googlefonts/noto-emoji/blob/main/LICENSE
 
-Bundled sticker files in `app/src/main/res/drawable-nodpi`:
+Bundled files still using the Noto Emoji source:
 
-- `sticker_heart.png`
 - `sticker_clover.png`
-- `sticker_moon.png`
 - `sticker_sparkles.png`
-- `sticker_coffee.png`
-- `sticker_music.png`
 - `sticker_book.png`
 - `sticker_flower.png`
 - `sticker_bear.png`
 - `sticker_pig.png`
-- `sticker_cat.png`
 - `sticker_whale.png`
-- `sticker_tulip.png`
 - `sticker_watermelon.png`
 - `sticker_apple.png`
 - `sticker_cherries.png`

@@ -84,7 +84,7 @@ private data class StickerPayloadData(
     val bodyMinHeightDp: Float? = null
 )
 
-val stickerOptions = listOf(
+private val allStickerOptions = listOf(
     DiaryStickerOption("tape_heart", R.drawable.sticker_heart, "하트", -4f),
     DiaryStickerOption("luck_clover", R.drawable.sticker_clover, "클로버", 3f),
     DiaryStickerOption("quiet_moon", R.drawable.sticker_moon, "달", -6f),
@@ -109,6 +109,19 @@ val stickerOptions = listOf(
     DiaryStickerOption("party_cake", R.drawable.sticker_cake, "케이크", 2f),
     DiaryStickerOption("pink_donut", R.drawable.sticker_donut, "도넛", -3f)
 )
+
+private val stickerPaletteKeys = listOf(
+    "tape_heart",
+    "quiet_moon",
+    "coffee_break",
+    "music_note",
+    "tulip_bloom",
+    "white_cat"
+)
+
+private val stickerPaletteOptions = stickerPaletteKeys.mapNotNull { key ->
+    allStickerOptions.firstOrNull { it.key == key }
+}
 
 private val legacyStickerKeyMap = mapOf(
     "clover" to "luck_clover",
@@ -200,7 +213,7 @@ fun List<DiaryStickerPlacement>.toStickerPayload(bodyMinHeightDp: Float? = null)
 
 fun String.toStickerOptionOrNull(): DiaryStickerOption? {
     if (isBlank()) return null
-    return stickerOptions.firstOrNull { it.key == this }
+    return allStickerOptions.firstOrNull { it.key == this }
 }
 
 fun nextStickerPlacement(
@@ -246,7 +259,7 @@ fun DiaryStickerPalette(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        stickerOptions.forEach { option ->
+        stickerPaletteOptions.forEach { option ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(5.dp)
