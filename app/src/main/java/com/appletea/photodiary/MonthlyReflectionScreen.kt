@@ -225,7 +225,7 @@ fun MonthlyReflectionScreen(
                 .padding(horizontal = 12.dp)
                 .padding(top = 8.dp, bottom = 12.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -319,44 +319,39 @@ fun MonthlyReflectionScreen(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    ReflectionSectionHeader(
+                        title = "한 줄 회고",
+                        subtitle = null
+                    )
+                    OutlinedTextField(
+                        value = reflectionText,
+                        onValueChange = { reflectionText = it.take(120) },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3,
+                        minLines = 3,
+                        placeholder = {
+                            Text("예: 마음이 자주 바빠도, 소중한 장면은 분명히 남아 있던 달")
+                        },
+                        supportingText = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Text("${reflectionText.length}/120")
+                            }
+                        },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.08f),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.08f),
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.08f),
+                            focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.06f),
+                            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.03f)
+                        ),
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        shape = RoundedCornerShape(18.dp)
+                    )
                 }
-            }
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                ReflectionSectionHeader(
-                    title = "한 줄 회고",
-                    subtitle = null
-                )
-                OutlinedTextField(
-                    value = reflectionText,
-                    onValueChange = { reflectionText = it.take(120) },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
-                    minLines = 3,
-                    placeholder = {
-                        Text("예: 마음이 자주 바빠도, 소중한 장면은 분명히 남아 있던 달")
-                    },
-                    supportingText = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Text("${reflectionText.length}/120")
-                        }
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f),
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f),
-                        focusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.08f),
-                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.04f)
-                    ),
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    shape = RoundedCornerShape(18.dp)
-                )
             }
 
             val summaryLines = buildList {
@@ -369,18 +364,18 @@ fun MonthlyReflectionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
                         text = "이번 달의 조각들",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
                     )
                     summaryLines.forEach { line ->
                         Text(
                             text = line,
                             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
                         )
                     }
                 }
