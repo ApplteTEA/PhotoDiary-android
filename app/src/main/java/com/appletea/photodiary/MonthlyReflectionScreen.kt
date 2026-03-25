@@ -28,6 +28,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.AlertDialog
@@ -354,29 +355,38 @@ fun MonthlyReflectionScreen(
                 }
             }
 
-            val summaryLines = buildList {
-                if (moodSummary.isNotEmpty()) add("자주 남긴 분위기 ${moodSummary.joinToString(", ")}")
-                if (weatherSummary.isNotEmpty()) add("기억에 남은 날씨 ${weatherSummary.joinToString(", ")}")
-                if (tagSummary.isNotEmpty()) add("기억에 남은 태그 ${tagSummary.joinToString(" ")}")
+            val summaryItems = buildList {
+                if (moodSummary.isNotEmpty()) add("분위기" to moodSummary.joinToString(", "))
+                if (weatherSummary.isNotEmpty()) add("날씨" to weatherSummary.joinToString(", "))
+                if (tagSummary.isNotEmpty()) add("태그" to tagSummary.joinToString(" "))
             }
-            if (summaryLines.isNotEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+            if (summaryItems.isNotEmpty()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.08f),
+                    tonalElevation = 0.dp
                 ) {
-                    Text(
-                        text = "이번 달의 조각들",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.66f)
-                    )
-                    summaryLines.forEach { line ->
+                    Column(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         Text(
-                            text = line,
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                            text = "이번 달의 조각들",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f)
                         )
+                        summaryItems.forEachIndexed { index, (label, value) ->
+                            ReflectionMetaRow(
+                                label = label,
+                                value = value
+                            )
+                            if (index < summaryItems.lastIndex) {
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.08f)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -402,6 +412,31 @@ private fun ReflectionSectionHeader(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
             )
         }
+    }
+}
+
+@Composable
+private fun ReflectionMetaRow(
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.size(width = 34.dp, height = 20.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.64f)
+        )
+        Text(
+            text = value,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+        )
     }
 }
 
