@@ -665,7 +665,10 @@ private fun DiaryStickerPlacementNode(
     )
     val cornerVector = Offset(selectionBoxSizePx / 2f, selectionBoxSizePx / 2f)
     val rotatedTopLeftCorner = center + rotateOffset(Offset(-cornerVector.x, -cornerVector.y), liveRotation)
-    val rotatedBottomRightCorner = center + rotateOffset(cornerVector, liveRotation)
+    val bottomRightCorner = Offset(
+        x = clampedTopLeftPx.x + selectionBoxSizePx,
+        y = clampedTopLeftPx.y + selectionBoxSizePx
+    )
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -757,8 +760,8 @@ private fun DiaryStickerPlacementNode(
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            (rotatedBottomRightCorner.x - 14f).roundToInt(),
-                            (rotatedBottomRightCorner.y - 14f).roundToInt()
+                            (bottomRightCorner.x - 14f).roundToInt(),
+                            (bottomRightCorner.y - 14f).roundToInt()
                         )
                     }
                     .pointerInput(index, canvasSize) {
