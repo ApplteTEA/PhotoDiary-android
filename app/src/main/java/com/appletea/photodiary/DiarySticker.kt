@@ -65,6 +65,7 @@ private const val MAX_STICKER_COUNT = 8
 private const val STICKER_NODE_HEIGHT_PX = 44f
 private const val MIN_STICKER_SCALE = 1f
 private const val MAX_STICKER_SCALE = 2.8f
+private const val STICKER_ROTATION_SENSITIVITY = 0.4f
 
 val DiaryPageCornerRadius = 22.dp
 val DiaryPageHorizontalPadding = 18.dp
@@ -724,7 +725,8 @@ private fun DiaryStickerPlacementNode(
                             val currentAngle = atan2(currentVectorY, currentVectorX)
                             val newScale = (startScale * (currentDistance / startDistance))
                                 .coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
-                            val rotationDelta = Math.toDegrees((currentAngle - startAngle).toDouble()).toFloat()
+                            val rotationDelta = Math.toDegrees((currentAngle - startAngle).toDouble()).toFloat() *
+                                STICKER_ROTATION_SENSITIVITY
                             val newRotation = startRotation + rotationDelta
 
                             onTransformSticker?.invoke(index, newScale, newRotation)
