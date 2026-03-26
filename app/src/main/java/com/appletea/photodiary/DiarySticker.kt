@@ -63,7 +63,7 @@ import org.json.JSONObject
 
 private const val MAX_STICKER_COUNT = 8
 private const val STICKER_NODE_HEIGHT_PX = 44f
-private const val MIN_STICKER_SCALE = 0.5f
+private const val MIN_STICKER_SCALE = 1f
 private const val MAX_STICKER_SCALE = 2.8f
 
 val DiaryPageCornerRadius = 22.dp
