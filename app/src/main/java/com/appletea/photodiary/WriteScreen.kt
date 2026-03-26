@@ -653,8 +653,10 @@ fun WriteScreen(
                                 yRatio = yRatio
                             )
                         },
-                        onTransformSticker = { index, scale, rotation ->
+                        onTransformSticker = { index, xRatio, yRatio, scale, rotation ->
                             stickerPlacements[index] = stickerPlacements[index].copy(
+                                xRatio = xRatio,
+                                yRatio = yRatio,
                                 scale = scale,
                                 rotation = rotation
                             )
