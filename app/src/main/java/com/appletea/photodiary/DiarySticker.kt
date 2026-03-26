@@ -729,8 +729,8 @@ private fun DiaryStickerPlacementNode(
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            (rotatedBottomRightCorner.x - 11f).roundToInt(),
-                            (rotatedBottomRightCorner.y - 11f).roundToInt()
+                            (rotatedBottomRightCorner.x - 14f).roundToInt(),
+                            (rotatedBottomRightCorner.y - 14f).roundToInt()
                         )
                     }
                     .pointerInput(index, canvasSize, selectionBoxSizePx) {
@@ -738,11 +738,13 @@ private fun DiaryStickerPlacementNode(
                         var startRotation = 0f
                         var startCenter = Offset.Zero
                         var startVector = Offset.Zero
+                        var accumulatedDrag = Offset.Zero
 
                         detectDragGestures(
                             onDragStart = {
                                 startScale = latestPlacement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
                                 startRotation = latestPlacement.rotation ?: option.rotation
+                                accumulatedDrag = Offset.Zero
                                 val startSelectionBoxSizePx = baseSelectionBoxSizePx * startScale
                                 val startHorizontalRange =
                                     (canvasSize.width - startSelectionBoxSizePx).coerceAtLeast(1f)
@@ -766,7 +768,8 @@ private fun DiaryStickerPlacementNode(
                             }
                         ) { change, dragAmount ->
                             change.consume()
-                            val currentVector = startVector + Offset(dragAmount.x, dragAmount.y)
+                            accumulatedDrag += Offset(dragAmount.x, dragAmount.y)
+                            val currentVector = startVector + accumulatedDrag
                             val startDistance = hypot(startVector.x, startVector.y).coerceAtLeast(1f)
                             val currentDistance = hypot(currentVector.x, currentVector.y).coerceAtLeast(1f)
                             val startAngle = atan2(startVector.y, startVector.x)
