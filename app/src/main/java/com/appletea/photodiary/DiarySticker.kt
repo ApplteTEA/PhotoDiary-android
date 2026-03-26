@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -596,10 +597,13 @@ private fun DiaryStickerPlacementNode(
     onRemoveSticker: ((index: Int) -> Unit)?
 ) {
     val option = placement.key.toStickerOptionOrNull() ?: return
+    val density = LocalDensity.current
     val effectiveScale = placement.scale.coerceIn(0.65f, 1.8f)
     val effectiveRotation = placement.rotation ?: option.rotation
     val effectiveStickerWidthPx = (stickerWidthPx * effectiveScale).coerceAtLeast(36f)
     val effectiveStickerHeightPx = (stickerHeightPx * effectiveScale).coerceAtLeast(36f)
+    val selectionBoxSize = stickerVisualSize.scaledBy(effectiveScale)
+    val selectionBoxSizePx = with(density) { selectionBoxSize.toPx() }
     val horizontalRange = (canvasSize.width - effectiveStickerWidthPx).coerceAtLeast(1f)
     val verticalRange = (canvasSize.height - effectiveStickerHeightPx).coerceAtLeast(1f)
     val xOffset = (horizontalRange * placement.xRatio).roundToInt()
@@ -612,7 +616,7 @@ private fun DiaryStickerPlacementNode(
             .rotate(effectiveRotation)
             .then(
                 if (editable) {
-                    Modifier.pointerInput(index, canvasSize, placement.scale, effectiveRotation) {
+                    Modifier.pointerInput(index, canvasSize) {
                         var dragX = 0f
                         var dragY = 0f
 
@@ -686,40 +690,41 @@ private fun DiaryStickerPlacementNode(
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            effectiveStickerWidthPx.roundToInt() - 10,
-                            effectiveStickerHeightPx.roundToInt() - 10
+                            selectionBoxSizePx.roundToInt() - 10,
+                            selectionBoxSizePx.roundToInt() - 10
                         )
                     }
-                    .pointerInput(index, canvasSize, placement.scale, effectiveRotation) {
-                        var currentScale = effectiveScale
-                        var currentRotation = effectiveRotation
-                        var startDistance = 0f
-                        var startAngle = 0f
+                    .pointerInput(index, canvasSize) {
+                        var startScale = 1f
+                        var startRotation = 0f
+                        var startVectorX = 0f
+                        var startVectorY = 0f
+                        var currentVectorX = 0f
+                        var currentVectorY = 0f
 
                         detectDragGestures(
                             onDragStart = {
-                                val centerX = xOffset + effectiveStickerWidthPx / 2f
-                                val centerY = yOffset + effectiveStickerHeightPx / 2f
-                                val handleX = xOffset + effectiveStickerWidthPx
-                                val handleY = yOffset + effectiveStickerHeightPx
-                                startDistance = hypot(handleX - centerX, handleY - centerY).coerceAtLeast(1f)
-                                startAngle = atan2(handleY - centerY, handleX - centerX)
-                                currentScale = effectiveScale
-                                currentRotation = effectiveRotation
+                                startScale = latestPlacement.scale.coerceIn(0.65f, 1.8f)
+                                startRotation = latestPlacement.rotation ?: option.rotation
+                                startVectorX = selectionBoxSizePx / 2f
+                                startVectorY = selectionBoxSizePx / 2f
+                                currentVectorX = startVectorX
+                                currentVectorY = startVectorY
                             }
                         ) { change, dragAmount ->
                             change.consume()
-                            val centerX = xOffset + effectiveStickerWidthPx / 2f
-                            val centerY = yOffset + effectiveStickerHeightPx / 2f
-                            val handleX = change.position.x + dragAmount.x
-                            val handleY = change.position.y + dragAmount.y
-                            val currentDistance = hypot(handleX - centerX, handleY - centerY).coerceAtLeast(1f)
-                            val currentAngle = atan2(handleY - centerY, handleX - centerX)
-                            val newScale = (currentDistance / startDistance * effectiveScale).coerceIn(0.65f, 1.8f)
+                            currentVectorX += dragAmount.x
+                            currentVectorY += dragAmount.y
+
+                            val startDistance = hypot(startVectorX, startVectorY).coerceAtLeast(1f)
+                            val currentDistance = hypot(currentVectorX, currentVectorY).coerceAtLeast(1f)
+                            val startAngle = atan2(startVectorY, startVectorX)
+                            val currentAngle = atan2(currentVectorY, currentVectorX)
+                            val newScale = (startScale * (currentDistance / startDistance)).coerceIn(0.65f, 1.8f)
                             val rotationDelta = Math.toDegrees((currentAngle - startAngle).toDouble()).toFloat()
-                            currentScale = newScale
-                            currentRotation = effectiveRotation + rotationDelta
-                            onTransformSticker?.invoke(index, currentScale, currentRotation)
+                            val newRotation = startRotation + rotationDelta
+
+                            onTransformSticker?.invoke(index, newScale, newRotation)
                         }
                     },
                 shape = RoundedCornerShape(8.dp),
