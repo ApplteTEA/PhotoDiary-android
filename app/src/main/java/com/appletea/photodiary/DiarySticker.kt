@@ -622,23 +622,50 @@ private fun DiaryStickerPlacementNode(
 ) {
     val option = placement.key.toStickerOptionOrNull() ?: return
     val density = LocalDensity.current
-    val effectiveScale = placement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
-    val effectiveRotation = placement.rotation ?: option.rotation
-    val selectionBoxSize = stickerVisualSize.scaledBy(effectiveScale)
     val baseSelectionBoxSizePx = with(density) { stickerVisualSize.toPx() }
-    val selectionBoxSizePx = baseSelectionBoxSizePx * effectiveScale
+    var topLeftPx by remember(index, canvasSize) { mutableStateOf(Offset.Zero) }
+    var liveScale by remember(index) { mutableStateOf(placement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)) }
+    var liveRotation by remember(index) { mutableStateOf(placement.rotation ?: option.rotation) }
+    val latestPlacement by rememberUpdatedState(placement)
+
+    LaunchedEffect(
+        placement.xRatio,
+        placement.yRatio,
+        placement.scale,
+        placement.rotation,
+        canvasSize,
+        option.rotation
+    ) {
+        val syncedScale = placement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
+        val syncedRotation = placement.rotation ?: option.rotation
+        val syncedSelectionBoxSizePx = baseSelectionBoxSizePx * syncedScale
+        val syncedHorizontalRange = (canvasSize.width - syncedSelectionBoxSizePx).coerceAtLeast(1f)
+        val syncedVerticalRange = (canvasSize.height - syncedSelectionBoxSizePx).coerceAtLeast(1f)
+        liveScale = syncedScale
+        liveRotation = syncedRotation
+        topLeftPx = Offset(
+            x = syncedHorizontalRange * placement.xRatio,
+            y = syncedVerticalRange * placement.yRatio
+        )
+    }
+
+    val selectionBoxSizePx = baseSelectionBoxSizePx * liveScale
+    val selectionBoxSize = stickerVisualSize.scaledBy(liveScale)
     val horizontalRange = (canvasSize.width - selectionBoxSizePx).coerceAtLeast(1f)
     val verticalRange = (canvasSize.height - selectionBoxSizePx).coerceAtLeast(1f)
-    val xOffset = (horizontalRange * placement.xRatio).roundToInt()
-    val yOffset = (verticalRange * placement.yRatio).roundToInt()
+    val clampedTopLeftPx = Offset(
+        x = topLeftPx.x.coerceIn(0f, horizontalRange),
+        y = topLeftPx.y.coerceIn(0f, verticalRange)
+    )
+    val xOffset = clampedTopLeftPx.x.roundToInt()
+    val yOffset = clampedTopLeftPx.y.roundToInt()
     val center = Offset(
-        x = xOffset + selectionBoxSizePx / 2f,
-        y = yOffset + selectionBoxSizePx / 2f
+        x = clampedTopLeftPx.x + selectionBoxSizePx / 2f,
+        y = clampedTopLeftPx.y + selectionBoxSizePx / 2f
     )
     val cornerVector = Offset(selectionBoxSizePx / 2f, selectionBoxSizePx / 2f)
-    val rotatedTopLeftCorner = center + rotateOffset(Offset(-cornerVector.x, -cornerVector.y), effectiveRotation)
-    val rotatedBottomRightCorner = center + rotateOffset(cornerVector, effectiveRotation)
-    val latestPlacement by rememberUpdatedState(placement)
+    val rotatedTopLeftCorner = center + rotateOffset(Offset(-cornerVector.x, -cornerVector.y), liveRotation)
+    val rotatedBottomRightCorner = center + rotateOffset(cornerVector, liveRotation)
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -648,7 +675,7 @@ private fun DiaryStickerPlacementNode(
                 .offset { IntOffset(xOffset, yOffset) }
                 .size(selectionBoxSize)
                 .graphicsLayer {
-                    rotationZ = effectiveRotation
+                    rotationZ = liveRotation
                     transformOrigin = TransformOrigin.Center
                 }
                 .then(
@@ -667,7 +694,7 @@ private fun DiaryStickerPlacementNode(
             StickerImage(
                 option = option,
                 modifier = Modifier.size(
-                    stickerImageSize.scaledBy(option.visualScale * effectiveScale)
+                    stickerImageSize.scaledBy(option.visualScale * liveScale)
                 )
             )
         }
@@ -678,23 +705,24 @@ private fun DiaryStickerPlacementNode(
                     .offset { IntOffset(xOffset, yOffset) }
                     .size(selectionBoxSize)
                     .zIndex(2f)
-                    .pointerInput(index, canvasSize, selectionBoxSizePx) {
-                        var dragX = 0f
-                        var dragY = 0f
-
+                    .pointerInput(index, canvasSize) {
+                        var dragStartTopLeft = Offset.Zero
                         detectDragGestures(
                             onDragStart = {
-                                dragX = horizontalRange * latestPlacement.xRatio
-                                dragY = verticalRange * latestPlacement.yRatio
+                                dragStartTopLeft = topLeftPx
                             }
                         ) { change, dragAmount ->
                             change.consume()
-                            dragX = (dragX + dragAmount.x).coerceIn(0f, horizontalRange)
-                            dragY = (dragY + dragAmount.y).coerceIn(0f, verticalRange)
+                            val newTopLeft = Offset(
+                                x = (dragStartTopLeft.x + dragAmount.x).coerceIn(0f, horizontalRange),
+                                y = (dragStartTopLeft.y + dragAmount.y).coerceIn(0f, verticalRange)
+                            )
+                            topLeftPx = newTopLeft
+                            dragStartTopLeft = newTopLeft
                             onMoveSticker?.invoke(
                                 index,
-                                (dragX / horizontalRange).coerceIn(0f, 1f),
-                                (dragY / verticalRange).coerceIn(0f, 1f)
+                                (newTopLeft.x / horizontalRange).coerceIn(0f, 1f),
+                                (newTopLeft.y / verticalRange).coerceIn(0f, 1f)
                             )
                         }
                     }
@@ -733,27 +761,21 @@ private fun DiaryStickerPlacementNode(
                             (rotatedBottomRightCorner.y - 14f).roundToInt()
                         )
                     }
-                    .pointerInput(index, canvasSize, selectionBoxSizePx) {
+                    .pointerInput(index, canvasSize) {
                         var startScale = 1f
                         var startRotation = 0f
+                        var startTopLeft = Offset.Zero
                         var startCenter = Offset.Zero
                         var startVector = Offset.Zero
                         var accumulatedDrag = Offset.Zero
 
                         detectDragGestures(
                             onDragStart = {
-                                startScale = latestPlacement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
-                                startRotation = latestPlacement.rotation ?: option.rotation
+                                startScale = liveScale
+                                startRotation = liveRotation
                                 accumulatedDrag = Offset.Zero
                                 val startSelectionBoxSizePx = baseSelectionBoxSizePx * startScale
-                                val startHorizontalRange =
-                                    (canvasSize.width - startSelectionBoxSizePx).coerceAtLeast(1f)
-                                val startVerticalRange =
-                                    (canvasSize.height - startSelectionBoxSizePx).coerceAtLeast(1f)
-                                val startTopLeft = Offset(
-                                    x = startHorizontalRange * latestPlacement.xRatio,
-                                    y = startVerticalRange * latestPlacement.yRatio
-                                )
+                                startTopLeft = topLeftPx
                                 startCenter = startTopLeft + Offset(
                                     startSelectionBoxSizePx / 2f,
                                     startSelectionBoxSizePx / 2f
@@ -786,6 +808,10 @@ private fun DiaryStickerPlacementNode(
                                 .coerceIn(0f, newHorizontalRange)
                             val newTopLeftY = (startCenter.y - newSelectionBoxSizePx / 2f)
                                 .coerceIn(0f, newVerticalRange)
+                            val newTopLeft = Offset(newTopLeftX, newTopLeftY)
+                            liveScale = newScale
+                            liveRotation = newRotation
+                            topLeftPx = newTopLeft
 
                             onTransformSticker?.invoke(
                                 index,
