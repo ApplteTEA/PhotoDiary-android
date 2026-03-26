@@ -737,7 +737,7 @@ private fun DiaryStickerPlacementNode(
                         (rotatedTopLeftCorner.x - 8f).roundToInt(),
                         (rotatedTopLeftCorner.y - 8f).roundToInt()
                     )
-                },
+                }.zIndex(3f),
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.error,
                 tonalElevation = 0.dp,
@@ -764,6 +764,7 @@ private fun DiaryStickerPlacementNode(
                             (bottomRightCorner.y - 14f).roundToInt()
                         )
                     }
+                    .zIndex(3f)
                     .pointerInput(index, canvasSize) {
                         var startScale = 1f
                         var startRotation = 0f
