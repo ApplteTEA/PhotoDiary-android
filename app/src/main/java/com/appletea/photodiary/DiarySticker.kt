@@ -47,7 +47,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -835,13 +834,11 @@ private fun DiaryStickerPlacementNode(
                     modifier = Modifier.size(22.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "<>",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontFamily = FontFamily.Monospace
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
-                        modifier = Modifier.rotate(42f)
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_sticker_transform),
+                        contentDescription = "스티커 크기와 회전 조절",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
