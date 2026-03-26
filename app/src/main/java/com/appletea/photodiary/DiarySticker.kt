@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -721,19 +722,21 @@ private fun DiaryStickerPlacementNode(
                             onTransformSticker?.invoke(index, currentScale, currentRotation)
                         }
                     },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
                 tonalElevation = 0.dp,
-                shadowElevation = 0.5.dp
+                shadowElevation = 0.25.dp
             ) {
                 Box(
                     modifier = Modifier.size(22.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "↻",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "<>",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontFamily = FontFamily.Monospace
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f)
                     )
                 }
             }
