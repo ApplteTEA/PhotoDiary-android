@@ -745,7 +745,7 @@ private fun DiaryStickerPlacementNode(
                             fontFamily = FontFamily.Monospace
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
-                        modifier = Modifier.rotate(-42f)
+                        modifier = Modifier.rotate(42f)
                     )
                 }
             }
