@@ -63,6 +63,8 @@ import org.json.JSONObject
 
 private const val MAX_STICKER_COUNT = 8
 private const val STICKER_NODE_HEIGHT_PX = 44f
+private const val MIN_STICKER_SCALE = 0.5f
+private const val MAX_STICKER_SCALE = 2.8f
 
 val DiaryPageCornerRadius = 22.dp
 val DiaryPageHorizontalPadding = 18.dp
@@ -196,7 +198,7 @@ private fun JSONArray.toStickerPlacementsList(): List<DiaryStickerPlacement> {
                     key = item.optString("key").normalizeStickerKey(),
                     xRatio = item.optDouble("x", 0.15).toFloat().coerceIn(0f, 1f),
                     yRatio = item.optDouble("y", 0.16).toFloat().coerceIn(0f, 1f),
-                    scale = item.optDouble("scale", 1.0).toFloat().coerceIn(0.65f, 1.8f),
+                    scale = item.optDouble("scale", 1.0).toFloat().coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE),
                     rotation = item.opt("rotation")
                         .takeUnless { it == null || it == JSONObject.NULL }
                         ?.toString()
@@ -598,7 +600,7 @@ private fun DiaryStickerPlacementNode(
 ) {
     val option = placement.key.toStickerOptionOrNull() ?: return
     val density = LocalDensity.current
-    val effectiveScale = placement.scale.coerceIn(0.65f, 1.8f)
+    val effectiveScale = placement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
     val effectiveRotation = placement.rotation ?: option.rotation
     val effectiveStickerWidthPx = (stickerWidthPx * effectiveScale).coerceAtLeast(36f)
     val effectiveStickerHeightPx = (stickerHeightPx * effectiveScale).coerceAtLeast(36f)
@@ -704,7 +706,7 @@ private fun DiaryStickerPlacementNode(
 
                         detectDragGestures(
                             onDragStart = {
-                                startScale = latestPlacement.scale.coerceIn(0.65f, 1.8f)
+                                startScale = latestPlacement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
                                 startRotation = latestPlacement.rotation ?: option.rotation
                                 startVectorX = selectionBoxSizePx / 2f
                                 startVectorY = selectionBoxSizePx / 2f
@@ -720,7 +722,8 @@ private fun DiaryStickerPlacementNode(
                             val currentDistance = hypot(currentVectorX, currentVectorY).coerceAtLeast(1f)
                             val startAngle = atan2(startVectorY, startVectorX)
                             val currentAngle = atan2(currentVectorY, currentVectorX)
-                            val newScale = (startScale * (currentDistance / startDistance)).coerceIn(0.65f, 1.8f)
+                            val newScale = (startScale * (currentDistance / startDistance))
+                                .coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
                             val rotationDelta = Math.toDegrees((currentAngle - startAngle).toDouble()).toFloat()
                             val newRotation = startRotation + rotationDelta
 
@@ -741,7 +744,8 @@ private fun DiaryStickerPlacementNode(
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontFamily = FontFamily.Monospace
                         ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.88f),
+                        modifier = Modifier.rotate(-42f)
                     )
                 }
             }
