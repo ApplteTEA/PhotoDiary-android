@@ -810,33 +810,30 @@ private fun DiaryStickerPlacementNode(
                             accumulatedDrag += Offset(dragAmount.x, dragAmount.y)
                             val currentTouchPoint = startTouchPoint + accumulatedDrag
                             val currentVector = currentTouchPoint - gestureCenter
-                            val totalDrag = currentTouchPoint - startTouchPoint
                             val startDistance = hypot(startVector.x, startVector.y).coerceAtLeast(1f)
                             val currentDistance = hypot(currentVector.x, currentVector.y).coerceAtLeast(1f)
-                            val radialUnit = Offset(
-                                x = startVector.x / startDistance,
-                                y = startVector.y / startDistance
+                            val startAngle = atan2(startVector.y, startVector.x)
+                            val currentAngle = atan2(currentVector.y, currentVector.x)
+                            val angleDeltaDegrees = kotlin.math.abs(
+                                angleDeltaDegrees(startAngle, currentAngle)
                             )
-                            val tangentUnit = Offset(
-                                x = -radialUnit.y,
-                                y = radialUnit.x
-                            )
-                            val radialIntent = kotlin.math.abs(
-                                totalDrag.x * radialUnit.x + totalDrag.y * radialUnit.y
-                            )
-                            val tangentialIntent = kotlin.math.abs(
-                                totalDrag.x * tangentUnit.x + totalDrag.y * tangentUnit.y
-                            )
+                            val radialIntent = kotlin.math.abs(currentDistance - startDistance)
+                            val tangentialIntent = startDistance *
+                                kotlin.math.abs(Math.toRadians(angleDeltaDegrees.toDouble())).toFloat()
 
                             if (gestureMode == StickerTransformMode.Undecided) {
-                                val intentDistance = radialIntent + tangentialIntent
+                                val intentDistance = max(radialIntent, tangentialIntent)
                                 if (intentDistance >= transformLockThresholdPx) {
                                     gestureMode = when {
                                         tangentialIntent > radialIntent * STICKER_TRANSFORM_LOCK_RATIO ->
                                             StickerTransformMode.Rotate
                                         radialIntent > tangentialIntent * STICKER_TRANSFORM_LOCK_RATIO ->
                                             StickerTransformMode.Scale
-                                        else -> StickerTransformMode.Rotate
+                                        else -> if (tangentialIntent >= radialIntent) {
+                                            StickerTransformMode.Rotate
+                                        } else {
+                                            StickerTransformMode.Scale
+                                        }
                                     }
                                 }
                             }
@@ -845,8 +842,6 @@ private fun DiaryStickerPlacementNode(
                                 return@detectDragGestures
                             }
 
-                            val previousAngle = atan2(startVector.y, startVector.x)
-                            val currentAngle = atan2(currentVector.y, currentVector.x)
                             val newScale = when (gestureMode) {
                                 StickerTransformMode.Scale -> {
                                     (gestureScale * (currentDistance / startDistance))
@@ -856,7 +851,7 @@ private fun DiaryStickerPlacementNode(
                             }
                             val newRotation = when (gestureMode) {
                                 StickerTransformMode.Rotate -> {
-                                    gestureRotation + angleDeltaDegrees(previousAngle, currentAngle) *
+                                    gestureRotation + angleDeltaDegrees(startAngle, currentAngle) *
                                         STICKER_ROTATION_SENSITIVITY
                                 }
                                 else -> gestureRotation
