@@ -762,53 +762,64 @@ private fun DiaryStickerPlacementNode(
                     }
                     .zIndex(3f)
                     .pointerInput(index, canvasSize) {
-                        var startScale = 1f
-                        var startRotation = 0f
-                        var startTopLeft = Offset.Zero
-                        var startCenter = Offset.Zero
-                        var startVector = Offset.Zero
+                        var gestureScale = 1f
+                        var gestureRotation = 0f
+                        var gestureCenter = Offset.Zero
+                        var startTouchPoint = Offset.Zero
+                        var previousVector = Offset.Zero
                         var accumulatedDrag = Offset.Zero
 
                         detectDragGestures(
-                            onDragStart = {
-                                startScale = liveScale
-                                startRotation = liveRotation
+                            onDragStart = { dragStartOffset ->
+                                gestureScale = liveScale
+                                gestureRotation = liveRotation
                                 accumulatedDrag = Offset.Zero
-                                val startSelectionBoxSizePx = baseSelectionBoxSizePx * startScale
-                                startTopLeft = topLeftPx
-                                startCenter = startTopLeft + Offset(
+                                val startSelectionBoxSizePx = baseSelectionBoxSizePx * gestureScale
+                                val startTopLeft = topLeftPx
+                                gestureCenter = startTopLeft + Offset(
                                     startSelectionBoxSizePx / 2f,
                                     startSelectionBoxSizePx / 2f
                                 )
-                                startVector = rotateOffset(
+                                val handleOrigin = Offset(
+                                    x = rotatedBottomRightCorner.x - 14f,
+                                    y = rotatedBottomRightCorner.y - 14f
+                                )
+                                startTouchPoint = handleOrigin + dragStartOffset
+                                previousVector = (startTouchPoint - gestureCenter).takeIf {
+                                    hypot(it.x, it.y) >= 1f
+                                } ?: rotateOffset(
                                     offset = Offset(
                                         startSelectionBoxSizePx / 2f,
                                         startSelectionBoxSizePx / 2f
                                     ),
-                                    degrees = startRotation
+                                    degrees = gestureRotation
                                 )
                             }
                         ) { change, dragAmount ->
                             change.consume()
                             accumulatedDrag += Offset(dragAmount.x, dragAmount.y)
-                            val currentVector = startVector + accumulatedDrag
-                            val startDistance = hypot(startVector.x, startVector.y).coerceAtLeast(1f)
+                            val currentTouchPoint = startTouchPoint + accumulatedDrag
+                            val currentVector = currentTouchPoint - gestureCenter
+                            val previousDistance = hypot(previousVector.x, previousVector.y).coerceAtLeast(1f)
                             val currentDistance = hypot(currentVector.x, currentVector.y).coerceAtLeast(1f)
-                            val startAngle = atan2(startVector.y, startVector.x)
+                            val previousAngle = atan2(previousVector.y, previousVector.x)
                             val currentAngle = atan2(currentVector.y, currentVector.x)
-                            val newScale = (startScale * (currentDistance / startDistance))
+                            val newScale = (gestureScale * (currentDistance / previousDistance))
                                 .coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
-                            val rotationDelta = angleDeltaDegrees(startAngle, currentAngle) *
+                            val rotationDelta = angleDeltaDegrees(previousAngle, currentAngle) *
                                 STICKER_ROTATION_SENSITIVITY
-                            val newRotation = startRotation + rotationDelta
+                            val newRotation = gestureRotation + rotationDelta
                             val newSelectionBoxSizePx = baseSelectionBoxSizePx * newScale
                             val newHorizontalRange = (canvasSize.width - newSelectionBoxSizePx).coerceAtLeast(1f)
                             val newVerticalRange = (canvasSize.height - newSelectionBoxSizePx).coerceAtLeast(1f)
-                            val newTopLeftX = (startCenter.x - newSelectionBoxSizePx / 2f)
+                            val newTopLeftX = (gestureCenter.x - newSelectionBoxSizePx / 2f)
                                 .coerceIn(0f, newHorizontalRange)
-                            val newTopLeftY = (startCenter.y - newSelectionBoxSizePx / 2f)
+                            val newTopLeftY = (gestureCenter.y - newSelectionBoxSizePx / 2f)
                                 .coerceIn(0f, newVerticalRange)
                             val newTopLeft = Offset(newTopLeftX, newTopLeftY)
+                            gestureScale = newScale
+                            gestureRotation = newRotation
+                            previousVector = currentVector
                             liveScale = newScale
                             liveRotation = newRotation
                             topLeftPx = newTopLeft
