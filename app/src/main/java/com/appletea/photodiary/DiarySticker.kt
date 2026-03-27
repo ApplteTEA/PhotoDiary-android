@@ -851,7 +851,7 @@ private fun DiaryStickerPlacementNode(
                             }
                             val newRotation = when (gestureMode) {
                                 StickerTransformMode.Rotate -> {
-                                    gestureRotation - angleDeltaDegrees(startAngle, currentAngle) *
+                                    gestureRotation + angleDeltaDegrees(startAngle, currentAngle) *
                                         STICKER_ROTATION_SENSITIVITY
                                 }
                                 else -> gestureRotation
