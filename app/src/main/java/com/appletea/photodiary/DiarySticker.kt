@@ -765,27 +765,24 @@ private fun DiaryStickerPlacementNode(
                         var gestureScale = 1f
                         var gestureRotation = 0f
                         var gestureCenter = Offset.Zero
-                        var startTouchPoint = Offset.Zero
+                        var handleOrigin = Offset.Zero
                         var previousVector = Offset.Zero
-                        var accumulatedDrag = Offset.Zero
 
                         detectDragGestures(
                             onDragStart = { dragStartOffset ->
                                 gestureScale = liveScale
                                 gestureRotation = liveRotation
-                                accumulatedDrag = Offset.Zero
                                 val startSelectionBoxSizePx = baseSelectionBoxSizePx * gestureScale
                                 val startTopLeft = topLeftPx
                                 gestureCenter = startTopLeft + Offset(
                                     startSelectionBoxSizePx / 2f,
                                     startSelectionBoxSizePx / 2f
                                 )
-                                val handleOrigin = Offset(
+                                handleOrigin = Offset(
                                     x = rotatedBottomRightCorner.x - 14f,
                                     y = rotatedBottomRightCorner.y - 14f
                                 )
-                                startTouchPoint = handleOrigin + dragStartOffset
-                                previousVector = (startTouchPoint - gestureCenter).takeIf {
+                                previousVector = (handleOrigin + dragStartOffset - gestureCenter).takeIf {
                                     hypot(it.x, it.y) >= 1f
                                 } ?: rotateOffset(
                                     offset = Offset(
@@ -797,8 +794,7 @@ private fun DiaryStickerPlacementNode(
                             }
                         ) { change, dragAmount ->
                             change.consume()
-                            accumulatedDrag += Offset(dragAmount.x, dragAmount.y)
-                            val currentTouchPoint = startTouchPoint + accumulatedDrag
+                            val currentTouchPoint = handleOrigin + change.position
                             val currentVector = currentTouchPoint - gestureCenter
                             val previousDistance = hypot(previousVector.x, previousVector.y).coerceAtLeast(1f)
                             val currentDistance = hypot(currentVector.x, currentVector.y).coerceAtLeast(1f)
