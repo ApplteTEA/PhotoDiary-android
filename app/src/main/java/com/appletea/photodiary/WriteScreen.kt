@@ -1,5 +1,6 @@
 package com.appletea.photodiary
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.net.Uri
 import android.widget.Toast
@@ -61,6 +62,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
@@ -78,6 +80,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -94,6 +97,16 @@ val RecordCanvasOuterHorizontalPadding = 2.dp
 val RecordCanvasInnerHorizontalPadding = 3.dp
 val RecordCanvasOuterVerticalPadding = 2.dp
 val RecordCanvasTopPadding = 10.dp
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
+    clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() }
+    ) {
+        onClick()
+    }
+}
 
 private sealed class EditorBlockState(open val id: String)
 
@@ -1071,7 +1084,7 @@ fun MetaHeaderSlot(
         modifier = if (onClick != null) {
             modifier
                 .height(28.dp)
-                .clickable(onClick = onClick)
+                .noRippleClickable(onClick = onClick)
         } else {
             modifier.height(28.dp)
         },

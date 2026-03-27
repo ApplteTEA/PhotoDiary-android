@@ -179,7 +179,7 @@ private fun RecordPageMetaSlot(
             caption = meta.second,
             selected = selected,
             onClick = onClick,
-            contentAlignment = Alignment.CenterEnd,
+            contentAlignment = Alignment.Center,
             modifier = modifier
         )
     } else if (showEmptySlot) {
@@ -188,7 +188,7 @@ private fun RecordPageMetaSlot(
             caption = emptyCaption,
             selected = false,
             onClick = onClick,
-            contentAlignment = Alignment.CenterEnd,
+            contentAlignment = Alignment.Center,
             modifier = modifier
         )
     }
