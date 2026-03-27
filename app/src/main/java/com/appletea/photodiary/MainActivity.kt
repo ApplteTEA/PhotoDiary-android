@@ -66,6 +66,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -505,7 +506,7 @@ private fun DiaryListSection(
                     modifier = Modifier.padding(top = 10.dp)
                 )
                 Text(
-                    text = "Write 버튼으로 첫 기록을 남겨보세요.",
+                    text = "아래 + 버튼으로 첫 기록을 남겨보세요.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
@@ -596,7 +597,7 @@ private fun DiaryArchiveCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val imagePaths = remember(entry.imagePath) { entry.imagePath.toImagePathList().take(5) }
+    val imagePaths = remember(entry.imagePath) { entry.imagePath.toImagePathList() }
     val previewContent = remember(entry.content, entry.imagePath) {
         parseDiaryDocument(entry.content, entry.imagePath.toImagePathList()).toPlainTextPreview()
     }
@@ -604,6 +605,21 @@ private fun DiaryArchiveCard(
     val weatherLabel = remember(entry.weather) { entry.weather.toMetaLabelOrNull(weatherOptions) }
     val weatherMeta = weatherLabel.toMetaHeaderParts()
     val moodMeta = moodLabel.toMetaHeaderParts()
+    val displayTitle = remember(entry.title, previewContent) {
+        entry.title.takeIf { it.isNotBlank() }
+            ?: previewContent.lineSequence()
+                .map { it.trim() }
+                .firstOrNull { it.isNotBlank() }
+                .orEmpty()
+    }
+    val displayExcerpt = remember(entry.title, previewContent, displayTitle) {
+        when {
+            previewContent.isBlank() -> ""
+            entry.title.isBlank() -> previewContent.removePrefix(displayTitle).trimStart()
+            else -> previewContent
+        }
+    }
+    val representativeImagePath = imagePaths.firstOrNull()
 
     Column(
         modifier = modifier.fillMaxWidth()
@@ -618,8 +634,8 @@ private fun DiaryArchiveCard(
             shadowElevation = 0.5.dp
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -655,51 +671,61 @@ private fun DiaryArchiveCard(
                         }
                     }
                 }
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    if (entry.title.isNotBlank()) {
+
+                if (representativeImagePath != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(136.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
+                    ) {
+                        AsyncImage(
+                            model = representativeImagePath,
+                            contentDescription = "대표 이미지",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        if (imagePaths.size > 1) {
+                            Surface(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(10.dp),
+                                shape = RoundedCornerShape(999.dp),
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                                tonalElevation = 0.dp,
+                                shadowElevation = 0.dp
+                            ) {
+                                Text(
+                                    text = "사진 ${imagePaths.size}장",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (displayTitle.isNotBlank()) {
                         Text(
-                            text = entry.title,
-                            style = MaterialTheme.typography.bodyLarge,
+                            text = displayTitle,
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    if (previewContent.isNotBlank()) {
+                    if (displayExcerpt.isNotBlank()) {
                         Text(
-                            text = previewContent,
+                            text = displayExcerpt,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.84f),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
-                    }
-                }
-
-                if (imagePaths.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        imagePaths.forEach { imagePath ->
-                            Box(
-                                modifier = Modifier
-                                    .size(62.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
-                            ) {
-                                AsyncImage(
-                                    model = imagePath,
-                                    contentDescription = "첨부 이미지",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
                     }
                 }
             }
@@ -714,6 +740,7 @@ private fun MonthlyReflectionPreviewCard(
     entryCount: Int,
     onClick: () -> Unit
 ) {
+    val hasReflection = reflection != null
     val reflectionText = if (reflection == null) {
         "${entryCount}개의 기록을 한 장의 회고로 정리해보세요."
     } else {
@@ -728,31 +755,69 @@ private fun MonthlyReflectionPreviewCard(
             .clickable(onClick = onClick)
             .padding(vertical = 6.dp),
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.62f),
         tonalElevation = 0.dp,
         shadowElevation = 0.6.dp
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 15.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "월간 회고",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = "월간 회고",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+                    )
+                    Text(
+                        text = monthLabel,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
+                    tonalElevation = 0.dp,
+                    shadowElevation = 0.dp
+                ) {
+                    Text(
+                        text = if (hasReflection) "다시 보기" else "작성하기",
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
+
+            Text(
+                text = if (hasReflection) {
+                    "${entryCount}개의 기록을 묶어둔 한 달의 회고입니다."
+                } else {
+                    "${entryCount}개의 기록이 쌓였어요."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+            )
+
             Text(
                 text = reflectionText,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                maxLines = 2,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f),
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                text = if (hasReflection) "이달의 분위기를 다시 읽어보세요." else "사진과 문장으로 이달을 한 장에 남겨보세요.",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.76f)
             )
         }
     }
