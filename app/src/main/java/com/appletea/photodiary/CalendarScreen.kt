@@ -315,7 +315,6 @@ fun CalendarScreen(
                             contentPadding = PaddingValues(top = 4.dp, bottom = 10.dp)
                         ) {
                             items(filteredEntries, key = { it.id }) { entry ->
-                                val imagePaths = entry.imagePath.toImagePathList().take(5)
                                 val previewContent = remember(entry.content, entry.imagePath) {
                                     parseDiaryDocument(entry.content, entry.imagePath.toImagePathList()).toPlainTextPreview()
                                 }
@@ -381,32 +380,6 @@ fun CalendarScreen(
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis
                                             )
-                                        }
-
-                                        if (imagePaths.isNotEmpty()) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(top = 5.dp)
-                                                    .horizontalScroll(rememberScrollState()),
-                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                            ) {
-                                                imagePaths.forEach { imagePath ->
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .size(62.dp)
-                                                            .clip(RoundedCornerShape(10.dp))
-                                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f))
-                                                    ) {
-                                                        AsyncImage(
-                                                            model = imagePath,
-                                                            contentDescription = "첨부 이미지",
-                                                            modifier = Modifier.fillMaxSize(),
-                                                            contentScale = ContentScale.Crop
-                                                        )
-                                                    }
-                                                }
-                                            }
                                         }
                                     }
                                 }

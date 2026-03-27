@@ -597,7 +597,6 @@ private fun DiaryArchiveCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val imagePaths = remember(entry.imagePath) { entry.imagePath.toImagePathList() }
     val previewContent = remember(entry.content, entry.imagePath) {
         parseDiaryDocument(entry.content, entry.imagePath.toImagePathList()).toPlainTextPreview()
     }
@@ -619,7 +618,6 @@ private fun DiaryArchiveCard(
             else -> previewContent
         }
     }
-    val representativeImagePath = imagePaths.firstOrNull()
 
     Column(
         modifier = modifier.fillMaxWidth()
@@ -666,42 +664,6 @@ private fun DiaryArchiveCard(
                                     caption = moodMeta.second,
                                     selected = true,
                                     onClick = null
-                                )
-                            }
-                        }
-                    }
-                }
-
-                if (representativeImagePath != null) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(136.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f))
-                    ) {
-                        AsyncImage(
-                            model = representativeImagePath,
-                            contentDescription = "대표 이미지",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        if (imagePaths.size > 1) {
-                            Surface(
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(10.dp),
-                                shape = RoundedCornerShape(999.dp),
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                                tonalElevation = 0.dp,
-                                shadowElevation = 0.dp
-                            ) {
-                                Text(
-                                    text = "사진 ${imagePaths.size}장",
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
