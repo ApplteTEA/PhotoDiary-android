@@ -200,6 +200,23 @@ fun WriteScreen(
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isEditingEntry = remember(
+        initialTitle,
+        initialContent,
+        initialImagePaths,
+        initialMood,
+        initialWeather,
+        initialTag,
+        initialSticker
+    ) {
+        initialTitle.isNotBlank() ||
+            initialContent.isNotBlank() ||
+            initialImagePaths.isNotEmpty() ||
+            initialMood.isNotBlank() ||
+            initialWeather.isNotBlank() ||
+            initialTag.isNotBlank() ||
+            initialSticker.isNotBlank()
+    }
 
     val initialDateMillis = remember(initialDiaryDate) {
         (initialDiaryDate ?: System.currentTimeMillis()).toDayStartMillis()
@@ -498,8 +515,16 @@ fun WriteScreen(
             containerColor = MaterialTheme.colorScheme.surface,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            title = { Text("작성 중인 내용을 나갈까요?") },
-            text = { Text("저장하지 않으면 입력한 내용이 사라집니다.") },
+            title = { Text(if (isEditingEntry) "수정 중인 기록을 나갈까요?" else "작성 중인 기록을 나갈까요?") },
+            text = {
+                Text(
+                    if (isEditingEntry) {
+                        "저장하지 않으면 방금 바꾼 내용이 사라집니다."
+                    } else {
+                        "저장하지 않으면 입력한 내용이 사라집니다."
+                    }
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -553,14 +578,14 @@ fun WriteScreen(
     if (showTagDialog) {
         AlertDialog(
             onDismissRequest = { showTagDialog = false },
-            title = { Text("태그 메모") },
+            title = { Text("태그 남기기") },
             text = {
                 OutlinedTextField(
                     value = tag,
                     onValueChange = { value -> tag = value.take(32) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("가족 여행 카페") },
+                    placeholder = { Text("예: 가족 여행, 조용한 카페") },
                     shape = RoundedCornerShape(16.dp)
                 )
             },
@@ -594,7 +619,7 @@ fun WriteScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "기록",
+                        text = if (isEditingEntry) "기록 수정" else "새 기록",
                         style = MaterialTheme.typography.titleSmall
                     )
                 },
@@ -627,7 +652,7 @@ fun WriteScreen(
                         enabled = canSave
                     ) {
                         Text(
-                            text = "저장",
+                            text = if (isEditingEntry) "수정 완료" else "저장",
                             style = MaterialTheme.typography.labelLarge
                         )
                     }

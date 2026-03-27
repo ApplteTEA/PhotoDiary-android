@@ -109,7 +109,7 @@ fun DetailScreen(
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             title = { Text("이 기록을 삭제할까요?") },
-            text = { Text("삭제한 기록은 복구할 수 없습니다.") },
+            text = { Text("삭제하면 사진과 글을 다시 되돌릴 수 없습니다.") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -135,7 +135,7 @@ fun DetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "기록",
+                        text = "기록 보기",
                         style = MaterialTheme.typography.titleSmall
                     )
                 },
@@ -153,7 +153,7 @@ fun DetailScreen(
                 actions = {
                     TextButton(onClick = onEditClick) {
                         Text(
-                            text = "수정",
+                            text = "편집",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
