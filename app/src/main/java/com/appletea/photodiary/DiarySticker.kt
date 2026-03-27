@@ -68,8 +68,8 @@ private const val MAX_STICKER_COUNT = 8
 private const val STICKER_NODE_HEIGHT_PX = 44f
 private const val MIN_STICKER_SCALE = 1f
 private const val MAX_STICKER_SCALE = 2.8f
-private const val STICKER_ROTATION_SENSITIVITY = 0.4f
-private const val STICKER_TRANSFORM_LOCK_RATIO = 1.2f
+private const val STICKER_ROTATION_SENSITIVITY = 0.9f
+private const val STICKER_TRANSFORM_LOCK_RATIO = 1.05f
 
 val DiaryPageCornerRadius = 22.dp
 val DiaryPageHorizontalPadding = 18.dp
@@ -629,7 +629,7 @@ private fun DiaryStickerPlacementNode(
     val option = placement.key.toStickerOptionOrNull() ?: return
     val density = LocalDensity.current
     val baseSelectionBoxSizePx = with(density) { stickerVisualSize.toPx() }
-    val transformLockThresholdPx = with(density) { 12.dp.toPx() }
+    val transformLockThresholdPx = with(density) { 6.dp.toPx() }
     var topLeftPx by remember(index, canvasSize) { mutableStateOf(Offset.Zero) }
     var liveScale by remember(index) { mutableStateOf(placement.scale.coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)) }
     var liveRotation by remember(index) { mutableStateOf(placement.rotation ?: option.rotation) }
@@ -814,12 +814,12 @@ private fun DiaryStickerPlacementNode(
                             val currentDistance = hypot(currentVector.x, currentVector.y).coerceAtLeast(1f)
                             val startAngle = atan2(startVector.y, startVector.x)
                             val currentAngle = atan2(currentVector.y, currentVector.x)
-                            val angleDeltaDegrees = kotlin.math.abs(
+                            val absoluteAngleDeltaDegrees = kotlin.math.abs(
                                 angleDeltaDegrees(startAngle, currentAngle)
                             )
                             val radialIntent = kotlin.math.abs(currentDistance - startDistance)
                             val tangentialIntent = startDistance *
-                                kotlin.math.abs(Math.toRadians(angleDeltaDegrees.toDouble())).toFloat()
+                                kotlin.math.abs(Math.toRadians(absoluteAngleDeltaDegrees.toDouble())).toFloat()
 
                             if (gestureMode == StickerTransformMode.Undecided) {
                                 val intentDistance = max(radialIntent, tangentialIntent)
@@ -851,7 +851,7 @@ private fun DiaryStickerPlacementNode(
                             }
                             val newRotation = when (gestureMode) {
                                 StickerTransformMode.Rotate -> {
-                                    gestureRotation + angleDeltaDegrees(startAngle, currentAngle) *
+                                    gestureRotation - angleDeltaDegrees(startAngle, currentAngle) *
                                         STICKER_ROTATION_SENSITIVITY
                                 }
                                 else -> gestureRotation
