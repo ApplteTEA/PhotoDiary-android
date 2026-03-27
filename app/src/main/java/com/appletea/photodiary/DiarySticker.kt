@@ -774,11 +774,9 @@ private fun DiaryStickerPlacementNode(
                         var gestureRotation = 0f
                         var gestureCenter = Offset.Zero
                         var startTouchPoint = Offset.Zero
-                        var previousVector = Offset.Zero
+                        var startVector = Offset.Zero
                         var accumulatedDrag = Offset.Zero
                         var gestureMode = StickerTransformMode.Undecided
-                        var radialIntent = 0f
-                        var tangentialIntent = 0f
 
                         detectDragGestures(
                             onDragStart = { dragStartOffset ->
@@ -786,8 +784,6 @@ private fun DiaryStickerPlacementNode(
                                 gestureRotation = liveRotation
                                 accumulatedDrag = Offset.Zero
                                 gestureMode = StickerTransformMode.Undecided
-                                radialIntent = 0f
-                                tangentialIntent = 0f
                                 val startSelectionBoxSizePx = baseSelectionBoxSizePx * gestureScale
                                 val startTopLeft = topLeftPx
                                 gestureCenter = startTopLeft + Offset(
@@ -799,7 +795,7 @@ private fun DiaryStickerPlacementNode(
                                     y = rotatedBottomRightCorner.y - 14f
                                 )
                                 startTouchPoint = handleOrigin + dragStartOffset
-                                previousVector = (startTouchPoint - gestureCenter).takeIf {
+                                startVector = (startTouchPoint - gestureCenter).takeIf {
                                     hypot(it.x, it.y) >= 1f
                                 } ?: rotateOffset(
                                     offset = Offset(
@@ -814,22 +810,22 @@ private fun DiaryStickerPlacementNode(
                             accumulatedDrag += Offset(dragAmount.x, dragAmount.y)
                             val currentTouchPoint = startTouchPoint + accumulatedDrag
                             val currentVector = currentTouchPoint - gestureCenter
-                            val vectorDelta = currentVector - previousVector
-                            val previousDistance = hypot(previousVector.x, previousVector.y).coerceAtLeast(1f)
+                            val totalDrag = currentTouchPoint - startTouchPoint
+                            val startDistance = hypot(startVector.x, startVector.y).coerceAtLeast(1f)
                             val currentDistance = hypot(currentVector.x, currentVector.y).coerceAtLeast(1f)
                             val radialUnit = Offset(
-                                x = previousVector.x / previousDistance,
-                                y = previousVector.y / previousDistance
+                                x = startVector.x / startDistance,
+                                y = startVector.y / startDistance
                             )
                             val tangentUnit = Offset(
                                 x = -radialUnit.y,
                                 y = radialUnit.x
                             )
-                            radialIntent += kotlin.math.abs(
-                                vectorDelta.x * radialUnit.x + vectorDelta.y * radialUnit.y
+                            val radialIntent = kotlin.math.abs(
+                                totalDrag.x * radialUnit.x + totalDrag.y * radialUnit.y
                             )
-                            tangentialIntent += kotlin.math.abs(
-                                vectorDelta.x * tangentUnit.x + vectorDelta.y * tangentUnit.y
+                            val tangentialIntent = kotlin.math.abs(
+                                totalDrag.x * tangentUnit.x + totalDrag.y * tangentUnit.y
                             )
 
                             if (gestureMode == StickerTransformMode.Undecided) {
@@ -846,15 +842,14 @@ private fun DiaryStickerPlacementNode(
                             }
 
                             if (gestureMode == StickerTransformMode.Undecided) {
-                                previousVector = currentVector
                                 return@detectDragGestures
                             }
 
-                            val previousAngle = atan2(previousVector.y, previousVector.x)
+                            val previousAngle = atan2(startVector.y, startVector.x)
                             val currentAngle = atan2(currentVector.y, currentVector.x)
                             val newScale = when (gestureMode) {
                                 StickerTransformMode.Scale -> {
-                                    (gestureScale * (currentDistance / previousDistance))
+                                    (gestureScale * (currentDistance / startDistance))
                                         .coerceIn(MIN_STICKER_SCALE, MAX_STICKER_SCALE)
                                 }
                                 else -> gestureScale
@@ -874,9 +869,6 @@ private fun DiaryStickerPlacementNode(
                             val newTopLeftY = (gestureCenter.y - newSelectionBoxSizePx / 2f)
                                 .coerceIn(0f, newVerticalRange)
                             val newTopLeft = Offset(newTopLeftX, newTopLeftY)
-                            gestureScale = newScale
-                            gestureRotation = newRotation
-                            previousVector = currentVector
                             liveScale = newScale
                             liveRotation = newRotation
                             topLeftPx = newTopLeft
