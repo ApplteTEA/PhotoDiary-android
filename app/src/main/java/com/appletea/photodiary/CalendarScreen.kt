@@ -28,10 +28,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -119,7 +119,7 @@ fun CalendarScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "일정",
+                        text = "기록 달력",
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
@@ -278,7 +278,7 @@ fun CalendarScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.EventNote,
+                                imageVector = Icons.AutoMirrored.Filled.EventNote,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -287,7 +287,7 @@ fun CalendarScreen(
                                 style = MaterialTheme.typography.titleSmall
                             )
                             Text(
-                                text = "오늘의 장면이나 기분을 이 날짜에 바로 남겨보세요.",
+                                text = "이날의 장면이나 기분을 날짜 위에 차분히 남겨보세요.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center

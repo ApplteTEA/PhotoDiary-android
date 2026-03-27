@@ -1,5 +1,6 @@
 package com.appletea.photodiary
 
+import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,10 +38,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
@@ -53,6 +56,20 @@ fun MyPageScreen(
     onBackClick: () -> Unit
 ) {
     BackHandler(onBack = onBackClick)
+    val context = LocalContext.current
+    val versionName = remember(context) {
+        runCatching {
+            context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0)).versionName
+        }.getOrElse {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        } ?: "알 수 없음"
+    }
+    val archiveSummary = if (diaryCount == 0) {
+        "첫 기록을 남기면 이곳에서 기록 수를 함께 관리할 수 있어요."
+    } else {
+        "차곡차곡 쌓인 기록이 월간 회고와 아카이브를 더 풍성하게 만들어줍니다."
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -94,7 +111,7 @@ fun MyPageScreen(
                 title = "앱 정보",
                 lines = listOf(
                     "앱 이름: Photo Diary",
-                    "앱 버전: 1.0"
+                    "앱 버전: $versionName"
                 )
             )
 
@@ -108,10 +125,19 @@ fun MyPageScreen(
                 title = "데이터",
                 lines = listOf(
                     "저장된 기록 ${diaryCount}개",
+                    archiveSummary
+                )
+            )
+
+            SectionCard(
+                icon = Icons.Outlined.Info,
+                title = "현재 상태",
+                lines = listOf(
+                    "선택한 테마 ${selectedTheme.displayName}",
                     if (diaryCount == 0) {
-                        "첫 기록을 남기면 이곳에서 기록 수를 함께 관리할 수 있어요."
+                        "기록을 하나 남기면 메인 아카이브와 월간 회고가 함께 열리기 시작합니다."
                     } else {
-                        "차곡차곡 쌓인 기록이 월간 회고와 아카이브를 더 풍성하게 만들어줍니다."
+                        "테마와 기록 수가 지금의 앱 분위기를 함께 만들고 있어요."
                     }
                 )
             )
